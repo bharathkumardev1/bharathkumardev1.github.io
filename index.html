@@ -3,473 +3,418 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Bharath Mandha</title>
-<meta name="description" content="Bharath Mandha, Machine Learning Engineer. Retrieval, evaluation, and production ML for credit analysis, healthcare, and retail.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@500;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<meta name="description" content="Bharath Mandha, ML engineer in Dallas. Retrieval and evaluation for LLM systems at Goldman Sachs; previously Cigna and Best Buy.">
 <style>
-/* Layout: an evaluation report. Narrative on the right, a measurement rail on the left; every number carries its basis. */
 :root {
-  --bg: #f4f5f2;
-  --surface: #ffffff;
-  --ink: #18211e;
-  --muted: #5b6862;
-  --rule: #d7ddd8;
-  --accent: #0e6a58;
-  --accent-soft: #e2efea;
-  --basis: #8a5a12;
-  --display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --step--1: 0.84rem;
-  --step-0: 1.06rem;
-  --step-1: 1.3rem;
-  --step-2: 1.7rem;
-  --step-3: clamp(2.3rem, 5.4vw, 3.6rem);
+  --bg: #ffffff;
+  --bg-soft: #f6f8fa;
+  --fg: #1f2328;
+  --muted: #59636e;
+  --border: #d1d9e0;
+  --accent: #0969da;
+  --accent-soft: #ddf4ff;
+  --bar-bm25: #0969da;
+  --bar-dense: #8250df;
+  --bar-hybrid: #1a7f37;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1513; --surface: #161e1b; --ink: #e5ebe8; --muted: #9aa8a2;
-    --rule: #2a3632; --accent: #5cc7ab; --accent-soft: #18302a; --basis: #d9a85a;
+    --bg: #0d1117; --bg-soft: #151b23; --fg: #e6edf3; --muted: #9198a1; --border: #30363d;
+    --accent: #4493f8; --accent-soft: #12263f;
+    --bar-bm25: #4493f8; --bar-dense: #ab7df8; --bar-hybrid: #3fb950;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1513; --surface: #161e1b; --ink: #e5ebe8; --muted: #9aa8a2;
-  --rule: #2a3632; --accent: #5cc7ab; --accent-soft: #18302a; --basis: #d9a85a;
+  --bg: #0d1117; --bg-soft: #151b23; --fg: #e6edf3; --muted: #9198a1; --border: #30363d;
+  --accent: #4493f8; --accent-soft: #12263f;
+  --bar-bm25: #4493f8; --bar-dense: #ab7df8; --bar-hybrid: #3fb950;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
+  margin: 0;
   background: var(--bg);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: var(--step-0);
-  line-height: 1.6;
+  color: var(--fg);
+  font: 16px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
 }
-.wrap {
-  max-width: 1080px;
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--mono); font-size: 0.875em; }
+
+.page {
+  max-width: 1120px;
   margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
 }
-a { color: var(--accent); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
-h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
-p { margin: 0; }
-.mono { font-family: var(--mono); }
-.label {
-  font-family: var(--mono); font-size: var(--step--1); letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--muted);
+@media (min-width: 1024px) {
+  .page { grid-template-columns: 360px minmax(0, 1fr); gap: 64px; }
 }
 
-/* Top bar */
-.top { border-bottom: 1px solid var(--rule); }
-.top .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; padding-block: 14px; }
-.top .mark { font-family: var(--display); font-weight: 700; letter-spacing: 0.01em; }
-.top nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-family: var(--mono); font-size: var(--step--1); }
-.top nav a { color: var(--muted); text-decoration: none; }
-.top nav a:hover { color: var(--accent); }
-
-/* Hero */
-.hero .wrap { padding-block: 56px 40px; display: grid; gap: 22px; }
-.hero h1 { font-size: var(--step-3); font-weight: 800; letter-spacing: -0.02em; }
-.hero .thesis { font-size: var(--step-1); max-width: 40ch; line-height: 1.45; }
-.hero .note { color: var(--muted); max-width: 62ch; }
-.links { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; font-family: var(--mono); font-size: var(--step--1); }
-.links a, .copy {
-  display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
-  border: 1px solid var(--rule); border-radius: 4px; background: var(--surface);
-  color: var(--ink); text-decoration: none; font: inherit; cursor: pointer;
+/* Sidebar */
+.side { padding-block: 48px 24px; display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 1024px) {
+  .side { position: sticky; top: 0; height: 100vh; max-height: 100dvh; padding-block: 72px; }
 }
-.links a:hover, .copy:hover { border-color: var(--accent); color: var(--accent); }
-.email-text { user-select: all; }
-
-/* Readouts: value, claim, and the basis it was measured on */
-.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-top: 8px; }
-.readout { padding: 20px 20px 20px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
-.readout + .readout { padding-left: 20px; border-left: 1px solid var(--rule); }
-.readout .val { font-family: var(--display); font-weight: 800; font-size: var(--step-2); color: var(--accent); font-variant-numeric: tabular-nums; }
-.readout .claim { line-height: 1.4; }
-.basis { font-family: var(--mono); font-size: var(--step--1); color: var(--basis); line-height: 1.45; }
-.basis::before { content: "measured: "; color: var(--muted); }
-
-/* Case studies */
-.section-head { padding-block: 48px 8px; display: grid; gap: 6px; }
-.section-head h2 { font-size: var(--step-2); font-weight: 700; }
-.case { border-top: 1px solid var(--rule); padding-block: 40px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; }
-.rail { display: grid; gap: 18px; align-content: start; }
-.rail .org { font-family: var(--display); font-weight: 700; font-size: var(--step-1); }
-.rail .role { color: var(--muted); font-size: 0.98rem; }
-.rail .dates { font-family: var(--mono); font-size: var(--step--1); color: var(--muted); font-variant-numeric: tabular-nums; }
-.metric { display: grid; gap: 2px; padding-top: 12px; border-top: 1px solid var(--rule); }
-.metric .v { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--accent); font-variant-numeric: tabular-nums; }
-.metric .c { font-size: 0.95rem; line-height: 1.35; }
-.story { display: grid; gap: 22px; min-width: 0; }
-.story > h3, .story > p, .story > ul { max-width: 68ch; }
-.story h3 { font-size: var(--step-1); font-weight: 700; }
-.lede { font-size: 1.12rem; }
-.decisions { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
-.decisions li { display: grid; gap: 4px; padding-left: 16px; border-left: 2px solid var(--accent-soft); }
-.decisions strong { font-family: var(--display); font-weight: 700; font-size: 1.02rem; }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.tags span { font-family: var(--mono); font-size: 0.78rem; padding: 3px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--ink); }
-
-/* Pipeline: a real sequence, so numbered */
-.pipe-box { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 18px; display: grid; gap: 14px; overflow-x: auto; }
-.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; counter-reset: step; }
-.pipe li { counter-increment: step; position: relative; display: grid; gap: 4px; align-content: start; padding: 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); min-width: 0; }
-.pipe li::before { content: counter(step); font-family: var(--mono); font-size: 0.75rem; color: var(--accent); }
-.pipe.three { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
-.pipe li b { font-family: var(--display); font-size: 0.98rem; }
-.pipe li span { font-size: 0.86rem; line-height: 1.4; color: var(--muted); }
-.pipe li:not(:last-child)::after { content: "→"; position: absolute; right: -10px; top: 50%; transform: translate(50%, -50%); color: var(--muted); font-family: var(--mono); font-size: 0.9rem; }
-.loop { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px; line-height: 1.5; }
-.loop b { color: var(--accent); font-weight: 500; }
-
-/* Skills, credentials */
-.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 48px; padding-block: 8px 48px; }
-.kv { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px 16px; margin: 0; }
-.kv dt { font-family: var(--mono); font-size: var(--step--1); color: var(--muted); padding-top: 3px; }
-.kv dd { margin: 0; }
-.creds { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.creds li { display: grid; gap: 2px; }
-.creds .sub { color: var(--muted); font-size: 0.95rem; }
-
-footer { border-top: 1px solid var(--rule); }
-footer .wrap { padding-block: 32px 48px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; }
-footer .small { color: var(--muted); font-size: 0.92rem; }
-
-@media (max-width: 880px) {
-  .case { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .rail { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-  .rail .who { grid-column: 1 / -1; }
-  .grid2 { grid-template-columns: minmax(0, 1fr); }
+.side h1 { margin: 0; font-size: 2.4rem; line-height: 1.1; letter-spacing: -0.02em; }
+.side .role { margin: 0; font-size: 1.1rem; font-weight: 600; }
+.side .blurb { margin: 0; color: var(--muted); max-width: 32ch; }
+.toc { display: none; }
+@media (min-width: 1024px) {
+  .toc { display: flex; flex-direction: column; gap: 2px; margin-top: 24px; }
+  .toc a {
+    display: flex; align-items: center; gap: 12px; padding: 6px 0;
+    color: var(--muted); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+  }
+  .toc a::before { content: ""; width: 28px; height: 1px; background: var(--muted); transition: width .2s; }
+  .toc a:hover, .toc a.active { color: var(--fg); }
+  .toc a:hover::before, .toc a.active::before { width: 56px; background: var(--fg); }
 }
-@media (max-width: 720px) {
-  .readouts { grid-template-columns: minmax(0, 1fr); }
-  .readout { padding: 16px 0; }
-  .readout + .readout { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
-  .pipe, .pipe.three { grid-template-columns: minmax(0, 1fr); }
-  .pipe li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -10px; transform: translate(-50%, 50%); }
-  .kv { grid-template-columns: minmax(0, 1fr); gap: 2px 0; }
-  .kv dd { margin-bottom: 10px; }
+.side-foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 0.92rem; }
+.theme {
+  margin-left: auto; font: inherit; font-size: 0.85rem; color: var(--muted);
+  background: none; border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; cursor: pointer;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .links a, .copy { transition: border-color .15s ease, color .15s ease; }
+.theme:hover { color: var(--fg); }
+
+/* Main */
+main { padding-block: 24px 64px; min-width: 0; }
+@media (min-width: 1024px) { main { padding-block: 72px; } }
+section { scroll-margin-top: 24px; padding-bottom: 56px; }
+section > h2 {
+  margin: 0 0 18px; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
 }
+.about p { margin: 0 0 14px; max-width: 64ch; }
+.about p:last-child { margin-bottom: 0; }
+
+.job { padding: 18px 0; border-top: 1px solid var(--border); display: grid; gap: 6px; }
+.job:first-of-type { border-top: 0; padding-top: 0; }
+.job-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; align-items: baseline; }
+.job-head h3 { margin: 0; font-size: 1.05rem; }
+.job-head .when { color: var(--muted); font-size: 0.88rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.job .title { color: var(--muted); margin: -4px 0 0; font-size: 0.95rem; }
+.job .sum { margin: 2px 0 0; max-width: 64ch; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tags span {
+  font-size: 0.75rem; font-weight: 500; padding: 1px 9px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.more {
+  justify-self: start; margin-top: 4px; font: inherit; font-size: 0.88rem; color: var(--accent);
+  background: none; border: 0; padding: 2px 0; cursor: pointer;
+}
+.more:hover { text-decoration: underline; }
+.more .chev { display: inline-block; transition: transform .15s; }
+.more[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.details { margin: 4px 0 0; padding-left: 18px; max-width: 64ch; color: var(--fg); }
+.details li { margin: 4px 0; }
+.edu { margin-top: 8px; color: var(--muted); font-size: 0.95rem; display: grid; gap: 4px; }
+.edu b { color: var(--fg); font-weight: 600; }
+
+.proj { border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; display: grid; gap: 10px; }
+.proj-head { display: flex; flex-wrap: wrap; gap: 4px 16px; justify-content: space-between; align-items: baseline; }
+.proj-head h3 { margin: 0; font-size: 1.1rem; }
+.proj-head .links { display: flex; gap: 14px; font-size: 0.9rem; }
+.proj p { margin: 0; max-width: 66ch; }
+.note { color: var(--muted); font-size: 0.85rem; }
+
+/* Results explorer */
+.explorer { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: grid; gap: 12px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ctl > span { font-size: 0.78rem; color: var(--muted); margin-right: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.seg button {
+  font: inherit; font-size: 0.8rem; padding: 3px 9px; background: var(--bg); color: var(--fg);
+  border: 0; border-left: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+}
+.seg button:first-child { border-left: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.bars { display: grid; gap: 8px; }
+.bar { display: grid; grid-template-columns: 64px minmax(0, 1fr) 52px; gap: 10px; align-items: center; font-size: 0.85rem; }
+.bar .track { height: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.bar .fill { height: 100%; width: 0; border-radius: 3px 0 0 3px; transition: width .35s ease; }
+@media (prefers-reduced-motion: reduce) { .bar .fill { transition: none; } }
+.bar .val { font-family: var(--mono); font-size: 0.8rem; text-align: right; font-variant-numeric: tabular-nums; }
+.axis { display: grid; grid-template-columns: 64px minmax(0, 1fr) 52px; gap: 10px; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+.axis div { display: flex; justify-content: space-between; }
+.caption { font-size: 0.82rem; color: var(--muted); margin: 0; }
+
+.contact p { margin: 0 0 10px; max-width: 60ch; }
+.copy { font: inherit; font-size: 0.85rem; padding: 2px 10px; margin-left: 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--fg); cursor: pointer; }
+footer { color: var(--muted); font-size: 0.85rem; padding-top: 8px; }
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <span class="mark">Bharath Mandha</span>
-    <nav aria-label="Sections">
-      <a href="#work">Work</a>
+<div class="page">
+  <header class="side">
+    <div>
+      <h1>Bharath Mandha</h1>
+    </div>
+    <p class="role">AI/ML Engineer at Goldman Sachs</p>
+    <p class="blurb">I work on retrieval, evaluation, and the systems around LLMs. Before that, classic ML in healthcare and retail.</p>
+    <nav class="toc" aria-label="Sections">
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
       <a href="#projects">Projects</a>
-      <a href="#skills">Skills</a>
       <a href="#contact">Contact</a>
     </nav>
-  </div>
-</header>
-
-<main>
-  <section class="hero">
-    <div class="wrap">
-      <span class="label">Machine Learning Engineer · Dallas, TX</span>
-      <h1>Bharath Mandha</h1>
-      <p class="thesis">I build retrieval, evaluation, and production ML systems for work where a wrong answer is expensive: credit analysis at Goldman Sachs, patient outreach at Cigna, and demand planning at Best Buy.</p>
-      <p class="note">4+ years in production ML. Every number on this page states what it was measured on, and numbers marked with ~ are approximate.</p>
-      <div class="links">
-        <a href="https://www.linkedin.com/in/bharathmandha/" target="_blank" rel="noopener">LinkedIn ↗</a>
-        <a href="https://github.com/bharathkumardev1" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="Bharath_Mandha_Resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
-        <button class="copy" id="copy-email" type="button" aria-describedby="email-text">
-          <span class="email-text" id="email-text">bharathmandha.200@gmail.com</span>
-          <span id="copy-state" aria-live="polite">Copy</span>
-        </button>
-      </div>
-      <div class="readouts" role="list">
-        <div class="readout" role="listitem">
-          <span class="val">~40%</span>
-          <span class="claim">less manual credit-memo analysis time</span>
-          <span class="basis">Goldman Sachs RAG platform over 3M+ internal documents</span>
-        </div>
-        <div class="readout" role="listitem">
-          <span class="val">~15%</span>
-          <span class="claim">better identification of high-need patients, within outreach capacity</span>
-          <span class="basis">Cigna 30-day readmission models, 1.5M+ encounters</span>
-        </div>
-        <div class="readout" role="listitem">
-          <span class="val">~14 pts</span>
-          <span class="claim">higher demand forecast accuracy over the prior baseline</span>
-          <span class="basis">Best Buy, MAPE and RMSE at SKU and store level</span>
-        </div>
-      </div>
+    <div class="side-foot">
+      <a href="https://github.com/bharathkumardev1" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/bharathmandha/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="Bharath_Mandha_Resume.pdf" target="_blank" rel="noopener">Résumé</a>
+      <button class="theme" id="theme" type="button" aria-label="Toggle dark mode">Dark</button>
     </div>
-  </section>
+  </header>
 
-  <section id="work">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="label">Selected work</span>
-        <h2>What I built, the decisions behind it, and how it was measured</h2>
+  <main>
+    <section id="about" class="about" aria-label="About">
+      <h2>About</h2>
+      <p>I'm an ML engineer in Dallas with a little over four years in production ML. At Goldman Sachs I designed the retrieval and agent orchestration layers of a RAG platform that credit analysts use to work through filings and past credit memos.</p>
+      <p>Before Goldman I spent a year and a half at Cigna building readmission-risk models for care management, and before that I was a data scientist at Best Buy working on demand forecasting and customer segmentation. I did my MS in Computer Science at UNT in between.</p>
+      <p>A lot of my recent work has been evaluation, and both projects below lean that way.</p>
+    </section>
+
+    <section id="experience" aria-label="Experience">
+      <h2>Experience</h2>
+
+      <article class="job">
+        <div class="job-head"><h3>Goldman Sachs</h3><span class="when">Jun 2025 – Present</span></div>
+        <p class="title">AI/ML Engineer</p>
+        <p class="sum">Retrieval and agent orchestration for a credit-analysis RAG platform over 3M+ internal documents. Cut manual credit-memo analysis time by about 40%.</p>
+        <div class="tags"><span>LangGraph</span><span>GPT-4o</span><span>FAISS</span><span>RAGAS</span><span>PySpark</span><span>FastAPI</span></div>
+        <button class="more" type="button" aria-expanded="false" aria-controls="gs-more"><span class="chev">›</span> Details</button>
+        <ul class="details" id="gs-more" hidden>
+          <li>Built a 500+ query benchmark that scores retrieval (Hit Rate, MRR) separately from generation (RAGAS), so a bad answer can be traced to retrieval, context, or the model. Groundedness stayed above 90% while I tuned chunk size, overlap, top-k, embeddings, and reranking against it.</li>
+          <li>LangGraph agents for retrieval, analysis, validation, and delegation handle 60%+ of the repetitive intermediate reasoning steps. Analysts still approve anything sensitive. A full run takes 10–20 seconds.</li>
+          <li>Incremental ingestion with PySpark on S3, so new and changed documents get indexed without rebuilding the index or interrupting search. Source-level metadata traces each update back to its document.</li>
+          <li>Evaluated quantization and LoRA/QLoRA on open-source models. The infrastructure savings alone didn't justify moving complex credit reasoning to smaller models, so that stays on the strongest model.</li>
+          <li>Shipped the FastAPI layer that serves the platform to analyst dashboards.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="job-head"><h3>Cigna</h3><span class="when">Mar 2022 – Aug 2023</span></div>
+        <p class="title">Machine Learning Engineer</p>
+        <p class="sum">30-day readmission risk models for care management, trained on 1.5M+ patient encounters. 0.91 AUC-ROC on time-based validation.</p>
+        <div class="tags"><span>XGBoost</span><span>LightGBM</span><span>SHAP</span><span>MLflow</span><span>Airflow</span><span>SageMaker</span></div>
+        <button class="more" type="button" aria-expanded="false" aria-controls="ci-more"><span class="chev">›</span> Details</button>
+        <ul class="details" id="ci-more" hidden>
+          <li>Set decision thresholds around how many patients the outreach team could actually contact, using class weighting, resampling, and precision-recall trade-offs. That improved identification of high-need patients by about 15%.</li>
+          <li>Engineered 150+ candidate features from labs, demographics, encounter history, and clinical notes. About 100 made it to production.</li>
+          <li>SHAP explanations for clinical reviewers, used to prioritize care management for thousands of patients a month.</li>
+          <li>MLflow and Airflow for training, batch inference, and retraining; models on SageMaker and EKS through CI/CD; PSI drift checks that trigger a retraining review.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="job-head"><h3>Best Buy</h3><span class="when">Jun 2020 – Feb 2022</span></div>
+        <p class="title">Associate Data Scientist</p>
+        <p class="sum">Demand forecasting and customer segmentation on 50M+ transactions across thousands of SKUs and hundreds of stores.</p>
+        <div class="tags"><span>Python</span><span>SQL</span><span>PySpark</span><span>BigQuery</span><span>Tableau</span></div>
+        <button class="more" type="button" aria-expanded="false" aria-controls="bb-more"><span class="chev">›</span> Details</button>
+        <ul class="details" id="bb-more" hidden>
+          <li>Time-series and gradient-boosted forecasts, scored with MAPE and RMSE at the SKU and store level. Accuracy improved by about 14 percentage points over the previous baseline.</li>
+          <li>Customer segments from clustering and cohort analysis. Campaigns targeted with them saw about 12% higher response rates.</li>
+          <li>PySpark, SQL, and BigQuery pipelines, plus Tableau and Plotly dashboards for merchandising, marketing, and supply chain.</li>
+        </ul>
+      </article>
+
+      <div class="edu">
+        <div><b>MS, Computer Science</b>, University of North Texas, 2023–2025</div>
+        <div>AWS Certified Machine Learning Engineer - Associate · Google Cloud Professional Machine Learning Engineer · Databricks Certified Generative AI Engineer Associate</div>
       </div>
+    </section>
 
-      <article class="case" aria-labelledby="gs-title">
-        <aside class="rail">
-          <div class="who">
-            <div class="org">Goldman Sachs</div>
-            <div class="role">AI/ML Engineer</div>
-            <div class="dates">Jun 2025 – Present</div>
-          </div>
-          <div class="metric"><span class="v">~40%</span><span class="c">less manual credit-memo analysis time</span></div>
-          <div class="metric"><span class="v">90%+</span><span class="c">groundedness</span><span class="basis">500+ query financial-analysis benchmark</span></div>
-          <div class="metric"><span class="v">60%+</span><span class="c">of targeted repetitive reasoning steps automated</span></div>
-          <div class="metric"><span class="v">10–20 s</span><span class="c">end-to-end workflow, including retrieval, reasoning, and validation</span></div>
-        </aside>
-        <div class="story">
-          <h3 id="gs-title">A retrieval and agent platform for credit analysis over 3M+ documents</h3>
-          <p class="lede">Credit analysts work through filings and prior memos, and much of that work is repetitive multi-step reasoning. I designed the retrieval and agent orchestration layers of a LangGraph RAG platform that handles those intermediate steps first, so analysts review the output and keep the final decision.</p>
+    <section id="projects" aria-label="Projects">
+      <h2>Projects</h2>
 
-          <div class="pipe-box" role="group" aria-label="Platform pipeline">
-            <ol class="pipe">
-              <li><b>Ingest</b><span>PySpark on S3, incremental updates instead of rebuilds</span></li>
-              <li><b>Index</b><span>Semantic chunking, metadata enrichment, OpenAI embeddings, FAISS</span></li>
-              <li><b>Retrieve</b><span>Metadata filtering, reranking, semantic caching</span></li>
-              <li><b>Reason</b><span>LangGraph agents for analysis, validation, and delegation on GPT-4o</span></li>
-              <li><b>Review</b><span>Analyst approval on sensitive decisions</span></li>
-            </ol>
-            <p class="loop"><b>Evaluation loop:</b> a 500+ query benchmark scores retrieval (Hit Rate, MRR, recall) separately from generation (RAGAS), and every retrieval change is tested against it.</p>
-          </div>
-
-          <ul class="decisions">
-            <li><strong>Score retrieval and generation separately.</strong> When an answer failed, separate scores showed whether retrieval, context construction, or the model caused it. That made tuning chunk size, overlap, top-k, embeddings, and reranking a set of measured experiments.</li>
-            <li><strong>Update the index incrementally.</strong> Rebuilding an index of tens of millions of chunks for every change wasn't practical. New and changed documents flow through chunking, metadata enrichment, and embedding into incremental index updates, and source-level metadata traces each update back to its document. The corpus stays current without interrupting retrieval.</li>
-            <li><strong>Optimize the workflow analysts actually wait on.</strong> The 10–20 second figure covers the full LangGraph run. Faster vector search alone would not have changed the analyst's experience, so I measured and tuned the whole path.</li>
-            <li><strong>Choose models by task.</strong> I evaluated quantization and LoRA/QLoRA on open-source models for quality, latency, GPU memory, and cost. Infrastructure savings alone did not justify moving complex credit reasoning off the strongest model. Smaller models fit narrower, more deterministic tasks.</li>
-            <li><strong>Keep the analyst in control.</strong> Agents take the repetitive intermediate steps, and human review stays on sensitive decisions, set up with risk and compliance teams. I also shipped the FastAPI layer that serves the platform to analyst dashboards.</li>
-          </ul>
-          <div class="tags" aria-label="Tools">
-            <span>LangGraph</span><span>GPT-4o</span><span>OpenAI embeddings</span><span>FAISS</span><span>RAGAS</span><span>PySpark</span><span>AWS S3</span><span>FastAPI</span><span>Hugging Face</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="case" aria-labelledby="ci-title">
-        <aside class="rail">
-          <div class="who">
-            <div class="org">Cigna</div>
-            <div class="role">Machine Learning Engineer</div>
-            <div class="dates">Mar 2022 – Aug 2023</div>
-          </div>
-          <div class="metric"><span class="v">0.91</span><span class="c">AUC-ROC</span><span class="basis">30-day readmission, time-based validation</span></div>
-          <div class="metric"><span class="v">~15%</span><span class="c">better identification of high-need patients</span><span class="basis">at the team's outreach capacity</span></div>
-          <div class="metric"><span class="v">1.5M+</span><span class="c">HIPAA-regulated patient encounters</span></div>
-        </aside>
-        <div class="story">
-          <h3 id="ci-title">Readmission risk tuned to how many patients a team can reach</h3>
-          <p class="lede">Care-management teams can contact only so many patients. The goal was to find more patients who would benefit from early intervention while keeping the outreach workload manageable, so I tuned the models for that operating point.</p>
-          <ul class="decisions">
-            <li><strong>Tune for the operating point.</strong> Threshold tuning on precision-recall trade-offs, with class weighting and resampling for heavy class imbalance, set the models to the team's capacity. Raw accuracy was never the target.</li>
-            <li><strong>Validate the way the model runs.</strong> Time-based splits kept future information out of training to prevent temporal leakage.</li>
-            <li><strong>Keep features that hold up.</strong> I engineered 150+ candidate features from labs, demographics, encounter history, and clinical notes, and kept about 100 for production based on predictive value and stability.</li>
-            <li><strong>Explain every score.</strong> SHAP explanations showed clinical reviewers the drivers behind each patient's risk, and those explanations guided care-management prioritization for thousands of high-risk patients each month.</li>
-            <li><strong>Run it like production software.</strong> MLflow and Airflow handled training, batch inference, registration, and retraining. Models shipped to SageMaker and EKS through CI/CD, and PSI drift monitoring triggered retraining reviews.</li>
-          </ul>
-          <div class="tags" aria-label="Tools">
-            <span>XGBoost</span><span>LightGBM</span><span>SHAP</span><span>MLflow</span><span>Airflow</span><span>SageMaker</span><span>EKS</span><span>Docker</span><span>Terraform</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="case" aria-labelledby="bb-title">
-        <aside class="rail">
-          <div class="who">
-            <div class="org">Best Buy</div>
-            <div class="role">Associate Data Scientist</div>
-            <div class="dates">Jun 2020 – Feb 2022</div>
-          </div>
-          <div class="metric"><span class="v">~14 pts</span><span class="c">higher forecast accuracy</span><span class="basis">MAPE and RMSE at SKU and store level</span></div>
-          <div class="metric"><span class="v">~12%</span><span class="c">higher targeted campaign response</span></div>
-          <div class="metric"><span class="v">50M+</span><span class="c">transactions, thousands of SKUs, hundreds of stores</span></div>
-        </aside>
-        <div class="story">
-          <h3 id="bb-title">Demand forecasts measured where inventory is decided</h3>
-          <p class="lede">Inventory planning happens per product and per store, so a single aggregate accuracy number can hide the forecasts that matter. I built and evaluated forecasting at that level, and separately built the customer segments behind targeted campaigns.</p>
-          <ul class="decisions">
-            <li><strong>Evaluate at the decision level.</strong> Time-series and gradient-boosted models were scored with MAPE and RMSE across SKU and store level demand, which raised forecast accuracy about 14 percentage points over the prior baseline.</li>
-            <li><strong>Build the data path first.</strong> PySpark, SQL, and BigQuery pipelines over 50M+ transactions surfaced seasonality and demand shifts before any modeling.</li>
-            <li><strong>Segment for action.</strong> Clustering and cohort analysis produced customer segments for targeted campaigns, which lifted response rates about 12%.</li>
-            <li><strong>Put results where teams decide.</strong> Tableau and Plotly dashboards gave merchandising, marketing, and supply-chain teams the forecasts and segments.</li>
-          </ul>
-          <div class="tags" aria-label="Tools">
-            <span>Python</span><span>SQL</span><span>PySpark</span><span>BigQuery</span><span>Tableau</span><span>Plotly</span>
-          </div>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section id="projects" style="border-top: 1px solid var(--rule);">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="label">Open source</span>
-        <h2>Code you can read, run, and test</h2>
-      </div>
-      <article class="case" aria-labelledby="fre-title">
-        <aside class="rail">
-          <div class="who">
-            <div class="org">finance-rag-eval</div>
-            <div class="role">Python · BM25 · FAISS · FinanceBench</div>
-            <div class="dates">MIT license · 2026</div>
-          </div>
-          <div class="metric"><span class="v">0.207 → 0.453</span><span class="c">page-level Hit@10 after adding a company and year filter</span><span class="basis">150 FinanceBench questions, 360 filings</span></div>
-          <div class="metric"><span class="v">50% → 93%</span><span class="c">questions with the right filing in the top 10</span></div>
-          <div class="metric"><span class="v">0.067 ms</span><span class="c">HNSW query time at 88% of exact top-10 recall, vs 4.6 ms exact</span><span class="basis">53,461 vectors, one thread</span></div>
+      <article class="proj">
+        <div class="proj-head">
+          <h3>finance-rag-eval</h3>
           <div class="links">
-            <a href="https://github.com/bharathkumardev1/finance-rag-eval" target="_blank" rel="noopener">Repository ↗</a>
-            <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md" target="_blank" rel="noopener">Full results ↗</a>
-          </div>
-        </aside>
-        <div class="story">
-          <h3 id="fre-title">Which retrieval choices matter on real SEC filings</h3>
-          <p class="lede">A benchmark over 360 public 10-K, 10-Q, and 8-K filings (53,399 pages) using FinanceBench, where every question names the exact evidence page. It scores retrieval at the page level across chunk sizes, BM25, dense, and hybrid search, metadata filters, and exact vs approximate FAISS indexes.</p>
-          <div class="pipe-box" role="group" aria-label="Benchmark pipeline">
-            <ol class="pipe">
-              <li><b>Extract</b><span>PDF pages, checked against all 189 evidence pages</span></li>
-              <li><b>Chunk</b><span>Word windows that remember the pages they span</span></li>
-              <li><b>Filter</b><span>Company and fiscal year read from the question</span></li>
-              <li><b>Retrieve</b><span>BM25, FAISS dense, or hybrid by rank fusion</span></li>
-              <li><b>Score</b><span>Hit@k, Recall@k, MRR, and right-filing rate per question</span></li>
-            </ol>
-            <p class="loop"><b>Quality gate:</b> CI runs the full pipeline on a synthetic fixture and fails the build if any tracked metric drops below its baseline.</p>
-          </div>
-          <ul class="decisions">
-            <li><strong>Finding the filing comes first.</strong> With all 360 filings in one index, the right filing reached the top 10 for only half the questions, because every 10-K uses the same vocabulary.</li>
-            <li><strong>A metadata filter beat every model choice.</strong> Reading company and year from the question kept the gold filing for 98.7% of questions, cut the search space from 360 filings to 9.8, and more than doubled page-level Hit@10.</li>
-            <li><strong>After that, the page is the bottleneck.</strong> The right filing is in the top 10 for 93% of questions but the right page for 45%, mostly on ratio questions whose inputs sit in statements that share few words with the question.</li>
-            <li><strong>Small differences are reported as noise.</strong> With 150 questions the 95% interval near 0.45 is about ±0.08, so the README calls out which gaps are real and which are not.</li>
-          </ul>
-          <div class="tags" aria-label="Tools">
-            <span>Python</span><span>bm25s</span><span>FAISS</span><span>scikit-learn</span><span>pytest</span><span>GitHub Actions</span>
+            <a href="https://github.com/bharathkumardev1/finance-rag-eval" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md" target="_blank" rel="noopener">Results</a>
           </div>
         </div>
+        <p>Retrieval benchmark on 360 SEC filings from FinanceBench. It compares chunk sizes, BM25 / dense / hybrid search, metadata filters, and FAISS index types against the page each question's answer is actually on.</p>
+
+        <div class="explorer" id="explorer">
+          <div class="controls">
+            <div class="ctl" role="group" aria-label="Chunk size">
+              <span>chunk</span>
+              <div class="seg" data-key="chunk">
+                <button type="button" data-v="256/0">256</button>
+                <button type="button" data-v="512/0">512</button>
+                <button type="button" data-v="512/128">512 +128</button>
+                <button type="button" data-v="1024/0">1024</button>
+              </div>
+            </div>
+            <div class="ctl" role="group" aria-label="Filter">
+              <span>filter</span>
+              <div class="seg" data-key="filter">
+                <button type="button" data-v="none">none</button>
+                <button type="button" data-v="company">company</button>
+                <button type="button" data-v="company_year">company + year</button>
+              </div>
+            </div>
+            <div class="ctl" role="group" aria-label="Metric">
+              <span>metric</span>
+              <div class="seg" data-key="metric">
+                <button type="button" data-v="hit10">Hit@10</button>
+                <button type="button" data-v="mrr">MRR@10</button>
+                <button type="button" data-v="doc">right filing@10</button>
+              </div>
+            </div>
+          </div>
+          <div class="bars" id="bars" aria-live="polite"></div>
+          <div class="axis" aria-hidden="true"><span></span><div><span>0</span><span>0.25</span><span>0.5</span><span>0.75</span><span>1</span></div><span></span></div>
+          <p class="caption">150 questions, page-level relevance. Dense is an LSA baseline so the run works offline. Data from <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/benchmark.json" target="_blank" rel="noopener">results/benchmark.json</a>.</p>
+        </div>
+
+        <p class="note">Main result: the company/year filter matters more than the retriever. At 1,024-word chunks it takes Hit@10 from 0.21 to 0.45, and the right filing from 50% to 93% of questions.</p>
+        <div class="tags"><span>Python</span><span>bm25s</span><span>FAISS</span><span>scikit-learn</span><span>pytest</span><span>GitHub Actions</span></div>
       </article>
 
-      <article class="case" aria-labelledby="ara-title">
-        <aside class="rail">
-          <div class="who">
-            <div class="org">Agentic Research Assistant</div>
-            <div class="role">Python · LangGraph · FAISS · Claude</div>
-            <div class="dates">MIT license · 2026</div>
-          </div>
-          <div class="metric"><span class="v">58</span><span class="c">automated tests, including a full offline end-to-end run</span></div>
-          <div class="metric"><span class="v">3</span><span class="c">Python versions in CI (3.9, 3.11, 3.12), with mypy type checks</span></div>
+      <article class="proj">
+        <div class="proj-head">
+          <h3>Agentic Research Assistant</h3>
           <div class="links">
-            <a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant" target="_blank" rel="noopener">Repository ↗</a>
-            <a href="https://agentic-research-assistant-xzno.onrender.com/docs" target="_blank" rel="noopener">Live API ↗</a>
-          </div>
-          <span class="basis" style="font-size:0.78rem;">free host: the first request can take up to a minute to wake</span>
-        </aside>
-        <div class="story">
-          <h3 id="ara-title">Answers questions about research papers, with a citation on every claim</h3>
-          <p class="lede">Putting a folder of papers into one prompt hallucinates and loses track of which claim came from which paper. This project splits the work across three agents that share one FAISS index, and the evaluator's verdict decides whether the system is done or goes back for more evidence.</p>
-          <div class="pipe-box" role="group" aria-label="Agent loop">
-            <ol class="pipe three">
-              <li><b>Retrieve</b><span>Top-k chunks from FAISS, merged across loops</span></li>
-              <li><b>Draft</b><span>Answer from those chunks only, each claim tagged [n], validated with Pydantic</span></li>
-              <li><b>Check</b><span>A second model call grades grounding and coverage</span></li>
-            </ol>
-            <p class="loop"><b>Loop:</b> if the answer is thin, the evaluator writes a sharper query and the graph runs again, capped at 3 iterations and a per-run ceiling on API calls so it always stops and never runs up a bill.</p>
-          </div>
-          <ul class="decisions">
-            <li><strong>Hardened like a public service.</strong> The FastAPI endpoint has per-caller rate limiting, request timeouts, scoped API keys, sanitized errors with a reference id, and Prometheus metrics. It ships as a Docker image deployed on Render.</li>
-            <li><strong>Runs with no API key.</strong> An offline mode swaps in a deterministic embedder and a stub model, so anyone can run the real retrieval, graph, citation numbering, and report rendering locally.</li>
-            <li><strong>States its limits.</strong> The bundled sample papers are synthetic, and the README says so. It is a tested single-instance service, not a multi-tenant system.</li>
-          </ul>
-          <div class="tags" aria-label="Tools">
-            <span>LangGraph</span><span>FAISS</span><span>Claude</span><span>FastAPI</span><span>Pydantic</span><span>pytest</span><span>Docker</span><span>React</span><span>GitHub Actions</span>
+            <a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://agentic-research-assistant-xzno.onrender.com/docs" target="_blank" rel="noopener">Live API</a>
           </div>
         </div>
+        <p>Answers questions over a set of research papers with a citation on every claim. Three LangGraph agents share one FAISS index: one retrieves, one drafts from those chunks only, and one grades the draft and sends a sharper query back if it's thin. The loop is capped so it always stops.</p>
+        <p>It runs as a FastAPI service with per-caller rate limits, timeouts, and Prometheus metrics, has 58 tests, and works offline with no API key.</p>
+        <p class="note">The live demo is on a free host, so the first request can take up to a minute.</p>
+        <div class="tags"><span>LangGraph</span><span>FAISS</span><span>Claude</span><span>FastAPI</span><span>Docker</span><span>React</span></div>
       </article>
-    </div>
-  </section>
+    </section>
 
-  <section id="skills" style="border-top: 1px solid var(--rule);">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="label">Skills and credentials</span>
-        <h2>Tools I use in production</h2>
-      </div>
-      <div class="grid2">
-        <dl class="kv">
-          <dt>Languages</dt><dd>Python, SQL</dd>
-          <dt>ML</dt><dd>XGBoost, LightGBM, scikit-learn, SHAP, LoRA/QLoRA, quantization, PyTorch</dd>
-          <dt>GenAI</dt><dd>LangGraph, LangChain, LangSmith, OpenAI API, Hugging Face, RAG, multi-agent systems, MCP, FAISS, RAGAS</dd>
-          <dt>MLOps</dt><dd>MLflow, Airflow, Docker, Kubernetes, Terraform, FastAPI, CI/CD</dd>
-          <dt>Data and cloud</dt><dd>PySpark, BigQuery, Tableau, Plotly, AWS (SageMaker, S3, Lambda, ECS, EKS), GCP (Vertex AI)</dd>
-        </dl>
-        <div style="display:grid; gap:28px; align-content:start;">
-          <div style="display:grid; gap:12px;">
-            <span class="label">Education</span>
-            <ul class="creds">
-              <li><span>Master of Science in Computer Science</span><span class="sub">University of North Texas · Aug 2023 – May 2025</span></li>
-            </ul>
-          </div>
-          <div style="display:grid; gap:12px;">
-            <span class="label">Certifications</span>
-            <ul class="creds">
-              <li><span>AWS Certified Machine Learning Engineer - Associate</span></li>
-              <li><span>Google Cloud Professional Machine Learning Engineer</span></li>
-              <li><span>Databricks Certified Generative AI Engineer Associate</span></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
+    <section id="contact" class="contact" aria-label="Contact">
+      <h2>Contact</h2>
+      <p>Email is the best way to reach me. I'm open to ML engineering roles on retrieval, evaluation, or LLM infrastructure.</p>
+      <p><span class="mono" id="email">bharathmandha.200@gmail.com</span><button class="copy" id="copy" type="button">Copy</button></p>
+      <footer>Plain HTML, CSS, and a little JavaScript. Hosted on GitHub Pages. Last updated October 2026.</footer>
+    </section>
+  </main>
+</div>
 
-<footer id="contact">
-  <div class="wrap">
-    <div style="display:grid; gap:6px;">
-      <span class="label">Contact</span>
-      <span>Open to Machine Learning Engineer roles in GenAI, retrieval, and evaluation.</span>
-    </div>
-    <div class="links">
-      <a href="https://www.linkedin.com/in/bharathmandha/" target="_blank" rel="noopener">LinkedIn ↗</a>
-      <a href="https://github.com/bharathkumardev1" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="Bharath_Mandha_Resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
-      <span class="email-text mono">bharathmandha.200@gmail.com</span>
-    </div>
-  </div>
-</footer>
-
+<script type="application/json" id="bench-data">
+[[256,0,"bm25","none",0.06,0.12,0.0746,0.3933],[256,0,"dense","none",0.02,0.06,0.0292,0.2867],[256,0,"hybrid","none",0.04,0.0733,0.0481,0.36],[256,0,"bm25","company",0.0733,0.18,0.0996,0.7533],[256,0,"dense","company",0.0467,0.1733,0.0774,0.7067],[256,0,"hybrid","company",0.08,0.1667,0.1021,0.7133],[256,0,"bm25","company_year",0.1267,0.3333,0.179,0.92],[256,0,"dense","company_year",0.1133,0.3533,0.1729,0.9267],[256,0,"hybrid","company_year",0.1267,0.3933,0.1942,0.9267],[512,0,"bm25","none",0.0467,0.1533,0.0816,0.44],[512,0,"dense","none",0.0067,0.08,0.0234,0.38],[512,0,"hybrid","none",0.0267,0.12,0.0492,0.4267],[512,0,"bm25","company",0.0733,0.2,0.1074,0.7333],[512,0,"dense","company",0.02,0.1867,0.0565,0.7267],[512,0,"hybrid","company",0.04,0.22,0.0897,0.74],[512,0,"bm25","company_year",0.1067,0.3667,0.1852,0.9333],[512,0,"dense","company_year",0.0733,0.36,0.1626,0.9133],[512,0,"hybrid","company_year",0.14,0.3867,0.218,0.9333],[512,128,"bm25","none",0.0533,0.1267,0.0751,0.4067],[512,128,"dense","none",0.0267,0.08,0.0419,0.3667],[512,128,"hybrid","none",0.0267,0.0867,0.0395,0.42],[512,128,"bm25","company",0.0733,0.2067,0.1042,0.74],[512,128,"dense","company",0.0267,0.16,0.0606,0.7133],[512,128,"hybrid","company",0.0533,0.2133,0.086,0.7067],[512,128,"bm25","company_year",0.14,0.36,0.2006,0.94],[512,128,"dense","company_year",0.0933,0.36,0.1689,0.9333],[512,128,"hybrid","company_year",0.1333,0.3867,0.2059,0.92],[1024,0,"bm25","none",0.0533,0.2067,0.0892,0.5],[1024,0,"dense","none",0.0133,0.0933,0.0306,0.4667],[1024,0,"hybrid","none",0.02,0.1533,0.0589,0.5267],[1024,0,"bm25","company",0.0667,0.24,0.1103,0.76],[1024,0,"dense","company",0.0333,0.18,0.0677,0.7533],[1024,0,"hybrid","company",0.0533,0.2133,0.0998,0.7533],[1024,0,"bm25","company_year",0.1333,0.4533,0.2112,0.9333],[1024,0,"dense","company_year",0.0667,0.4,0.1623,0.9467],[1024,0,"hybrid","company_year",0.1067,0.44,0.2081,0.9267]]
+</script>
 <script>
 (function () {
-  var btn = document.getElementById('copy-email');
-  var state = document.getElementById('copy-state');
-  var text = document.getElementById('email-text');
-  if (!btn) return;
-  btn.addEventListener('click', function () {
-    var value = text.textContent.trim();
-    function selectFallback() {
-      var r = document.createRange(); r.selectNodeContents(text);
-      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-      state.textContent = 'Selected';
+  var root = document.documentElement;
+
+  // theme toggle; the stored choice is optional, the page works without storage
+  var themeBtn = document.getElementById('theme');
+  function stored() { try { return localStorage.getItem('theme'); } catch (e) { return null; } }
+  function current() {
+    return root.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  function paint() { themeBtn.textContent = current() === 'dark' ? 'Light' : 'Dark'; }
+  if (stored()) root.dataset.theme = stored();
+  paint();
+  themeBtn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    paint();
+  });
+
+  // expandable experience details
+  document.querySelectorAll('.more').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var list = document.getElementById(btn.getAttribute('aria-controls'));
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      list.hidden = open;
+      btn.lastChild.textContent = open ? ' Details' : ' Hide';
+    });
+  });
+
+  // highlight the section in view
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  if ('IntersectionObserver' in window && links.length) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    document.querySelectorAll('main section').forEach(function (s) { io.observe(s); });
+  }
+
+  // results explorer
+  var rows = JSON.parse(document.getElementById('bench-data').textContent);
+  var state = { chunk: '1024/0', filter: 'company_year', metric: 'hit10' };
+  var col = { hit10: 5, mrr: 6, doc: 7 };
+  var methods = [['bm25', 'BM25', '--bar-bm25'], ['dense', 'dense', '--bar-dense'], ['hybrid', 'hybrid', '--bar-hybrid']];
+  var bars = document.getElementById('bars');
+  methods.forEach(function (m) {
+    var row = document.createElement('div');
+    row.className = 'bar';
+    row.innerHTML = '<span>' + m[1] + '</span><div class="track"><div class="fill"></div></div><span class="val"></span>';
+    row.querySelector('.fill').style.background = 'var(' + m[2] + ')';
+    row.dataset.method = m[0];
+    bars.appendChild(row);
+  });
+  function render() {
+    var parts = state.chunk.split('/');
+    bars.querySelectorAll('.bar').forEach(function (el) {
+      var r = rows.find(function (x) {
+        return x[0] === +parts[0] && x[1] === +parts[1] && x[2] === el.dataset.method && x[3] === state.filter;
+      });
+      var v = r ? r[col[state.metric]] : 0;
+      el.querySelector('.fill').style.width = (v * 100).toFixed(1) + '%';
+      el.querySelector('.val').textContent = v.toFixed(3);
+    });
+    document.querySelectorAll('.seg').forEach(function (seg) {
+      seg.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(state[seg.dataset.key] === b.dataset.v));
+      });
+    });
+  }
+  document.querySelectorAll('.seg').forEach(function (seg) {
+    seg.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      state[seg.dataset.key] = b.dataset.v;
+      render();
+    });
+  });
+  render();
+
+  // copy email
+  var copyBtn = document.getElementById('copy');
+  var email = document.getElementById('email');
+  copyBtn.addEventListener('click', function () {
+    function fallback() {
+      var range = document.createRange();
+      range.selectNodeContents(email);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      copyBtn.textContent = 'Selected';
     }
     try {
-      navigator.clipboard.writeText(value).then(function () { state.textContent = 'Copied'; }, selectFallback);
-    } catch (e) { selectFallback(); }
-    setTimeout(function () { state.textContent = 'Copy'; }, 2200);
+      navigator.clipboard.writeText(email.textContent).then(function () { copyBtn.textContent = 'Copied'; }, fallback);
+    } catch (e) { fallback(); }
+    setTimeout(function () { copyBtn.textContent = 'Copy'; }, 2000);
   });
 })();
 </script>
-
 </body>
 </html>
