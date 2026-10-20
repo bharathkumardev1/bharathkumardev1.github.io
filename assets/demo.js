@@ -21,16 +21,21 @@ async function json(name) {
   return res.json();
 }
 
+// Filings ship gzipped. A host that can't serve .gz files sets FINRAG_PLAIN_FILINGS before
+// this module loads and ships the same JSON uncompressed.
+const PLAIN = Boolean(globalThis.FINRAG_PLAIN_FILINGS);
+
 async function loadFiling(doc) {
-  const res = await fetch(new URL(`filings/${doc}.json.gz`, DATA));
+  const res = await fetch(new URL(`filings/${doc}.json${PLAIN ? "" : ".gz"}`, DATA));
   if (!res.ok) throw new Error(`${doc}: HTTP ${res.status}`);
+  if (PLAIN) return res.json();
   const text = await new Response(res.body.pipeThrough(new DecompressionStream("gzip"))).text();
   return JSON.parse(text);
 }
 
 async function ready() {
   if (engine) return engine;
-  if (!("DecompressionStream" in window)) throw new Error("This browser can't unpack the filing data (no DecompressionStream).");
+  if (!PLAIN && !("DecompressionStream" in window)) throw new Error("This browser can't unpack the filing data (no DecompressionStream).");
   const [meta, qs] = await Promise.all([json("meta.json"), json("questions.json")]);
   engine = new Engine(meta, loadFiling);
   questions = qs;
