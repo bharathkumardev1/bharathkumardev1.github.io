@@ -321,6 +321,46 @@ footer .small { color: var(--muted); font-size: 0.92rem; }
         <span class="label">Open source</span>
         <h2>Code you can read, run, and test</h2>
       </div>
+      <article class="case" aria-labelledby="fre-title">
+        <aside class="rail">
+          <div class="who">
+            <div class="org">finance-rag-eval</div>
+            <div class="role">Python · BM25 · FAISS · FinanceBench</div>
+            <div class="dates">MIT license · 2026</div>
+          </div>
+          <div class="metric"><span class="v">0.207 → 0.453</span><span class="c">page-level Hit@10 after adding a company and year filter</span><span class="basis">150 FinanceBench questions, 360 filings</span></div>
+          <div class="metric"><span class="v">50% → 93%</span><span class="c">questions with the right filing in the top 10</span></div>
+          <div class="metric"><span class="v">0.067 ms</span><span class="c">HNSW query time at 88% of exact top-10 recall, vs 4.6 ms exact</span><span class="basis">53,461 vectors, one thread</span></div>
+          <div class="links">
+            <a href="https://github.com/bharathkumardev1/finance-rag-eval" target="_blank" rel="noopener">Repository ↗</a>
+            <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md" target="_blank" rel="noopener">Full results ↗</a>
+          </div>
+        </aside>
+        <div class="story">
+          <h3 id="fre-title">Which retrieval choices matter on real SEC filings</h3>
+          <p class="lede">A benchmark over 360 public 10-K, 10-Q, and 8-K filings (53,399 pages) using FinanceBench, where every question names the exact evidence page. It scores retrieval at the page level across chunk sizes, BM25, dense, and hybrid search, metadata filters, and exact vs approximate FAISS indexes.</p>
+          <div class="pipe-box" role="group" aria-label="Benchmark pipeline">
+            <ol class="pipe">
+              <li><b>Extract</b><span>PDF pages, checked against all 189 evidence pages</span></li>
+              <li><b>Chunk</b><span>Word windows that remember the pages they span</span></li>
+              <li><b>Filter</b><span>Company and fiscal year read from the question</span></li>
+              <li><b>Retrieve</b><span>BM25, FAISS dense, or hybrid by rank fusion</span></li>
+              <li><b>Score</b><span>Hit@k, Recall@k, MRR, and right-filing rate per question</span></li>
+            </ol>
+            <p class="loop"><b>Quality gate:</b> CI runs the full pipeline on a synthetic fixture and fails the build if any tracked metric drops below its baseline.</p>
+          </div>
+          <ul class="decisions">
+            <li><strong>Finding the filing comes first.</strong> With all 360 filings in one index, the right filing reached the top 10 for only half the questions, because every 10-K uses the same vocabulary.</li>
+            <li><strong>A metadata filter beat every model choice.</strong> Reading company and year from the question kept the gold filing for 98.7% of questions, cut the search space from 360 filings to 9.8, and more than doubled page-level Hit@10.</li>
+            <li><strong>After that, the page is the bottleneck.</strong> The right filing is in the top 10 for 93% of questions but the right page for 45%, mostly on ratio questions whose inputs sit in statements that share few words with the question.</li>
+            <li><strong>Small differences are reported as noise.</strong> With 150 questions the 95% interval near 0.45 is about ±0.08, so the README calls out which gaps are real and which are not.</li>
+          </ul>
+          <div class="tags" aria-label="Tools">
+            <span>Python</span><span>bm25s</span><span>FAISS</span><span>scikit-learn</span><span>pytest</span><span>GitHub Actions</span>
+          </div>
+        </div>
+      </article>
+
       <article class="case" aria-labelledby="ara-title">
         <aside class="rail">
           <div class="who">
