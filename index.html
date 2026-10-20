@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Bharath Mandha</title>
+<meta name="description" content="Bharath Mandha, Machine Learning Engineer. Retrieval, evaluation, and production ML for credit analysis, healthcare, and retail.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@500;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: an evaluation report. Narrative on the right, a measurement rail on the left; every number carries its basis. */
+:root {
+  --bg: #f4f5f2;
+  --surface: #ffffff;
+  --ink: #18211e;
+  --muted: #5b6862;
+  --rule: #d7ddd8;
+  --accent: #0e6a58;
+  --accent-soft: #e2efea;
+  --basis: #8a5a12;
+  --display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --step--1: 0.84rem;
+  --step-0: 1.06rem;
+  --step-1: 1.3rem;
+  --step-2: 1.7rem;
+  --step-3: clamp(2.3rem, 5.4vw, 3.6rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1513; --surface: #161e1b; --ink: #e5ebe8; --muted: #9aa8a2;
+    --rule: #2a3632; --accent: #5cc7ab; --accent-soft: #18302a; --basis: #d9a85a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e5ebe8; --muted: #9aa8a2;
+  --rule: #2a3632; --accent: #5cc7ab; --accent-soft: #18302a; --basis: #d9a85a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+p { margin: 0; }
+.mono { font-family: var(--mono); }
+.label {
+  font-family: var(--mono); font-size: var(--step--1); letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* Top bar */
+.top { border-bottom: 1px solid var(--rule); }
+.top .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; padding-block: 14px; }
+.top .mark { font-family: var(--display); font-weight: 700; letter-spacing: 0.01em; }
+.top nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-family: var(--mono); font-size: var(--step--1); }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--accent); }
+
+/* Hero */
+.hero .wrap { padding-block: 56px 40px; display: grid; gap: 22px; }
+.hero h1 { font-size: var(--step-3); font-weight: 800; letter-spacing: -0.02em; }
+.hero .thesis { font-size: var(--step-1); max-width: 40ch; line-height: 1.45; }
+.hero .note { color: var(--muted); max-width: 62ch; }
+.links { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; font-family: var(--mono); font-size: var(--step--1); }
+.links a, .copy {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border: 1px solid var(--rule); border-radius: 4px; background: var(--surface);
+  color: var(--ink); text-decoration: none; font: inherit; cursor: pointer;
+}
+.links a:hover, .copy:hover { border-color: var(--accent); color: var(--accent); }
+.email-text { user-select: all; }
+
+/* Readouts: value, claim, and the basis it was measured on */
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-top: 8px; }
+.readout { padding: 20px 20px 20px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.readout + .readout { padding-left: 20px; border-left: 1px solid var(--rule); }
+.readout .val { font-family: var(--display); font-weight: 800; font-size: var(--step-2); color: var(--accent); font-variant-numeric: tabular-nums; }
+.readout .claim { line-height: 1.4; }
+.basis { font-family: var(--mono); font-size: var(--step--1); color: var(--basis); line-height: 1.45; }
+.basis::before { content: "measured: "; color: var(--muted); }
+
+/* Case studies */
+.section-head { padding-block: 48px 8px; display: grid; gap: 6px; }
+.section-head h2 { font-size: var(--step-2); font-weight: 700; }
+.case { border-top: 1px solid var(--rule); padding-block: 40px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; }
+.rail { display: grid; gap: 18px; align-content: start; }
+.rail .org { font-family: var(--display); font-weight: 700; font-size: var(--step-1); }
+.rail .role { color: var(--muted); font-size: 0.98rem; }
+.rail .dates { font-family: var(--mono); font-size: var(--step--1); color: var(--muted); font-variant-numeric: tabular-nums; }
+.metric { display: grid; gap: 2px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.metric .v { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.metric .c { font-size: 0.95rem; line-height: 1.35; }
+.story { display: grid; gap: 22px; min-width: 0; }
+.story > h3, .story > p, .story > ul { max-width: 68ch; }
+.story h3 { font-size: var(--step-1); font-weight: 700; }
+.lede { font-size: 1.12rem; }
+.decisions { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.decisions li { display: grid; gap: 4px; padding-left: 16px; border-left: 2px solid var(--accent-soft); }
+.decisions strong { font-family: var(--display); font-weight: 700; font-size: 1.02rem; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-family: var(--mono); font-size: 0.78rem; padding: 3px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--ink); }
+
+/* Pipeline: a real sequence, so numbered */
+.pipe-box { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 18px; display: grid; gap: 14px; overflow-x: auto; }
+.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; counter-reset: step; }
+.pipe li { counter-increment: step; position: relative; display: grid; gap: 4px; align-content: start; padding: 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); min-width: 0; }
+.pipe li::before { content: counter(step); font-family: var(--mono); font-size: 0.75rem; color: var(--accent); }
+.pipe.three { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+.pipe li b { font-family: var(--display); font-size: 0.98rem; }
+.pipe li span { font-size: 0.86rem; line-height: 1.4; color: var(--muted); }
+.pipe li:not(:last-child)::after { content: "→"; position: absolute; right: -10px; top: 50%; transform: translate(50%, -50%); color: var(--muted); font-family: var(--mono); font-size: 0.9rem; }
+.loop { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px; line-height: 1.5; }
+.loop b { color: var(--accent); font-weight: 500; }
+
+/* Skills, credentials */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 48px; padding-block: 8px 48px; }
+.kv { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px 16px; margin: 0; }
+.kv dt { font-family: var(--mono); font-size: var(--step--1); color: var(--muted); padding-top: 3px; }
+.kv dd { margin: 0; }
+.creds { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.creds li { display: grid; gap: 2px; }
+.creds .sub { color: var(--muted); font-size: 0.95rem; }
+
+footer { border-top: 1px solid var(--rule); }
+footer .wrap { padding-block: 32px 48px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; }
+footer .small { color: var(--muted); font-size: 0.92rem; }
+
+@media (max-width: 880px) {
+  .case { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .rail { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .rail .who { grid-column: 1 / -1; }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .readouts { grid-template-columns: minmax(0, 1fr); }
+  .readout { padding: 16px 0; }
+  .readout + .readout { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .pipe, .pipe.three { grid-template-columns: minmax(0, 1fr); }
+  .pipe li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -10px; transform: translate(-50%, 50%); }
+  .kv { grid-template-columns: minmax(0, 1fr); gap: 2px 0; }
+  .kv dd { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .links a, .copy { transition: border-color .15s ease, color .15s ease; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <span class="mark">Bharath Mandha</span>
+    <nav aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="label">Machine Learning Engineer · Dallas, TX</span>
+      <h1>Bharath Mandha</h1>
+      <p class="thesis">I build retrieval, evaluation, and production ML systems for work where a wrong answer is expensive: credit analysis at Goldman Sachs, patient outreach at Cigna, and demand planning at Best Buy.</p>
+      <p class="note">4+ years in production ML. Every number on this page states what it was measured on, and numbers marked with ~ are approximate.</p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/bharathmandha/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://github.com/bharathkumardev1" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="Bharath_Mandha_Resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
+        <button class="copy" id="copy-email" type="button" aria-describedby="email-text">
+          <span class="email-text" id="email-text">bharathmandha.200@gmail.com</span>
+          <span id="copy-state" aria-live="polite">Copy</span>
+        </button>
+      </div>
+      <div class="readouts" role="list">
+        <div class="readout" role="listitem">
+          <span class="val">~40%</span>
+          <span class="claim">less manual credit-memo analysis time</span>
+          <span class="basis">Goldman Sachs RAG platform over 3M+ internal documents</span>
+        </div>
+        <div class="readout" role="listitem">
+          <span class="val">~15%</span>
+          <span class="claim">better identification of high-need patients, within outreach capacity</span>
+          <span class="basis">Cigna 30-day readmission models, 1.5M+ encounters</span>
+        </div>
+        <div class="readout" role="listitem">
+          <span class="val">~14 pts</span>
+          <span class="claim">higher demand forecast accuracy over the prior baseline</span>
+          <span class="basis">Best Buy, MAPE and RMSE at SKU and store level</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Selected work</span>
+        <h2>What I built, the decisions behind it, and how it was measured</h2>
+      </div>
+
+      <article class="case" aria-labelledby="gs-title">
+        <aside class="rail">
+          <div class="who">
+            <div class="org">Goldman Sachs</div>
+            <div class="role">AI/ML Engineer</div>
+            <div class="dates">Jun 2025 – Present</div>
+          </div>
+          <div class="metric"><span class="v">~40%</span><span class="c">less manual credit-memo analysis time</span></div>
+          <div class="metric"><span class="v">90%+</span><span class="c">groundedness</span><span class="basis">500+ query financial-analysis benchmark</span></div>
+          <div class="metric"><span class="v">60%+</span><span class="c">of targeted repetitive reasoning steps automated</span></div>
+          <div class="metric"><span class="v">10–20 s</span><span class="c">end-to-end workflow, including retrieval, reasoning, and validation</span></div>
+        </aside>
+        <div class="story">
+          <h3 id="gs-title">A retrieval and agent platform for credit analysis over 3M+ documents</h3>
+          <p class="lede">Credit analysts work through filings and prior memos, and much of that work is repetitive multi-step reasoning. I designed the retrieval and agent orchestration layers of a LangGraph RAG platform that handles those intermediate steps first, so analysts review the output and keep the final decision.</p>
+
+          <div class="pipe-box" role="group" aria-label="Platform pipeline">
+            <ol class="pipe">
+              <li><b>Ingest</b><span>PySpark on S3, incremental updates instead of rebuilds</span></li>
+              <li><b>Index</b><span>Semantic chunking, metadata enrichment, OpenAI embeddings, FAISS</span></li>
+              <li><b>Retrieve</b><span>Metadata filtering, reranking, semantic caching</span></li>
+              <li><b>Reason</b><span>LangGraph agents for analysis, validation, and delegation on GPT-4o</span></li>
+              <li><b>Review</b><span>Analyst approval on sensitive decisions</span></li>
+            </ol>
+            <p class="loop"><b>Evaluation loop:</b> a 500+ query benchmark scores retrieval (Hit Rate, MRR, recall) separately from generation (RAGAS), and every retrieval change is tested against it.</p>
+          </div>
+
+          <ul class="decisions">
+            <li><strong>Score retrieval and generation separately.</strong> When an answer failed, separate scores showed whether retrieval, context construction, or the model caused it. That made tuning chunk size, overlap, top-k, embeddings, and reranking a set of measured experiments.</li>
+            <li><strong>Update the index incrementally.</strong> Rebuilding an index of tens of millions of chunks for every change wasn't practical. New and changed documents flow through chunking, metadata enrichment, and embedding into incremental index updates, and source-level metadata traces each update back to its document. The corpus stays current without interrupting retrieval.</li>
+            <li><strong>Optimize the workflow analysts actually wait on.</strong> The 10–20 second figure covers the full LangGraph run. Faster vector search alone would not have changed the analyst's experience, so I measured and tuned the whole path.</li>
+            <li><strong>Choose models by task.</strong> I evaluated quantization and LoRA/QLoRA on open-source models for quality, latency, GPU memory, and cost. Infrastructure savings alone did not justify moving complex credit reasoning off the strongest model. Smaller models fit narrower, more deterministic tasks.</li>
+            <li><strong>Keep the analyst in control.</strong> Agents take the repetitive intermediate steps, and human review stays on sensitive decisions, set up with risk and compliance teams. I also shipped the FastAPI layer that serves the platform to analyst dashboards.</li>
+          </ul>
+          <div class="tags" aria-label="Tools">
+            <span>LangGraph</span><span>GPT-4o</span><span>OpenAI embeddings</span><span>FAISS</span><span>RAGAS</span><span>PySpark</span><span>AWS S3</span><span>FastAPI</span><span>Hugging Face</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case" aria-labelledby="ci-title">
+        <aside class="rail">
+          <div class="who">
+            <div class="org">Cigna</div>
+            <div class="role">Machine Learning Engineer</div>
+            <div class="dates">Mar 2022 – Aug 2023</div>
+          </div>
+          <div class="metric"><span class="v">0.91</span><span class="c">AUC-ROC</span><span class="basis">30-day readmission, time-based validation</span></div>
+          <div class="metric"><span class="v">~15%</span><span class="c">better identification of high-need patients</span><span class="basis">at the team's outreach capacity</span></div>
+          <div class="metric"><span class="v">1.5M+</span><span class="c">HIPAA-regulated patient encounters</span></div>
+        </aside>
+        <div class="story">
+          <h3 id="ci-title">Readmission risk tuned to how many patients a team can reach</h3>
+          <p class="lede">Care-management teams can contact only so many patients. The goal was to find more patients who would benefit from early intervention while keeping the outreach workload manageable, so I tuned the models for that operating point.</p>
+          <ul class="decisions">
+            <li><strong>Tune for the operating point.</strong> Threshold tuning on precision-recall trade-offs, with class weighting and resampling for heavy class imbalance, set the models to the team's capacity. Raw accuracy was never the target.</li>
+            <li><strong>Validate the way the model runs.</strong> Time-based splits kept future information out of training to prevent temporal leakage.</li>
+            <li><strong>Keep features that hold up.</strong> I engineered 150+ candidate features from labs, demographics, encounter history, and clinical notes, and kept about 100 for production based on predictive value and stability.</li>
+            <li><strong>Explain every score.</strong> SHAP explanations showed clinical reviewers the drivers behind each patient's risk, and those explanations guided care-management prioritization for thousands of high-risk patients each month.</li>
+            <li><strong>Run it like production software.</strong> MLflow and Airflow handled training, batch inference, registration, and retraining. Models shipped to SageMaker and EKS through CI/CD, and PSI drift monitoring triggered retraining reviews.</li>
+          </ul>
+          <div class="tags" aria-label="Tools">
+            <span>XGBoost</span><span>LightGBM</span><span>SHAP</span><span>MLflow</span><span>Airflow</span><span>SageMaker</span><span>EKS</span><span>Docker</span><span>Terraform</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case" aria-labelledby="bb-title">
+        <aside class="rail">
+          <div class="who">
+            <div class="org">Best Buy</div>
+            <div class="role">Associate Data Scientist</div>
+            <div class="dates">Jun 2020 – Feb 2022</div>
+          </div>
+          <div class="metric"><span class="v">~14 pts</span><span class="c">higher forecast accuracy</span><span class="basis">MAPE and RMSE at SKU and store level</span></div>
+          <div class="metric"><span class="v">~12%</span><span class="c">higher targeted campaign response</span></div>
+          <div class="metric"><span class="v">50M+</span><span class="c">transactions, thousands of SKUs, hundreds of stores</span></div>
+        </aside>
+        <div class="story">
+          <h3 id="bb-title">Demand forecasts measured where inventory is decided</h3>
+          <p class="lede">Inventory planning happens per product and per store, so a single aggregate accuracy number can hide the forecasts that matter. I built and evaluated forecasting at that level, and separately built the customer segments behind targeted campaigns.</p>
+          <ul class="decisions">
+            <li><strong>Evaluate at the decision level.</strong> Time-series and gradient-boosted models were scored with MAPE and RMSE across SKU and store level demand, which raised forecast accuracy about 14 percentage points over the prior baseline.</li>
+            <li><strong>Build the data path first.</strong> PySpark, SQL, and BigQuery pipelines over 50M+ transactions surfaced seasonality and demand shifts before any modeling.</li>
+            <li><strong>Segment for action.</strong> Clustering and cohort analysis produced customer segments for targeted campaigns, which lifted response rates about 12%.</li>
+            <li><strong>Put results where teams decide.</strong> Tableau and Plotly dashboards gave merchandising, marketing, and supply-chain teams the forecasts and segments.</li>
+          </ul>
+          <div class="tags" aria-label="Tools">
+            <span>Python</span><span>SQL</span><span>PySpark</span><span>BigQuery</span><span>Tableau</span><span>Plotly</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="projects" style="border-top: 1px solid var(--rule);">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Open source</span>
+        <h2>Code you can read, run, and test</h2>
+      </div>
+      <article class="case" aria-labelledby="ara-title">
+        <aside class="rail">
+          <div class="who">
+            <div class="org">Agentic Research Assistant</div>
+            <div class="role">Python · LangGraph · FAISS · Claude</div>
+            <div class="dates">MIT license · 2026</div>
+          </div>
+          <div class="metric"><span class="v">58</span><span class="c">automated tests, including a full offline end-to-end run</span></div>
+          <div class="metric"><span class="v">3</span><span class="c">Python versions in CI (3.9, 3.11, 3.12), with mypy type checks</span></div>
+          <div class="links">
+            <a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant" target="_blank" rel="noopener">Repository ↗</a>
+            <a href="https://agentic-research-assistant-xzno.onrender.com/docs" target="_blank" rel="noopener">Live API ↗</a>
+          </div>
+          <span class="basis" style="font-size:0.78rem;">free host: the first request can take up to a minute to wake</span>
+        </aside>
+        <div class="story">
+          <h3 id="ara-title">Answers questions about research papers, with a citation on every claim</h3>
+          <p class="lede">Putting a folder of papers into one prompt hallucinates and loses track of which claim came from which paper. This project splits the work across three agents that share one FAISS index, and the evaluator's verdict decides whether the system is done or goes back for more evidence.</p>
+          <div class="pipe-box" role="group" aria-label="Agent loop">
+            <ol class="pipe three">
+              <li><b>Retrieve</b><span>Top-k chunks from FAISS, merged across loops</span></li>
+              <li><b>Draft</b><span>Answer from those chunks only, each claim tagged [n], validated with Pydantic</span></li>
+              <li><b>Check</b><span>A second model call grades grounding and coverage</span></li>
+            </ol>
+            <p class="loop"><b>Loop:</b> if the answer is thin, the evaluator writes a sharper query and the graph runs again, capped at 3 iterations and a per-run ceiling on API calls so it always stops and never runs up a bill.</p>
+          </div>
+          <ul class="decisions">
+            <li><strong>Hardened like a public service.</strong> The FastAPI endpoint has per-caller rate limiting, request timeouts, scoped API keys, sanitized errors with a reference id, and Prometheus metrics. It ships as a Docker image deployed on Render.</li>
+            <li><strong>Runs with no API key.</strong> An offline mode swaps in a deterministic embedder and a stub model, so anyone can run the real retrieval, graph, citation numbering, and report rendering locally.</li>
+            <li><strong>States its limits.</strong> The bundled sample papers are synthetic, and the README says so. It is a tested single-instance service, not a multi-tenant system.</li>
+          </ul>
+          <div class="tags" aria-label="Tools">
+            <span>LangGraph</span><span>FAISS</span><span>Claude</span><span>FastAPI</span><span>Pydantic</span><span>pytest</span><span>Docker</span><span>React</span><span>GitHub Actions</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills" style="border-top: 1px solid var(--rule);">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Skills and credentials</span>
+        <h2>Tools I use in production</h2>
+      </div>
+      <div class="grid2">
+        <dl class="kv">
+          <dt>Languages</dt><dd>Python, SQL</dd>
+          <dt>ML</dt><dd>XGBoost, LightGBM, scikit-learn, SHAP, LoRA/QLoRA, quantization, PyTorch</dd>
+          <dt>GenAI</dt><dd>LangGraph, LangChain, LangSmith, OpenAI API, Hugging Face, RAG, multi-agent systems, MCP, FAISS, RAGAS</dd>
+          <dt>MLOps</dt><dd>MLflow, Airflow, Docker, Kubernetes, Terraform, FastAPI, CI/CD</dd>
+          <dt>Data and cloud</dt><dd>PySpark, BigQuery, Tableau, Plotly, AWS (SageMaker, S3, Lambda, ECS, EKS), GCP (Vertex AI)</dd>
+        </dl>
+        <div style="display:grid; gap:28px; align-content:start;">
+          <div style="display:grid; gap:12px;">
+            <span class="label">Education</span>
+            <ul class="creds">
+              <li><span>Master of Science in Computer Science</span><span class="sub">University of North Texas · Aug 2023 – May 2025</span></li>
+            </ul>
+          </div>
+          <div style="display:grid; gap:12px;">
+            <span class="label">Certifications</span>
+            <ul class="creds">
+              <li><span>AWS Certified Machine Learning Engineer - Associate</span></li>
+              <li><span>Google Cloud Professional Machine Learning Engineer</span></li>
+              <li><span>Databricks Certified Generative AI Engineer Associate</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div style="display:grid; gap:6px;">
+      <span class="label">Contact</span>
+      <span>Open to Machine Learning Engineer roles in GenAI, retrieval, and evaluation.</span>
+    </div>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/bharathmandha/" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href="https://github.com/bharathkumardev1" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="Bharath_Mandha_Resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
+      <span class="email-text mono">bharathmandha.200@gmail.com</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-email');
+  var state = document.getElementById('copy-state');
+  var text = document.getElementById('email-text');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var value = text.textContent.trim();
+    function selectFallback() {
+      var r = document.createRange(); r.selectNodeContents(text);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      state.textContent = 'Selected';
+    }
+    try {
+      navigator.clipboard.writeText(value).then(function () { state.textContent = 'Copied'; }, selectFallback);
+    } catch (e) { selectFallback(); }
+    setTimeout(function () { state.textContent = 'Copy'; }, 2200);
+  });
+})();
+</script>
+
+</body>
+</html>
