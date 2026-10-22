@@ -31,6 +31,14 @@ function head(p, html) {
   const url = attr(html, /<link rel="canonical" href="([^"]+)">/);
   const og = existsSync(new URL("assets/og.png", root));
   const icon = existsSync(new URL("assets/icon-180.png", root));
+  // Link previews for every page with an address of its own; the 404 page has none.
+  const preview = url ? [
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:title" content="${title}">`,
+    `<meta property="og:description" content="${description}">`,
+    `<meta property="og:url" content="${url}">`,
+    og ? `<meta property="og:image" content="${SITE}assets/og.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : "",
+  ] : [];
   return [
     `<link rel="preload" href="${p}assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>`,
     `<link rel="stylesheet" href="${p}assets/site.css">`,
@@ -38,11 +46,7 @@ function head(p, html) {
     icon ? `<link rel="apple-touch-icon" href="${p}assets/icon-180.png">` : "",
     `<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">`,
     `<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">`,
-    `<meta property="og:type" content="website">`,
-    `<meta property="og:title" content="${title}">`,
-    `<meta property="og:description" content="${description}">`,
-    `<meta property="og:url" content="${url}">`,
-    og ? `<meta property="og:image" content="${SITE}assets/og.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : "",
+    ...preview,
     `<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>`,
   ].filter(Boolean).join("\n");
 }
@@ -76,7 +80,7 @@ function assetsOf(file, html) {
     }
   };
   for (const [, ref] of html.matchAll(/<(?:link rel="(?:stylesheet|preload)"|script type="module"|img)[^>]*?(?:href|src)="([^"]+)"/g)) {
-    if (!/^(https?:|data:)/.test(ref)) visit(new URL(ref, base));
+    if (!/^(https?:|data:)/.test(ref)) visit(ref.startsWith("/") ? new URL(ref.slice(1), root) : new URL(ref, base));
   }
   return [...found].map((href) => new URL(href));
 }
@@ -197,10 +201,13 @@ export const PAGES = {
     }));
     return html;
   },
+  // GitHub Pages serves this for any address without a page, from that address, so its links
+  // start at the root.
+  "404.html": async (html) => html,
 };
 
 export async function build(file, before) {
-  const p = "../".repeat(file.split("/").length - 1);
+  const p = file === "404.html" ? "/" : "../".repeat(file.split("/").length - 1);
   let html = await PAGES[file](before);
   html = fill(html, "head", head(p, html));
   html = fill(html, "header", header(p));

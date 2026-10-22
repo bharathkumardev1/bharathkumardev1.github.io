@@ -257,6 +257,10 @@ details.more[open] > summary { margin-bottom: 0.6rem; }
 .contact .links { margin: 0; }
 .where { margin: 1rem 0 0; color: var(--ink-3); }
 
+/* The 404 page's way back */
+.missing { list-style: none; padding: 0; margin: 2rem 0 0; font-size: 1.05rem; }
+.missing li { margin: 0 0 0.6rem; }
+
 /* Filing search: the card on the home page and the demo in the finance case study --------- */
 
 .search {
