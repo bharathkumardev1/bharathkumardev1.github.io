@@ -52,7 +52,7 @@ export function mark(text, want) {
 }
 
 // The pipeline's path for this question, one step per stage. Empty when nothing was searched.
-export function steps(res, total, names, k, { route = true } = {}) {
+export function steps(res, total, names, k, { route = true, compact = false } = {}) {
   if (!res.allowed || !res.loaded.length) return "";
   const companies = [...new Set(res.loaded.map((d) => names.get(d).split(/ \d{4}/)[0]))];
   const kept = res.loaded.length === 1 ? names.get(res.loaded[0])
@@ -66,7 +66,7 @@ export function steps(res, total, names, k, { route = true } = {}) {
     `<li>${picked}</li>`,
     `<li><b>${res.pages.toLocaleString("en-US")}</b> pages</li>`,
     `<li>${order}</li>`,
-    `<li>top ${k} by BM25</li>`,
+    ...(compact ? [] : [`<li>top ${k} by BM25</li>`]),
   ];
   return `<ol class="steps" aria-label="What the pipeline did">${out.join("")}</ol>`;
 }
@@ -92,9 +92,11 @@ export function benchmarkLine(q, hits, names, { compact = false } = {}) {
   const where = list(q.gold.map(([d, p]) => (oneFiling ? `page ${p + 1}` : `${names.get(d) || d}, page ${p + 1}`)));
   const r = q.first_gold_rank || {};
   if (compact) {
-    const here = found >= 0 ? `here it's result ${found + 1}` : `<span class="error">it isn't in the top ${hits.length} here</span>`;
-    const base = "bm25" in r ? ` BM25 over all 53,399 pages had it ${place(r.bm25)}.` : "";
-    return `<p>FinanceBench labels ${esc(where)} as the answer, and ${here}.${base}</p>`;
+    const ord = (n) => ["first", "second", "third"][n - 1] || `${n}th`;
+    const base = "bm25" in r ? `; BM25 over every page ranked it ${r.bm25 == null ? "below 100" : ord(r.bm25)}` : "";
+    return found >= 0
+      ? `<p>FinanceBench's answer is ${esc(where)}. This pipeline ranks it ${ord(found + 1)}${base}.</p>`
+      : `<p>FinanceBench's answer is ${esc(where)}, and <span class="error">it isn't in the top ${hits.length} here</span>.</p>`;
   }
   const split = q.split === "test" ? "one of the 100 held-out questions" : "one of the 50 I tuned on";
   const bench = [];
@@ -108,16 +110,20 @@ export function benchmarkLine(q, hits, names, { compact = false } = {}) {
 
 // One result per item. When every result comes from one filing, the steps above already name
 // it, so each result says only its page.
-export function hits(res, gold, names, { whole = true } = {}) {
+// The compact form, for the card on the home page, quotes one line of each result after the first
+// and leaves out the scores.
+export function hits(res, gold, names, { compact = false } = {}) {
   const oneFiling = res.hits.every((h) => h.doc === res.hits[0]?.doc);
   return res.hits.map((h, i) => {
     const isGold = gold.has(`${h.doc}#${h.page}`);
     const at = oneFiling ? `Page ${h.page + 1}` : `${esc(names.get(h.doc) || h.doc)}, page ${h.page + 1}`;
     const tags = h.kinds.map((k) => `<span class="tag">${TAG[k]}</span>`).join("") + (isGold ? `<span class="tag answer">Labeled answer</span>` : "");
+    const head = `<div class="hit-head"><span class="rank">${i + 1}</span><span class="at">${at}</span>${tags}${compact ? "" : `<span class="score">BM25 ${h.score.toFixed(2)}</span>`}</div>`;
+    if (compact) return `<li${i ? ' class="brief"' : ""}>\n${head}\n<p class="excerpt">${excerpt(h.text, res.tokens)}</p>\n</li>`;
     return `<li>
-<div class="hit-head"><span class="rank">${i + 1}</span><span class="at">${at}</span>${tags}<span class="score">BM25 ${h.score.toFixed(2)}</span></div>
-<p class="excerpt">${excerpt(h.text, res.tokens)}</p>` + (whole ? `
-<details class="page"><summary>Whole page</summary><div class="page-text">${mark(h.text, new Set(res.tokens))}</div></details>` : "") + `
+${head}
+<p class="excerpt">${excerpt(h.text, res.tokens)}</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">${mark(h.text, new Set(res.tokens))}</div></details>
 </li>`;
   }).join("\n");
 }
