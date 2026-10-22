@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bharath Mandha, machine learning engineer</title>
-<meta name="description" content="Bharath Mandha, machine learning engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
+<title>Bharath Mandha, AI/ML engineer</title>
+<meta name="description" content="Bharath Mandha, AI/ML engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
 <link rel="canonical" href="https://bharathkumardev1.github.io/">
 <!-- head:start -->
 <link rel="preload" href="assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -14,8 +14,8 @@
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Bharath Mandha, machine learning engineer">
-<meta property="og:description" content="Bharath Mandha, machine learning engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
+<meta property="og:title" content="Bharath Mandha, AI/ML engineer">
+<meta property="og:description" content="Bharath Mandha, AI/ML engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
 <meta property="og:url" content="https://bharathkumardev1.github.io/">
 <meta property="og:image" content="https://bharathkumardev1.github.io/assets/og.png">
 <meta property="og:image:width" content="1200">
@@ -30,8 +30,10 @@
 <header class="site-header"><div class="wrap">
 <a class="brand" href="./"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
-<a href="#projects">Projects</a>
 <a class="hide-sm" href="#experience">Experience</a>
+<a href="#projects">Projects</a>
+<a class="hide-sm" href="#skills">Skills</a>
+<a class="hide-sm" href="#contact">Contact</a>
 <a href="Bharath_Mandha_Resume.pdf">Résumé</a>
 <button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
 </nav>
@@ -41,24 +43,43 @@
 
 <section class="hero" aria-label="Introduction">
 <div class="wrap">
-<div class="intro">
 <!-- portrait:start --><!-- portrait:end -->
 <h1 class="display">Bharath Mandha</h1>
-<p class="role">Machine learning engineer at Goldman Sachs</p>
-<p class="body">I build retrieval and agent systems over financial documents for credit and risk analysts. Before that I built readmission risk models at Cigna and demand forecasts at Best Buy.</p>
-<p class="body">Most of it comes down to ranking under a budget: which ten pages go in front of the model, which one patient in ten a care team calls. So that's how I measure it, at work and in the projects below.</p>
+<p class="tagline">AI/ML engineer at Goldman Sachs, building production RAG, agents and retrieval evaluation over financial documents.</p>
+<!-- links:start -->
 <ul class="links">
-<li><a href="mailto:bharathmandha.200@gmail.com">Email</a></li>
-<li><a href="https://github.com/bharathkumardev1">GitHub</a></li>
-<li><a href="https://www.linkedin.com/in/bharathmandha">LinkedIn</a></li>
-<li><a href="Bharath_Mandha_Resume.pdf">Résumé (PDF)</a></li>
+<li><a href="https://github.com/bharathkumardev1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>GitHub</a></li>
+<li><a href="https://www.linkedin.com/in/bharathmandha"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>LinkedIn</a></li>
+<li><a href="Bharath_Mandha_Resume.pdf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>Résumé</a></li>
+<li><a href="mailto:bharathmandha.200@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>Email</a></li>
 </ul>
-<p class="where">Dallas, TX</p>
+<!-- links:end -->
+<ul class="stats" aria-label="Results">
+<li><b>~40%</b> less average credit-memo preparation time <span class="src">(Goldman Sachs)</span></li>
+<li><b>3M+</b> documents in a RAG platform used weekly by 70+ analysts <span class="src">(Goldman Sachs)</span></li>
+<li><b>0.85 to 0.91</b> readmission-risk ROC-AUC on a held-out cohort <span class="src">(Cigna)</span></li>
+<!-- stat-finance:start --><li><b>0.14 to 0.75</b> Hit@10 on held-out FinanceBench questions <span class="src">(finance-rag-eval)</span></li><!-- stat-finance:end -->
+</ul>
+</div>
+</section>
+
+<section class="section" id="projects" aria-labelledby="projects-h">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">Featured work</p>
+<h2 id="projects-h">Projects</h2>
 </div>
 
+<article class="project">
+<div class="project-head">
+<h3><a href="projects/finance-rag-eval/">Finding the page that answers a question about a 10-K</a></h3>
+<!-- card-finance:start -->
+<p>Page-level retrieval over 360 SEC filings, scored on FinanceBench's 150 analyst questions. A company and period filter and statement routing do most of the work; an embedding hybrid tied BM25 at about five times the latency, so BM25 ships.</p>
+<!-- card-finance:end -->
+</div>
+<div class="project-show">
 <div class="search" id="search" data-k="3" data-compact="true" role="region" aria-labelledby="search-h">
-<div class="search-head"><h2 id="search-h">Ask a 10-K a question</h2><p>Runs in your browser</p></div>
-<p class="search-about"><!-- hero-scope:start -->The retrieval pipeline from <a href="projects/finance-rag-eval/">my FinanceBench project</a>, over the 84 SEC filings its questions cite.<!-- hero-scope:end --></p>
+<div class="search-head"><h4 id="search-h">Ask a 10-K a question</h4><p><!-- search-scope:start -->Runs in your browser on 84 SEC filings<!-- search-scope:end --></p></div>
 <form id="ask" class="ask" role="search">
 <input id="q" name="q" type="search" autocomplete="off" value="What was the largest liability in American Express's Balance Sheet in 2022?" aria-label="Question about a filing">
 <button type="submit">Search</button>
@@ -70,98 +91,132 @@
 <li><button class="text" type="button" id="random">Random held-out question</button></li>
 </ul>
 <div id="trace" class="trace" aria-live="polite">
-<!-- hero-trace:start -->
-<ol class="steps" aria-label="What the pipeline did"><li><b>360</b> filings</li><li><b>1</b> filing: American Express 2022 10-K</li><li><b>260</b> pages</li><li>balance sheet first</li><li>top 3 by BM25</li></ol><p>FinanceBench labels page 98 as the answer, and here it's result 1. BM25 over all 53,399 pages had it below 100.</p>
-<!-- hero-trace:end -->
+<!-- search-trace:start -->
+<ol class="steps" aria-label="What the pipeline did"><li><b>360</b> filings</li><li><b>1</b> filing: American Express 2022 10-K</li><li><b>260</b> pages</li><li>balance sheet first</li></ol><p>FinanceBench's answer is page 98. This pipeline ranks it first; BM25 over every page ranked it below 100.</p>
+<!-- search-trace:end -->
 </div>
 <ol id="hits" class="hits">
-<!-- hero-hits:start -->
+<!-- search-hits:start -->
 <li>
-<div class="hit-head"><span class="rank">1</span><span class="at">Page 98</span><span class="tag">Balance sheet</span><span class="tag answer">Labeled answer</span><span class="score">BM25 2.18</span></div>
+<div class="hit-head"><span class="rank">1</span><span class="at">Page 98</span><span class="tag">Balance sheet</span><span class="tag answer">Labeled answer</span></div>
 <p class="excerpt">Table of Contents CONSOLIDATED <mark>BALANCE</mark> SHEETS December 31 (Millions, except share data) <mark>2022</mark> 2021 Assets Cash and cash equivalents Cash and due from banks (includes restricted cash of consolidated variable interest entities: <mark>2022</mark>, $5; 2021, $11) $ 5,510 $ 1,292 Interest-bearing deposits in other ban…</p>
 </li>
-<li>
-<div class="hit-head"><span class="rank">2</span><span class="at">Page 152</span><span class="score">BM25 6.40</span></div>
+<li class="brief">
+<div class="hit-head"><span class="rank">2</span><span class="at">Page 152</span></div>
 <p class="excerpt">…s our maximum credit exposure of the on-<mark>balance</mark> <mark>sheet</mark> assets by category as of December 31: (Billions) <mark>2022</mark> 2021 Individuals: $ 156 $ 131 United States 129 108 Outside the United States 27 23 Institutions: Financial services 36 24 Other 17 15 U.S. Government and agencies 4 2 Total on-<mark>balance</mark> <mark>sheet</mark> $…</p>
 </li>
-<li>
-<div class="hit-head"><span class="rank">3</span><span class="at">Page 65</span><span class="score">BM25 4.53</span></div>
+<li class="brief">
+<div class="hit-head"><span class="rank">3</span><span class="at">Page 65</span></div>
 <p class="excerpt">…apital adequacy guidelines. On- and off-<mark>balance</mark> <mark>sheet</mark> items are weighted for risk, with off-<mark>balance</mark> <mark>sheet</mark> items converted to <mark>balance</mark> <mark>sheet</mark> equivalents, using risk conversion factors, before being allocated a risk-adjusted weight. Off-<mark>balance</mark> <mark>sheet</mark> exposures comprise a minimal part of the total risk-…</p>
 </li>
-<!-- hero-hits:end -->
+<!-- search-hits:end -->
 </ol>
 <noscript><p class="search-foot">This result was searched when the page was built. Asking your own question needs JavaScript.</p></noscript>
 </div>
 </div>
-</section>
-
-<section class="section" id="projects" aria-labelledby="projects-h">
-<div class="wrap">
-<div class="section-head">
-<h2 id="projects-h">Projects</h2>
-<p>Two problems from my jobs, rebuilt on public data so anyone can check the numbers, and an agent loop I wanted measured before trusting it. Each has its code, committed results and CI that reruns them.</p>
-</div>
-
-<article class="project">
-<a class="thumb" href="projects/finance-rag-eval/" tabindex="-1" aria-hidden="true">
-<!-- thumb-finance:start -->
-<p class="fig-title">Hit@10 on 100 held-out questions, one step at a time</p><div class="rows" role="img" aria-label="Hit@10 rises from 0.14 with BM25 over every page to 0.75 with the filter, routing and the company name left out.">
-<div class="lab">All pages</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:14%"></span></div><div class="val">0.14</div>
-<div class="lab">Company</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:17%"></span></div><div class="val">0.17</div>
-<div class="lab">+ year</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:41%"></span></div><div class="val">0.41</div>
-<div class="lab">+ quarter</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:43%"></span></div><div class="val">0.43</div>
-<div class="lab">+ routing</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:71%"></span></div><div class="val">0.71</div>
-<div class="lab">+ name left out</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:75%"></span></div><div class="val">0.75</div>
-</div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0.00</span><span style="left:50%">0.50</span><span style="left:100%">1.00</span></div><span></span><span class="name">Hit@10</span></div>
-<!-- thumb-finance:end -->
-</a>
-<div>
-<h3><a href="projects/finance-rag-eval/">Finding the page that answers a question about a 10-K</a></h3>
-<!-- card-finance:start -->
-<p>FinanceBench labels the page that answers each of its 150 questions about 360 SEC filings, so retrieval can be measured on its own. Reading the company and period from the question and sending statement questions to statement pages takes Hit@10 from 0.14 to 0.75 on 100 held-out questions. An embedding hybrid tied BM25 at about five times the latency, so the service runs BM25: 126 queries a second on one core.</p>
-<!-- card-finance:end -->
+<div class="project-side">
+<!-- metrics-finance:start -->
+<div class="table-wrap"><table class="metrics"><caption>Held-out results</caption>
+<thead><tr><th>Measure</th><th class="n">Value</th></tr></thead>
+<tbody>
+<tr><td>Hit@10, 100 questions</td><td class="n">0.14 to 0.75</td></tr>
+<tr><td>Company and period filter</td><td class="n">+0.29</td></tr>
+<tr><td>Statement routing</td><td class="n">+0.28</td></tr>
+<tr><td>BM25 on one core</td><td class="n">126 req/s, 12 ms p95</td></tr>
+</tbody></table></div>
+<!-- metrics-finance:end -->
+<ol class="arch" aria-label="Pipeline">
+<li>SEC filing PDFs</li>
+<li>PyMuPDF page text</li>
+<li>Company and period filter</li>
+<li>BM25</li>
+<li>Statement routing</li>
+<li>FastAPI service</li>
+</ol>
+<ul class="tags" aria-label="Built with">
+<li>Python</li><li>BM25</li><li>MiniLM</li><li>ONNX Runtime</li><li>FastAPI</li><li>Prometheus</li><li>Docker</li><li>JavaScript</li>
+</ul>
 <ul class="actions">
-<li><a href="projects/finance-rag-eval/">Read the case study</a></li>
-<li><a href="#search">Try the search</a></li>
-<li><a href="https://github.com/bharathkumardev1/finance-rag-eval">Code on GitHub</a></li>
+<li><a href="projects/finance-rag-eval/">Case study</a></li>
+<li><a href="https://github.com/bharathkumardev1/finance-rag-eval">GitHub</a></li>
 </ul>
 </div>
 </article>
 
 <article class="project">
-<a class="thumb" href="projects/readmission-capacity/" tabindex="-1" aria-hidden="true">
-<!-- thumb-readmit:start -->
-<p class="fig-title">Readmissions reached, by share of discharges called</p><ul class="legend"><li><i class="key s1" aria-hidden="true"></i>LightGBM</li><li><i class="key s2" aria-hidden="true"></i>Most prior stays first</li><li><i class="key sx thin" aria-hidden="true"></i>Calling at random</li></ul><div class="chart short"><div class="area">
-<div class="plot" role="img" aria-label="Share of readmissions reached as more discharges are called. At 10% called, LightGBM reaches 25.0% and most prior stays first 20.5%."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,100 3.33,92.98 6.67,87.79 10,83.18 13.33,79.45 16.67,75.5 20,71.7 23.33,67.97 26.67,64.97 30,61.68 33.33,58.39 36.67,55.61 40,53.12 43.33,50.49 46.67,46.61 50,43.91 53.33,41.64 56.67,39.74 60,37.4 63.33,35.06 66.67,32.94 70,31.26 73.33,28.7 76.67,26.58 80,25.11 83.33,23.29 86.67,21.24 90,19.41 93.33,17.43 96.67,15.31 100,13.41"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,100 3.33,94.44 6.67,89.54 10,85.37 13.33,82.23 16.67,79.23 20,75.79 23.33,72.94 26.67,70.75 30,68.33 33.33,65.77 36.67,63.29 40,60.58 43.33,58.32 46.67,55.39 50,52.9 53.33,51.44 56.67,49.25 60,46.91 63.33,44.71 66.67,42.52 70,40.62 73.33,38.79 76.67,36.81 80,35.5 83.33,33.6 86.67,31.26 90,29.35 93.33,27.53 96.67,26.21 100,23.5"/><polyline class="line sx thin" vector-effect="non-scaling-stroke" points="0,100 3.33,98.33 6.67,96.67 10,95 13.33,93.33 16.67,91.67 20,90 23.33,88.33 26.67,86.67 30,85 33.33,83.33 36.67,81.67 40,80 43.33,78.33 46.67,76.67 50,75 53.33,73.33 56.67,71.67 60,70 63.33,68.33 66.67,66.67 70,65 73.33,63.33 76.67,61.67 80,60 83.33,58.33 86.67,56.67 90,55 93.33,53.33 96.67,51.67 100,50"/></svg>
-<span class="tick y" style="top:100%">0%</span><span class="tick y" style="top:66.67%">20%</span><span class="tick y" style="top:33.33%">40%</span><span class="tick y" style="top:0%">60%</span><span class="tick x" style="left:0%">0%</span><span class="tick x" style="left:33.33%">10%</span><span class="tick x" style="left:66.67%">20%</span><span class="tick x" style="left:100%">30%</span><span class="marker" style="left:33.33%"><span class="flag">10% called</span></span></div></div></div>
-<!-- thumb-readmit:end -->
-</a>
-<div>
+<div class="project-head">
 <h3><a href="projects/readmission-capacity/">Who to call after a hospital discharge</a></h3>
 <!-- card-readmit:start -->
-<p>The problem I worked on at Cigna, on 101,766 public encounters from 130 US hospitals: if a care team can call one discharged patient in ten, who should it be? A LightGBM call list reaches 25.0% of the patients readmitted within 30 days, against 20.5% when calling whoever had the most inpatient stays the year before. Every call comes with the three reasons behind its score.</p>
+<p>Readmission models judged the way a care team uses them: at a fixed call capacity, on 101,766 public encounters split by patient. Each call on the list comes with its three TreeSHAP reasons, and CI retrains the model and checks the numbers on every push.</p>
 <!-- card-readmit:end -->
+</div>
+<div class="project-show">
+<!-- chart-readmit:start -->
+<figure class="fig"><div class="fig-frame"><p class="fig-title">Readmissions reached, by share of discharges called</p><ul class="legend"><li><i class="key s1" aria-hidden="true"></i>LightGBM</li><li><i class="key s2" aria-hidden="true"></i>Most prior stays first</li><li><i class="key s0" aria-hidden="true"></i>LACE score</li><li><i class="key sx thin" aria-hidden="true"></i>Calling at random</li></ul><div class="chart mid live gutter"><div class="area">
+<div class="plot" role="img" aria-label="Share of 30-day readmissions reached as the share of discharges called grows to 30%. With a 10% call list: LightGBM 25.0%, most prior stays first 20.5%, LACE 15.8%, random 10.0%."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,100 3.33,92.98 6.67,87.79 10,83.18 13.33,79.45 16.67,75.5 20,71.7 23.33,67.97 26.67,64.97 30,61.68 33.33,58.39 36.67,55.61 40,53.12 43.33,50.49 46.67,46.61 50,43.91 53.33,41.64 56.67,39.74 60,37.4 63.33,35.06 66.67,32.94 70,31.26 73.33,28.7 76.67,26.58 80,25.11 83.33,23.29 86.67,21.24 90,19.41 93.33,17.43 96.67,15.31 100,13.41"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,100 3.33,94.44 6.67,89.54 10,85.37 13.33,82.23 16.67,79.23 20,75.79 23.33,72.94 26.67,70.75 30,68.33 33.33,65.77 36.67,63.29 40,60.58 43.33,58.32 46.67,55.39 50,52.9 53.33,51.44 56.67,49.25 60,46.91 63.33,44.71 66.67,42.52 70,40.62 73.33,38.79 76.67,36.81 80,35.5 83.33,33.6 86.67,31.26 90,29.35 93.33,27.53 96.67,26.21 100,23.5"/><polyline class="line s0" vector-effect="non-scaling-stroke" points="0,100 3.33,97.07 6.67,94.08 10,91.88 13.33,89.47 16.67,86.98 20,84.5 23.33,81.64 26.67,78.94 30,76.01 33.33,73.6 36.67,71.48 40,69.8 43.33,67.38 46.67,65.12 50,63.21 53.33,60.51 56.67,58.83 60,56.78 63.33,54.59 66.67,53.2 70,51.51 73.33,49.9 76.67,47.86 80,45.96 83.33,43.91 86.67,41.49 90,39.74 93.33,38.13 96.67,36.3 100,34.62"/><polyline class="line sx thin" vector-effect="non-scaling-stroke" points="0,100 3.33,98.33 6.67,96.67 10,95 13.33,93.33 16.67,91.67 20,90 23.33,88.33 26.67,86.67 30,85 33.33,83.33 36.67,81.67 40,80 43.33,78.33 46.67,76.67 50,75 53.33,73.33 56.67,71.67 60,70 63.33,68.33 66.67,66.67 70,65 73.33,63.33 76.67,61.67 80,60 83.33,58.33 86.67,56.67 90,55 93.33,53.33 96.67,51.67 100,50"/></svg>
+<span class="tick y" style="top:100%">0%</span><span class="tick y" style="top:66.67%">20%</span><span class="tick y" style="top:33.33%">40%</span><span class="tick y" style="top:0%">60%</span><span class="tick x" style="left:0%">0%</span><span class="tick x" style="left:33.33%">10%</span><span class="tick x" style="left:66.67%">20%</span><span class="tick x" style="left:100%">30%</span><span class="axis-title x">share of discharges called</span><span class="axis-title y">share of readmissions reached</span><span class="marker" style="left:33.33%"><span class="flag">10% call list</span></span><span class="end-label right" style="left:100%;top:13.41%">LightGBM</span><span class="end-label right" style="left:100%;top:23.5%">Most prior stays first</span><span class="end-label right" style="left:100%;top:34.62%">LACE score</span><span class="end-label right" style="left:100%;top:50%">Calling at random</span></div><div class="hover" tabindex="0" role="slider" aria-label="Values along the chart" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0% called: LightGBM 0.0%, Most prior stays first 0.0%, LACE score 0.0%, Calling at random 0.0%"></div><span class="cross" aria-hidden="true"></span><div class="tip" aria-hidden="true"></div></div><script type="application/json" class="chart-data">{"x":[0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3],"at":[0,3.33,6.67,10,13.33,16.67,20,23.33,26.67,30,33.33,36.67,40,43.33,46.67,50,53.33,56.67,60,63.33,66.67,70,73.33,76.67,80,83.33,86.67,90,93.33,96.67,100],"xfmt":"called","yfmt":"pct1","top":0.6,"bottom":0,"series":[{"name":"LightGBM","cls":"s1","y":[0,0.04212373848179026,0.0732777534006143,0.10092145677928917,0.12329969284774024,0.14699429574374726,0.16981132075471697,0.19218955682316805,0.21017990346643264,0.22992540587977184,0.249670908293111,0.2663448881088197,0.2812637121544537,0.29706011408512506,0.3203159280386134,0.33655111891180345,0.3501535761298815,0.3615620886353664,0.37560333479596314,0.3896445809565599,0.4023694602896007,0.4124616059675296,0.4278192189556823,0.44054409828872315,0.4493198771390961,0.4602896007020623,0.47257569109258446,0.4835454146555507,0.4953927161035542,0.508117595436595,0.5195261079420799]},{"name":"Most prior stays first","cls":"s2","y":[0,0.03334795963141729,0.06274681878016675,0.0877577885037297,0.1066257130320316,0.12461605967529618,0.14523913997367266,0.16235190873189995,0.1755155770074594,0.1899956121105748,0.2053532250987275,0.22027204914436158,0.23650724001755155,0.25010969723562965,0.2676612549363756,0.28258007898200965,0.2913558578323826,0.3045195261079421,0.31856077226853885,0.3317244405440983,0.34488810881965776,0.3562966213251426,0.36726634488810883,0.37911364633611233,0.387011847301448,0.39842035980693286,0.4124616059675296,0.4238701184730145,0.4348398420359807,0.44273804300131636,0.45897323387450634]},{"name":"LACE score","cls":"s0","y":[0,0.017551557700745943,0.03554190434401053,0.04870557261956999,0.06318560772268539,0.07810443176831944,0.09302325581395349,0.11013602457218079,0.12637121544537078,0.1439227731461167,0.1584028082492321,0.17112768758227292,0.18121983326020183,0.19569986836331724,0.20930232558139536,0.22071083808688022,0.2369460289600702,0.24703817463799913,0.2593242650285213,0.2724879333040807,0.2808249232119351,0.29091706888986396,0.30057042562527425,0.3128565160157964,0.32426502852128125,0.33655111891180345,0.3510311540149188,0.3615620886353664,0.37121544537077666,0.3821851689337429,0.3922773146116718]},{"name":"Calling at random","cls":"sx","y":[0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3]}]}</script></div><details class="twin"><summary>Show the numbers</summary><div class="table-wrap"><table><caption>Share of readmissions reached</caption>
+<thead><tr><th>Ranking</th><th class="n">5% called</th><th class="n">10% called</th><th class="n">20% called</th><th class="n">30% called</th></tr></thead>
+<tbody>
+<tr><td>LightGBM</td><td class="n">14.7%</td><td class="n">25.0%</td><td class="n">40.2%</td><td class="n">52.0%</td></tr>
+<tr><td>Most prior stays first</td><td class="n">12.5%</td><td class="n">20.5%</td><td class="n">34.5%</td><td class="n">45.9%</td></tr>
+<tr><td>LACE score</td><td class="n">7.8%</td><td class="n">15.8%</td><td class="n">28.1%</td><td class="n">39.2%</td></tr>
+<tr><td>Calling at random</td><td class="n">5.0%</td><td class="n">10.0%</td><td class="n">20.0%</td><td class="n">30.0%</td></tr>
+</tbody></table></div></details></div><figcaption>Each line ranks the 19,745 held-out discharges a different way and calls from the top.</figcaption></figure>
+<!-- chart-readmit:end -->
+</div>
+<div class="project-side">
+<!-- metrics-readmit:start -->
+<div class="table-wrap"><table class="metrics"><caption>Held-out results</caption>
+<thead><tr><th>Measure</th><th class="n">Value</th></tr></thead>
+<tbody>
+<tr><td>Readmissions reached, 10% call list</td><td class="n">25.0%</td></tr>
+<tr><td>Most prior stays first</td><td class="n">20.5%</td></tr>
+<tr><td>LACE score</td><td class="n">15.8%</td></tr>
+<tr><td>Scoring on one core</td><td class="n">72 req/s, 18.7 ms p95</td></tr>
+</tbody></table></div>
+<!-- metrics-readmit:end -->
+<ol class="arch" aria-label="Pipeline">
+<li>UCI extract</li>
+<li>Patient-level split</li>
+<li>LightGBM</li>
+<li>Isotonic calibration</li>
+<li>TreeSHAP reasons</li>
+<li>FastAPI scoring</li>
+</ol>
+<ul class="tags" aria-label="Built with">
+<li>Python</li><li>pandas</li><li>LightGBM</li><li>XGBoost</li><li>scikit-learn</li><li>TreeSHAP</li><li>FastAPI</li><li>Docker</li>
+</ul>
 <ul class="actions">
-<li><a href="projects/readmission-capacity/">Read the case study</a></li>
-<li><a href="projects/readmission-capacity/#plan">Plan the calls</a></li>
-<li><a href="https://github.com/bharathkumardev1/readmission-capacity">Code on GitHub</a></li>
+<li><a href="projects/readmission-capacity/">Case study</a></li>
+<li><a href="projects/readmission-capacity/#plan">Live demo</a></li>
+<li><a href="https://github.com/bharathkumardev1/readmission-capacity">GitHub</a></li>
 </ul>
 </div>
 </article>
 
 <article class="project">
-<a class="thumb" href="projects/research-assistant/" tabindex="-1" aria-hidden="true">
-<!-- thumb-ara:start -->
-<p class="fig-title">Review until the answer is supported</p><svg class="diagram compact" viewBox="0 0 420 182" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="8" y="64" width="76" height="44" rx="10"/><text class="title" x="46" y="91" text-anchor="middle">Question</text></g><g class="node "><rect x="112" y="64" width="84" height="44" rx="10"/><text class="title" x="154" y="91" text-anchor="middle">Retrieve</text></g><g class="node "><rect x="224" y="64" width="84" height="44" rx="10"/><text class="title" x="266" y="91" text-anchor="middle">Answer</text></g><g class="node strong"><rect x="336" y="64" width="76" height="44" rx="10"/><text class="title" x="374" y="91" text-anchor="middle">Review</text></g><path class="wire" d="M84,86 L110,86"/><polygon class="head" points="110,86 103.7,82.96 103.7,89.04"/><path class="wire" d="M196,86 L222,86"/><polygon class="head" points="222,86 215.7,82.96 215.7,89.04"/><path class="wire" d="M308,86 L334,86"/><polygon class="head" points="334,86 327.7,82.96 327.7,89.04"/><path class="wire loop" d="M374,108 L374,150 L154,150 L154,110"/><polygon class="head loop" points="154,110 150.96,116.3 157.04,116.3"/><text class="edge" x="264" y="168" text-anchor="middle">refined query</text><path class="wire" d="M374,64 L374,30 L300,30"/><polygon class="head" points="300,30 306.3,33.04 306.3,26.96"/><text class="edge" x="330" y="22" text-anchor="middle">accepted</text><text x="292" y="34" text-anchor="end" class="title">answer + citations</text></svg>
-<!-- thumb-ara:end -->
-</a>
-<div>
+<div class="project-head">
 <h3><a href="projects/research-assistant/">A research assistant that reviews its own answers</a></h3>
-<p>A LangGraph loop that answers questions about research papers and cites the passages it used. A second model call reviews each answer against those passages and asks for another search when it falls short. I'm measuring whether that review earns its extra calls over a single pass on QASPER, and every model reply is recorded so CI can rerun the evaluation without an API key.</p>
-<p class="status">The QASPER comparison isn't published yet. The loop, the evaluation harness and the replay are in the repo now.</p>
+<p>A LangGraph loop that answers questions about research papers with cited passages. A second model call reviews each answer and asks for another search when it falls short, and every model reply is recorded so CI can replay the QASPER evaluation without an API key.</p>
+</div>
+<div class="project-show">
+<!-- loop-ara:start -->
+<figure class="fig"><div class="fig-frame"><p class="fig-title">Review until the answer is supported</p><svg class="diagram diagram-wide" viewBox="0 0 600 232" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="8" y="96" width="96" height="56" rx="10"/><text class="title" x="56" y="129" text-anchor="middle">Question</text></g><g class="node "><rect x="140" y="96" width="124" height="56" rx="10"/><text class="title" x="202" y="121.5" text-anchor="middle">Retrieve</text><text class="sub" x="202" y="138.5" text-anchor="middle">top 5 passages</text></g><g class="node "><rect x="300" y="96" width="124" height="56" rx="10"/><text class="title" x="362" y="121.5" text-anchor="middle">Answer</text><text class="sub" x="362" y="138.5" text-anchor="middle">cites [1] to [5]</text></g><g class="node strong"><rect x="460" y="96" width="132" height="56" rx="10"/><text class="title" x="526" y="121.5" text-anchor="middle">Review</text><text class="sub" x="526" y="138.5" text-anchor="middle">second model call</text></g><g class="node ends"><rect x="404" y="4" width="188" height="50" rx="10"/><text class="title" x="498" y="26.5" text-anchor="middle">Result</text><text class="sub" x="498" y="43.5" text-anchor="middle">answer and cited passages</text></g><path class="wire" d="M104,124 L138,124"/><polygon class="head" points="138,124 131.7,120.96 131.7,127.04"/><path class="wire" d="M264,124 L298,124"/><polygon class="head" points="298,124 291.7,120.96 291.7,127.04"/><path class="wire" d="M424,124 L458,124"/><polygon class="head" points="458,124 451.7,120.96 451.7,127.04"/><path class="wire" d="M526,96 L526,56"/><polygon class="head" points="526,56 522.96,62.3 529.04,62.3"/><text class="edge" x="518" y="80" text-anchor="end">supported and complete</text><path class="wire loop" d="M526,152 L526,196 L202,196 L202,154"/><polygon class="head loop" points="202,154 198.96,160.3 205.04,160.3"/><text class="edge" x="364" y="218" text-anchor="middle">refined query, up to three rounds</text><path class="wire" d="M362,96 L362,29 L402,29"/><polygon class="head" points="402,29 395.7,25.96 395.7,32.04"/><text class="edge" x="354" y="60" text-anchor="end">single pass</text></svg><svg class="diagram diagram-tall" viewBox="0 0 360 466" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="110" y="8" width="140" height="48" rx="10"/><text class="title" x="180" y="37" text-anchor="middle">Question</text></g><g class="node "><rect x="110" y="96" width="140" height="56" rx="10"/><text class="title" x="180" y="121.5" text-anchor="middle">Retrieve</text><text class="sub" x="180" y="138.5" text-anchor="middle">top 5 passages</text></g><g class="node "><rect x="110" y="192" width="140" height="56" rx="10"/><text class="title" x="180" y="217.5" text-anchor="middle">Answer</text><text class="sub" x="180" y="234.5" text-anchor="middle">cites [1] to [5]</text></g><g class="node strong"><rect x="110" y="288" width="140" height="56" rx="10"/><text class="title" x="180" y="313.5" text-anchor="middle">Review</text><text class="sub" x="180" y="330.5" text-anchor="middle">second model call</text></g><g class="node ends"><rect x="90" y="400" width="180" height="54" rx="10"/><text class="title" x="180" y="424.5" text-anchor="middle">Result</text><text class="sub" x="180" y="441.5" text-anchor="middle">answer and cited passages</text></g><path class="wire" d="M180,56 L180,94"/><polygon class="head" points="180,94 183.04,87.7 176.96,87.7"/><path class="wire" d="M180,152 L180,190"/><polygon class="head" points="180,190 183.04,183.7 176.96,183.7"/><path class="wire" d="M180,248 L180,286"/><polygon class="head" points="180,286 183.04,279.7 176.96,279.7"/><path class="wire" d="M180,344 L180,398"/><polygon class="head" points="180,398 183.04,391.7 176.96,391.7"/><text class="edge" x="188" y="376" text-anchor="start">supported and complete</text><path class="wire loop" d="M250,316 L320,316 L320,124 L252,124"/><polygon class="head loop" points="252,124 258.3,127.04 258.3,120.96"/><text class="edge" x="313" y="168" text-anchor="end">refined query</text><text class="edge" x="313" y="183" text-anchor="end">up to three rounds</text><path class="wire" d="M110,220 L40,220 L40,427 L88,427"/><polygon class="head" points="88,427 81.7,423.96 81.7,430.04"/><text class="edge" x="46" y="268" text-anchor="start">single pass</text></svg></div><figcaption>It stops early at a 120 s deadline, at the spending cap, or when a refined query finds nothing new. The single pass it's measured against skips the review.</figcaption></figure>
+<!-- loop-ara:end -->
+</div>
+<div class="project-side">
+<div class="table-wrap"><table class="metrics"><caption>Status</caption>
+<tbody>
+<tr><td>Benchmark</td><td class="n">QASPER, 150 test questions</td></tr>
+<tr><td>Compared with</td><td class="n">a single pass</td></tr>
+<tr><td>Results</td><td class="n">not published yet</td></tr>
+</tbody></table></div>
+<ul class="tags" aria-label="Built with">
+<li>Python</li><li>LangGraph</li><li>OpenAI API</li><li>ONNX Runtime</li><li>MiniLM</li><li>FastAPI</li><li>Prometheus</li><li>Docker</li>
+</ul>
 <ul class="actions">
-<li><a href="projects/research-assistant/">Read the design</a></li>
-<li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Code on GitHub</a></li>
+<li><a href="projects/research-assistant/">Design</a></li>
+<li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">GitHub</a></li>
 </ul>
 </div>
 </article>
@@ -171,40 +226,125 @@
 <section class="section" id="experience" aria-labelledby="experience-h">
 <div class="wrap">
 <div class="section-head">
+<p class="eyebrow">Career</p>
 <h2 id="experience-h">Experience</h2>
-<p>More than four years building production ML and LLM systems. Every role and bullet is on my <a href="Bharath_Mandha_Resume.pdf">résumé</a>.</p>
 </div>
 
 <div class="job">
 <div><h3>Goldman Sachs</h3><p class="title">AI/ML Engineer</p><p class="when">June 2025 to now</p></div>
+<div class="job-body">
 <ul>
 <li>Designed the retrieval and LangGraph orchestration layers, and their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks), used weekly by 70+ credit and risk analysts.</li>
+</ul>
+<details class="more"><summary>Show all bullets</summary>
+<ul>
 <li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
 <li>Built a 500+ query retrieval benchmark of factual lookups, comparisons and multi-document questions, and scored retrieval apart from generation and from the 10 to 20 second end-to-end workflow, so tuning of chunking, metadata filtering, the FAISS index and a cross-encoder reranker went where the time and errors were. RAGAS groundedness stayed above 90%.</li>
+<li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
 <li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, chunking, metadata enrichment, embedding generation) that updated the vector index incrementally, without full index rebuilds.</li>
 <li>Evaluated quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and showed that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
 </ul>
+</details>
+</div>
 </div>
 
 <div class="job">
 <div><h3>Cigna</h3><p class="title">Machine Learning Engineer</p><p class="when">March 2022 to August 2023</p></div>
+<div class="job-body">
 <ul>
 <li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and raised ROC-AUC from 0.85 to 0.91 on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation.</li>
+</ul>
+<details class="more"><summary>Show all bullets</summary>
+<ul>
 <li>At a fixed outreach capacity of 1,000 patients a month, identified about 15% more high-need patients, through feature engineering, class-imbalance handling and precision-recall threshold tuning.</li>
+<li>Engineered 150+ candidate features from labs, demographics, encounter history and clinical notes, and kept about 100 in production based on predictive value and stability.</li>
 <li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize thousands of high-risk patients a month.</li>
 </ul>
+</details>
+</div>
 </div>
 
 <div class="job">
 <div><h3>Best Buy</h3><p class="title">Associate Data Scientist</p><p class="when">June 2020 to February 2022</p></div>
+<div class="job-body">
 <ul>
 <li>Cut the weighted MAPE of SKU- and store-level demand forecasts by about 14%, with gradient-boosted models benchmarked against time-series baselines on time-based holdouts, tracking RMSE alongside MAPE.</li>
+</ul>
+<details class="more"><summary>Show all bullets</summary>
+<ul>
+<li>Built PySpark, SQL and BigQuery pipelines over 50M+ transactions across thousands of SKUs and hundreds of stores.</li>
 <li>Raised response on comparable targeted campaigns by about 12% with six customer segments from clustering and cohort analysis.</li>
+</ul>
+</details>
+</div>
+</div>
+
+</div>
+</section>
+
+<section class="section" id="skills" aria-labelledby="skills-h">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">Expertise</p>
+<h2 id="skills-h">Skills</h2>
+</div>
+
+<div class="skill">
+<h3>AI / ML</h3>
+<ul class="chips">
+<li>RAG</li>
+<li>Agentic systems</li>
+<li>Retrieval evaluation</li>
+<li>LoRA / QLoRA</li>
+<li>PyTorch</li>
+<li>Hugging Face</li>
+<li>LangGraph</li>
+<li>LangChain</li>
+<li>FAISS</li>
+<li>RAGAS</li>
+<li>XGBoost</li>
+<li>LightGBM</li>
+<li>scikit-learn</li>
+<li>SHAP</li>
 </ul>
 </div>
 
+<div class="skill">
+<h3>Languages, data and web</h3>
+<ul class="chips">
+<li>Python</li>
+<li>SQL</li>
+<li>PySpark</li>
+<li>BigQuery</li>
+<li>FastAPI</li>
+</ul>
+</div>
+
+<div class="skill">
+<h3>Infrastructure and deployment</h3>
+<ul class="chips">
+<li>AWS (SageMaker, S3, EKS)</li>
+<li>GCP Vertex AI</li>
+<li>Docker</li>
+<li>Kubernetes</li>
+<li>Terraform</li>
+<li>MLflow</li>
+<li>Airflow</li>
+<li>CI/CD</li>
+</ul>
+</div>
+
+</div>
+</section>
+
+<section class="section" id="education" aria-labelledby="education-h">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">Credentials</p>
+<h2 id="education-h">Education</h2>
+</div>
 <div class="creds">
-<div><h3>Education</h3><p>Master of Science in Computer Science, University of North Texas, August 2023 to May 2025</p></div>
+<div><h3>Degree</h3><p>Master of Science in Computer Science, University of North Texas, August 2023 to May 2025</p></div>
 <div><h3>Certifications</h3>
 <ul>
 <li>AWS Certified Machine Learning Engineer, Associate</li>
@@ -216,14 +356,33 @@
 </div>
 </section>
 
+<section class="section" id="contact" aria-labelledby="contact-h">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">Get in touch</p>
+<h2 id="contact-h">Contact</h2>
+</div>
+<div class="contact">
+<!-- contact:start -->
+<ul class="links">
+<li><a href="mailto:bharathmandha.200@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>bharathmandha.200@gmail.com</a></li>
+<li><a href="https://www.linkedin.com/in/bharathmandha"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>LinkedIn</a></li>
+<li><a href="https://github.com/bharathkumardev1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>GitHub</a></li>
+</ul>
+<!-- contact:end -->
+<p class="where">Dallas, TX</p>
+</div>
+</div>
+</section>
+
 </main>
 <!-- footer:start -->
 <footer class="site-footer"><div class="wrap">
-<p>Bharath Mandha<br>Dallas, TX<br><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></p>
-<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is 101 KB, about 50 KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+<p>© 2026 Bharath Mandha</p>
 </div></footer>
 <!-- footer:end -->
-<script type="module" src="assets/site.js"></script>
+<script type="module" src="assets/charts.js"></script>
 <script type="module" src="assets/demo.js"></script>
+<script type="module" src="assets/site.js"></script>
 </body>
 </html>

@@ -60,8 +60,8 @@ claim(META.n_pages === 53399, "the page count in the labels");
 const bm1 = () => S.load.levels.find((x) => x.method === "bm25" && x.concurrency === 1);
 const sha = E.git_sha.slice(0, 7);
 
-// The example the home page and the pipeline figure follow.
-export const EXAMPLE = "What was the largest liability in American Express's Balance Sheet in 2022?";
+// The example the pipeline figure follows.
+const EXAMPLE = "What was the largest liability in American Express's Balance Sheet in 2022?";
 const DEMO_EXAMPLE = "What is Coca Cola's FY2021 COGS % margin? Calculate what was asked by utilizing the line items clearly shown in the income statement.";
 const byText = new Map(QUESTIONS.map((q) => [q.q, q]));
 
@@ -73,40 +73,46 @@ async function render(question, k, compact = false) {
   const rank = res.hits.findIndex((h) => gold.has(`${h.doc}#${h.page}`)) + 1;
   return {
     res, q, gold, rank,
-    trace: steps(res, META.filings.length, NAMES, k) + benchmarkLine(q, res.hits, NAMES, { compact }),
-    hits: renderHits(res, gold, NAMES, { whole: !compact }),
+    trace: steps(res, META.filings.length, NAMES, k, { compact }) + benchmarkLine(q, res.hits, NAMES, { compact }),
+    hits: renderHits(res, gold, NAMES, { compact }),
   };
 }
 
 // Home page ------------------------------------------------------------------------------------
 
-export async function hero() {
-  const r = await render(EXAMPLE, 3, true);
-  claim(r.rank === 1, "the home page example finds its answer page first");
-  return r;
-}
-
-export function scope(link) {
-  const demo = META.filings.filter((f) => f.demo);
-  return `The retrieval pipeline from ${link}, over the ${demo.length} SEC filings its questions cite.`;
-}
-
-export function thumb() {
-  const body = F.dotRows({
-    rows: LADDER.map(([k, , , short]) => ({ label: short, value: t(k)["hit@10"], cls: "s1" })),
-    domain: [0, 1], ticks: [0, 0.5, 1], fmt: f2, name: "Hit@10",
-    aria: `Hit@10 rises from ${f2(t(NONE)["hit@10"])} with BM25 over every page to ${f2(t(BM)["hit@10"])} with the filter, routing and the company name left out.`,
-  });
-  return `<p class="fig-title">Hit@10 on ${t(NONE).n} held-out questions, one step at a time</p>${body}`;
-}
-
 export function card() {
-  const none = t(NONE), bm = t(BM), hy = t(HYBRID);
+  const bm = t(BM), hy = t(HYBRID);
   const c = cmp(HYBRID, BM);
   claim(spansZero(c), "the hybrid ties BM25 on test");
   const times = TIMES[Math.round(hy.p50_ms / bm.p50_ms)];
   claim(Boolean(times), "the hybrid's latency is a small multiple of BM25's");
-  return `<p>FinanceBench labels the page that answers each of its ${QUESTIONS.length} questions about ${META.filings.length} SEC filings, so retrieval can be measured on its own. Reading the company and period from the question and sending statement questions to statement pages takes Hit@10 from ${f2(none["hit@10"])} to ${f2(bm["hit@10"])} on ${none.n} held-out questions. An embedding hybrid tied BM25 at about ${times} the latency, so the service runs BM25: ${bm1().throughput_rps.toFixed(0)} queries a second on one core.</p>`;
+  return `<p>Page-level retrieval over ${META.filings.length} SEC filings, scored on FinanceBench's ${QUESTIONS.length} analyst questions. A company and period filter and statement routing do most of the work; an embedding hybrid tied BM25 at about ${times} the latency, so BM25 ships.</p>`;
+}
+
+// The search in the project's card starts on the example the pipeline figure follows, already
+// searched, so the card reads the same without JavaScript.
+export async function search() {
+  const r = await render(EXAMPLE, 3, true);
+  claim(r.rank === 1, "the home page example finds its answer page first");
+  return { ...r, scope: `Runs in your browser on ${META.filings.filter((f) => f.demo).length} SEC filings` };
+}
+
+export function stat() {
+  return `<li><b>${f2(t(NONE)["hit@10"])} to ${f2(t(BM)["hit@10"])}</b> Hit@10 on held-out FinanceBench questions <span class="src">(finance-rag-eval)</span></li>`;
+}
+
+export function metrics() {
+  const none = t(NONE), bm = t(BM), b = bm1();
+  const cFilter = cmp(FILTER, NONE), cRoute = cmp(ROUTE, FILTER);
+  return F.table({
+    caption: "Held-out results", numeric: [1], head: ["Measure", "Value"], cls: "metrics",
+    rows: [
+      [`Hit@10, ${none.n} questions`, `${f2(none["hit@10"])} to ${f2(bm["hit@10"])}`],
+      ["Company and period filter", signed(cFilter.diff)],
+      ["Statement routing", signed(cRoute.diff)],
+      ["BM25 on one core", `${b.throughput_rps.toFixed(0)} req/s, ${ms(b.p95_ms)} ms p95`],
+    ],
+  });
 }
 
 // Case study ------------------------------------------------------------------------------------

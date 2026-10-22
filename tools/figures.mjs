@@ -154,25 +154,22 @@ function wire(points, label, { cls = "", lx, ly, anchor = "middle" } = {}) {
 
 const svg = (w, h, aria, inner, cls) => `<svg class="diagram ${cls}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(aria)}">${inner}</svg>`;
 
-export function loopDiagram(aria, { compact = false } = {}) {
-  if (compact) {
-    // For the project list: the loop and nothing else.
-    const n = [
-      node(8, 64, 76, 44, "Question"),
-      node(112, 64, 84, 44, "Retrieve"),
-      node(224, 64, 84, 44, "Answer"),
-      node(336, 64, 76, 44, "Review", null, "strong"),
-    ].join("");
-    const w = [
-      wire([[84, 86], [110, 86]]),
-      wire([[196, 86], [222, 86]]),
-      wire([[308, 86], [334, 86]]),
-      wire([[374, 108], [374, 150], [154, 150], [154, 110]], "refined query", { cls: "loop", lx: 264, ly: 168 }),
-      wire([[374, 64], [374, 30], [300, 30]], "accepted", { lx: 330, ly: 22 }),
-    ].join("");
-    const done = `<text x="292" y="34" text-anchor="end" class="title">answer + citations</text>`;
-    return svg(420, 182, aria, n + w + done, "compact");
-  }
+// The research assistant's loop. On phones the tall version replaces the wide one; a project card
+// on the home page gets a narrower wide version, without the stopping rules.
+export function loopDiagram(aria, { card = false } = {}) {
+  const narrow = svg(600, 232, aria, [
+    node(8, 96, 96, 56, "Question"),
+    node(140, 96, 124, 56, "Retrieve", "top 5 passages"),
+    node(300, 96, 124, 56, "Answer", "cites [1] to [5]"),
+    node(460, 96, 132, 56, "Review", "second model call", "strong"),
+    node(404, 4, 188, 50, "Result", "answer and cited passages", "ends"),
+    wire([[104, 124], [138, 124]]),
+    wire([[264, 124], [298, 124]]),
+    wire([[424, 124], [458, 124]]),
+    wire([[526, 96], [526, 56]], "supported and complete", { lx: 518, ly: 80, anchor: "end" }),
+    wire([[526, 152], [526, 196], [202, 196], [202, 154]], "refined query, up to three rounds", { cls: "loop", lx: 364, ly: 218 }),
+    wire([[362, 96], [362, 29], [402, 29]], "single pass", { lx: 354, ly: 60, anchor: "end" }),
+  ].join(""), "diagram-wide");
   const wide = svg(760, 300, aria, [
     node(16, 96, 108, 56, "Question"),
     node(176, 96, 128, 56, "Retrieve", "top 5 passages"),
@@ -188,7 +185,8 @@ export function loopDiagram(aria, { compact = false } = {}) {
     `<text class="edge" x="16" y="262">Stops early at a 120 s deadline, at the spending cap,</text>`,
     `<text class="edge" x="16" y="280">or when a refined query finds no passage the last answer didn't have.</text>`,
   ].join(""), "diagram-wide");
-  const tall = svg(360, 560, aria, [
+  // The stopping rules are in the card's caption, so the card's tall version leaves them out.
+  const tall = svg(360, card ? 466 : 560, aria, [
     node(110, 8, 140, 48, "Question"),
     node(110, 96, 140, 56, "Retrieve", "top 5 passages"),
     node(110, 192, 140, 56, "Answer", "cites [1] to [5]"),
@@ -199,13 +197,14 @@ export function loopDiagram(aria, { compact = false } = {}) {
     wire([[180, 248], [180, 286]]),
     wire([[180, 344], [180, 398]], "supported and complete", { lx: 188, ly: 376, anchor: "start" }),
     wire([[250, 316], [320, 316], [320, 124], [252, 124]], "", { cls: "loop" }),
-    `<text class="edge" x="313" y="176" text-anchor="end">refined query</text>`,
+    `<text class="edge" x="313" y="${card ? 168 : 176}" text-anchor="end">refined query</text>`,
+    card ? `<text class="edge" x="313" y="183" text-anchor="end">up to three rounds</text>` : "",
     wire([[110, 220], [40, 220], [40, 427], [88, 427]], "single pass", { lx: 46, ly: 268, anchor: "start" }),
-    `<text class="edge" x="16" y="490">Up to three rounds. Stops early at a 120 s</text>`,
-    `<text class="edge" x="16" y="508">deadline, at the spending cap, or when a</text>`,
-    `<text class="edge" x="16" y="526">refined query finds nothing new.</text>`,
+    card ? "" : `<text class="edge" x="16" y="490">Up to three rounds. Stops early at a 120 s</text>`,
+    card ? "" : `<text class="edge" x="16" y="508">deadline, at the spending cap, or when a</text>`,
+    card ? "" : `<text class="edge" x="16" y="526">refined query finds nothing new.</text>`,
   ].join(""), "diagram-tall");
-  return wide + tall;
+  return (card ? narrow : wide) + tall;
 }
 
 export function replayDiagram(aria) {

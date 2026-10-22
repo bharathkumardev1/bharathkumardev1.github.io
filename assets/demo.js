@@ -13,7 +13,7 @@ const input = $("#q");
 const trace = $("#trace");
 const hitsEl = $("#hits");
 const K = Number(box.dataset.k) || 5;
-const COMPACT = box.dataset.compact === "true"; // the home page's card: shorter notes, no whole pages
+const COMPACT = box.dataset.compact === "true"; // the home page's card: shorter notes and quotes
 
 let engine = null;
 let questions = [];
@@ -84,9 +84,9 @@ async function run(text) {
     }
     const bq = byText.get(question);
     const timing = `<p>Ranked in ${ms.toFixed(1)} ms in your browser${res.loadMs > 5 ? `, after ${res.loadMs.toFixed(0)} ms loading the filing` : ""}.</p>`;
-    trace.innerHTML = steps(res, total, names, K, { route }) + (COMPACT ? "" : timing) + (bq ? benchmarkLine(bq, res.hits, names, { compact: COMPACT }) : "");
+    trace.innerHTML = steps(res, total, names, K, { route, compact: COMPACT }) + (COMPACT ? "" : timing) + (bq ? benchmarkLine(bq, res.hits, names, { compact: COMPACT }) : "");
     const gold = new Set((bq ? bq.gold : []).map(([d, p]) => `${d}#${p}`));
-    hitsEl.innerHTML = renderHits(res, gold, names, { whole: !COMPACT });
+    hitsEl.innerHTML = renderHits(res, gold, names, { compact: COMPACT });
   } catch (err) {
     trace.innerHTML = `<p class="error">${esc(String(err.message || err))}. The measured results on this site don't depend on the demo.</p>`;
   }

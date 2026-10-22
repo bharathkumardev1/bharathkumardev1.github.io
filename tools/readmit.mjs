@@ -30,37 +30,48 @@ const XMAX = 0.3;
 
 // Home page ------------------------------------------------------------------------------------
 
-function capacitySeries(names) {
-  const xs = [0, ...Array.from({ length: Math.round(XMAX * 100) }, (_, i) => (i + 1) / 100)];
-  const LABEL = { LightGBM: "LightGBM", "prior inpatient stays": "Most prior stays first", LACE: "LACE score" };
-  const CLS = { LightGBM: "s1", "prior inpatient stays": "s2", LACE: "s0" };
-  const series = names.map((name) => ({
-    name: LABEL[name], cls: CLS[name],
-    points: xs.map((x) => {
-      if (x === 0) return [0, 0];
-      const r = curve(name)(x);
-      return [x, r.caught / r.positives];
-    }),
-  }));
-  series.push({ name: "Calling at random", cls: "sx", thin: true, points: xs.map((x) => [x, x]) });
-  return series;
-}
-
-export function thumb() {
-  const series = capacitySeries(["LightGBM", "prior inpatient stays"]);
-  const chart = F.lineChart({
-    x: { domain: [0, XMAX], ticks: [0, 0.1, 0.2, 0.3], fmt: (v) => `${Math.round(v * 100)}%` },
-    y: { domain: [0, 0.6], ticks: [0, 0.2, 0.4, 0.6], fmt: (v) => `${Math.round(v * 100)}%` },
-    series, height: "short", hover: false,
-    marker: { x: 0.1, flag: "10% called" },
-    aria: `Share of readmissions reached as more discharges are called. At 10% called, LightGBM reaches ${share10("LightGBM")} and most prior stays first ${share10("prior inpatient stays")}.`,
-  });
-  return `<p class="fig-title">Readmissions reached, by share of discharges called</p>${F.legend(series.map((s) => ({ cls: s.cls, name: s.name, thin: s.thin })))}${chart}`;
-}
-
 export function card() {
   claim(at10("LightGBM").caught > at10("prior inpatient stays").caught, "the model beats the prior-stays rule");
-  return `<p>The problem I worked on at Cigna, on ${int(M.meta.rows.raw)} public encounters from 130 US hospitals: if a care team can call one discharged patient in ten, who should it be? A LightGBM call list reaches ${share10("LightGBM")} of the patients readmitted within 30 days, against ${share10("prior inpatient stays")} when calling whoever had the most inpatient stays the year before. Every call comes with the three reasons behind its score.</p>`;
+  return `<p>Readmission models judged the way a care team uses them: at a fixed call capacity, on ${int(M.meta.rows.raw)} public encounters split by patient. Each call on the list comes with its three TreeSHAP reasons, and CI retrains the model and checks the numbers on every push.</p>`;
+}
+
+export function metrics() {
+  const o = one();
+  return F.table({
+    caption: "Held-out results", numeric: [1], head: ["Measure", "Value"], cls: "metrics",
+    rows: [
+      ["Readmissions reached, 10% call list", share10("LightGBM")],
+      ["Most prior stays first", share10("prior inpatient stays")],
+      ["LACE score", share10("LACE")],
+      ["Scoring on one core", `${o.requests_per_s.toFixed(0)} req/s, ${o.p95_ms.toFixed(1)} ms p95`],
+    ],
+  });
+}
+
+// The chart in the project's card: the case study's Figure 1 without the slider, with its numbers
+// at a few call-list sizes underneath.
+export function cardChart() {
+  const series = capacitySeries(["LightGBM", "prior inpatient stays", "LACE"]);
+  const sizes = [0.05, 0.1, 0.2, 0.3];
+  const chart = F.lineChart({
+    x: { domain: [0, XMAX], ticks: [0, 0.1, 0.2, 0.3], fmt: (v) => `${Math.round(v * 100)}%`, title: "share of discharges called" },
+    y: { domain: [0, 0.6], ticks: [0, 0.2, 0.4, 0.6], fmt: (v) => `${Math.round(v * 100)}%`, title: "share of readmissions reached" },
+    series, height: "mid", xfmt: "called", yfmt: "pct1",
+    marker: { x: 0.1, flag: "10% call list" },
+    labels: series.map((s) => ({ series: s.name, x: XMAX, text: F.esc(s.name), pos: "right" })), gutter: true,
+    aria: `Share of 30-day readmissions reached as the share of discharges called grows to 30%. With a 10% call list: LightGBM ${share10("LightGBM")}, most prior stays first ${share10("prior inpatient stays")}, LACE ${share10("LACE")}, random ${pct(0.1)}.`,
+  });
+  const at = (s, x) => s.points.find(([a]) => Math.abs(a - x) < 1e-9)[1];
+  const twin = F.twin(F.table({
+    caption: "Share of readmissions reached", numeric: [1, 2, 3, 4],
+    head: ["Ranking", ...sizes.map((x) => `${Math.round(x * 100)}% called`)],
+    rows: series.map((s) => [F.esc(s.name), ...sizes.map((x) => pct(at(s, x)))]),
+  }));
+  return F.figure({
+    title: "Readmissions reached, by share of discharges called",
+    body: `${F.legend(series.map((s) => ({ cls: s.cls, name: s.name, thin: s.thin })))}${chart}${twin}`,
+    caption: `Each line ranks the ${int(CAP.n)} held-out discharges a different way and calls from the top.`,
+  });
 }
 
 // Case study ------------------------------------------------------------------------------------
@@ -80,6 +91,22 @@ export const links = () => `<li><a href="${repo("readmission-capacity")}">Code o
 
 export function planAbout() {
   return `<p class="about">Drag the slider or click the chart. Each line ranks the ${int(CAP.n)} held-out encounters a different way and calls from the top.</p>`;
+}
+
+function capacitySeries(names) {
+  const xs = [0, ...Array.from({ length: Math.round(XMAX * 100) }, (_, i) => (i + 1) / 100)];
+  const LABEL = { LightGBM: "LightGBM", "prior inpatient stays": "Most prior stays first", LACE: "LACE score" };
+  const CLS = { LightGBM: "s1", "prior inpatient stays": "s2", LACE: "s0" };
+  const series = names.map((name) => ({
+    name: LABEL[name], cls: CLS[name],
+    points: xs.map((x) => {
+      if (x === 0) return [0, 0];
+      const r = curve(name)(x);
+      return [x, r.caught / r.positives];
+    }),
+  }));
+  series.push({ name: "Calling at random", cls: "sx", thin: true, points: xs.map((x) => [x, x]) });
+  return series;
 }
 
 export function capacityChart() {

@@ -82,7 +82,10 @@ test("readmission scorer matches LightGBM on held-out rows", () => {
 
 test("pages read without JavaScript: results, tables and a scored patient are in the HTML", () => {
   const body = (html, id) => html.match(new RegExp(`<(?:tbody|ol) id="${id}"[^>]*>([\\s\\S]*?)</(?:tbody|ol)>`))[1];
-  assert.equal((body(HOME, "hits").match(/<li>/g) || []).length, 3);
+  assert.equal((HOME.match(/<ul class="stats"[^>]*>([\s\S]*?)<\/ul>/)[1].match(/<li>/g) || []).length, 4);
+  assert.equal((HOME.match(/<table class="metrics">/g) || []).length, 3);
+  assert.equal((body(HOME, "hits").match(/<li[ >]/g) || []).length, 3);
+  assert.equal((HOME.match(/<div class="chart [^"]*live/g) || []).length, 1);
   assert.equal((body(FINANCE, "hits").match(/<li>/g) || []).length, 3);
   assert.equal((body(READMIT, "capacity-table").match(/<tr>/g) || []).length, 6);
   assert.equal((body(READMIT, "call-list").match(/<tr>/g) || []).length, 5);

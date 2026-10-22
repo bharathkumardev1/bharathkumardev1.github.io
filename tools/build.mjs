@@ -11,13 +11,15 @@
 //   node tools/build.mjs          rewrite the pages
 //   node tools/build.mjs --check  exit 1 if any page is out of date (CI runs this)
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { gzipSync } from "node:zlib";
 import { root, read } from "./common.mjs";
 import * as F from "./figures.mjs";
 import * as finance from "./finance.mjs";
 import * as readmit from "./readmit.mjs";
 
 const SITE = "https://bharathkumardev1.github.io/";
+const EMAIL = "bharathmandha.200@gmail.com";
+const GITHUB = "https://github.com/bharathkumardev1";
+const LINKEDIN = "https://www.linkedin.com/in/bharathmandha";
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E";
 const THEME_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>`;
 
@@ -49,8 +51,10 @@ function header(p) {
   return `<header class="site-header"><div class="wrap">
 <a class="brand" href="${p || "./"}"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
-<a href="${p}#projects">Projects</a>
 <a class="hide-sm" href="${p}#experience">Experience</a>
+<a href="${p}#projects">Projects</a>
+<a class="hide-sm" href="${p}#skills">Skills</a>
+<a class="hide-sm" href="${p}#contact">Contact</a>
 <a href="${p}Bharath_Mandha_Resume.pdf">Résumé</a>
 <button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme">${THEME_ICON}</button>
 </nav>
@@ -77,15 +81,9 @@ function assetsOf(file, html) {
   return [...found].map((href) => new URL(href));
 }
 
-function footer(file, html) {
-  const files = assetsOf(file, html).map((u) => readFileSync(u));
-  const page = Buffer.from(html);
-  const raw = page.length + files.reduce((a, b) => a + b.length, 0);
-  const wire = gzipSync(page, { level: 9 }).length + assetsOf(file, html).reduce((a, u) =>
-    a + (u.pathname.endsWith(".woff2") ? readFileSync(u).length : gzipSync(readFileSync(u), { level: 9 }).length), 0);
+function footer() {
   return `<footer class="site-footer"><div class="wrap">
-<p>Bharath Mandha<br>Dallas, TX<br><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></p>
-<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is ${Math.round(raw / 1024)} KB, about ${Math.round(wire / 1024)} KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+<p>© 2026 Bharath Mandha</p>
 </div></footer>`;
 }
 
@@ -93,6 +91,34 @@ function fill(html, name, content, inline = false) {
   const re = new RegExp(`(<!-- ${name}:start -->)[\\s\\S]*?(<!-- ${name}:end -->)`);
   if (!re.test(html)) throw new Error(`no ${name} markers`);
   return html.replace(re, () => (inline ? `<!-- ${name}:start -->${content}<!-- ${name}:end -->` : `<!-- ${name}:start -->\n${content}\n<!-- ${name}:end -->`));
+}
+
+// Icons for the profile links. GitHub's Invertocat and LinkedIn's [in] logo come from the files
+// each company publishes for linking to a profile (github.com/logos, brand.linkedin.com).
+// Neither may be recolored, so the dark theme gets its own file: assets/icons/github.svg on
+// light, github-dark.svg on dark. Until the files are there, a plain icon stands in.
+const ICON = {
+  github: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>`,
+  linkedin: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>`,
+  resume: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>`,
+  email: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>`,
+};
+function icon(name) {
+  const file = (suffix) => ["svg", "png"].map((ext) => `assets/icons/${name}${suffix}.${ext}`).find((src) => existsSync(new URL(src, root)));
+  const light = file(""), dark = file("-dark");
+  if (!light) return ICON[name];
+  const img = (src, cls) => `<img class="${cls}" src="${src}" alt="" width="18" height="18">`;
+  return dark ? img(light, "logo on-light") + img(dark, "logo on-dark") : img(light, "logo");
+}
+
+// The profile links, as pills: under the name, and in the contact section, where the email link
+// shows the address.
+function profileLinks(where) {
+  const link = (href, name, text) => `<li><a href="${href}">${icon(name)}${text}</a></li>`;
+  const items = where === "contact"
+    ? [link(`mailto:${EMAIL}`, "email", EMAIL), link(LINKEDIN, "linkedin", "LinkedIn"), link(GITHUB, "github", "GitHub")]
+    : [link(GITHUB, "github", "GitHub"), link(LINKEDIN, "linkedin", "LinkedIn"), link("Bharath_Mandha_Resume.pdf", "resume", "Résumé"), link(`mailto:${EMAIL}`, "email", "Email")];
+  return `<ul class="links">\n${items.join("\n")}\n</ul>`;
 }
 
 function portrait() {
@@ -108,16 +134,23 @@ const REPLAY_ARIA = "Recording a run sends model calls to the OpenAI API and wri
 
 export const PAGES = {
   "index.html": async (html) => {
-    const hero = await finance.hero();
     html = fill(html, "portrait", portrait(), true);
-    html = fill(html, "hero-scope", finance.scope(`<a href="projects/finance-rag-eval/">my FinanceBench project</a>`), true);
-    html = fill(html, "hero-trace", hero.trace);
-    html = fill(html, "hero-hits", hero.hits);
-    html = fill(html, "thumb-finance", finance.thumb());
+    html = fill(html, "links", profileLinks("hero"));
+    html = fill(html, "contact", profileLinks("contact"));
+    html = fill(html, "stat-finance", finance.stat(), true);
+    const search = await finance.search();
     html = fill(html, "card-finance", finance.card());
-    html = fill(html, "thumb-readmit", readmit.thumb());
+    html = fill(html, "search-scope", search.scope, true);
+    html = fill(html, "search-trace", search.trace);
+    html = fill(html, "search-hits", search.hits);
+    html = fill(html, "metrics-finance", finance.metrics());
     html = fill(html, "card-readmit", readmit.card());
-    html = fill(html, "thumb-ara", `<p class="fig-title">Review until the answer is supported</p>${F.loopDiagram(LOOP_ARIA, { compact: true })}`);
+    html = fill(html, "chart-readmit", readmit.cardChart());
+    html = fill(html, "metrics-readmit", readmit.metrics());
+    html = fill(html, "loop-ara", F.figure({
+      title: "Review until the answer is supported", body: F.loopDiagram(LOOP_ARIA, { card: true }),
+      caption: "It stops early at a 120 s deadline, at the spending cap, or when a refined query finds nothing new. The single pass it's measured against skips the review.",
+    }));
     return html;
   },
   "projects/finance-rag-eval/index.html": async (html) => {
@@ -171,7 +204,7 @@ export async function build(file, before) {
   let html = await PAGES[file](before);
   html = fill(html, "head", head(p, html));
   html = fill(html, "header", header(p));
-  for (let i = 0; i < 3; i++) html = fill(html, "footer", footer(file, html)); // the footer counts its own bytes
+  html = fill(html, "footer", footer());
   return html;
 }
 
