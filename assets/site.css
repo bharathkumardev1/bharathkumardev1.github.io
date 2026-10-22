@@ -1,0 +1,182 @@
+/* One column, black ink on white paper. Tables are set like financial statements: tabular
+   figures, a single rule above a subtotal, a double rule under the final total. The only
+   colour is highlighter yellow, used where the search demo matched your words. */
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("fonts/public-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #ffffff;
+  --ink: #000000;
+  --ink-2: #4a4a4a;
+  --rule: #000000;
+  --hair: #d6d6d6;
+  --link: #0645ad;
+  --mark: #fff176;
+  --miss: #b3261e;
+  --field: #f6f6f4;
+  --serif: "Times New Roman", Times, "Liberation Serif", serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+
+/* Dark follows the system unless a host pins a theme with data-theme on <html>. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1c1c1c;
+    --ink: #ececec;
+    --ink-2: #a8a8a8;
+    --rule: #ececec;
+    --hair: #3d3d3d;
+    --link: #8ab4f8;
+    --mark: #6e5f00;
+    --miss: #f28b82;
+    --field: #262626;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1c1c1c;
+  --ink: #ececec;
+  --ink-2: #a8a8a8;
+  --rule: #ececec;
+  --hair: #3d3d3d;
+  --link: #8ab4f8;
+  --mark: #6e5f00;
+  --miss: #f28b82;
+  --field: #262626;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 17px/1.55 var(--sans);
+}
+
+main, footer { max-width: 47rem; margin: 0 auto; padding: 0 1rem; }
+
+a { color: var(--link); text-underline-offset: 0.15em; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+h1 { font-size: 2.1rem; line-height: 1.15; font-weight: 750; margin: 3.5rem 0 0.75rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.3rem; line-height: 1.3; font-weight: 700; margin: 3.25rem 0 0.75rem; }
+h3 { font-size: 1.05rem; line-height: 1.35; font-weight: 700; margin: 2rem 0 0.4rem; }
+p, ul, ol { margin: 0 0 1rem; }
+ul { padding-left: 1.2rem; }
+li { margin-bottom: 0.35rem; }
+
+.lede { font-size: 1.12rem; max-width: 40rem; }
+.contact { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; padding: 0; list-style: none; }
+.quiet { color: var(--ink-2); font-size: 0.94rem; }
+
+/* Demo */
+.ask { display: flex; gap: 0.5rem; margin: 1rem 0 0.6rem; }
+.ask input {
+  flex: 1; min-width: 0; font: inherit; color: inherit; background: var(--field);
+  border: 1px solid var(--ink); border-radius: 2px; padding: 0.55rem 0.7rem;
+}
+button {
+  font: inherit; font-weight: 600; color: var(--paper); background: var(--ink);
+  border: 1px solid var(--ink); border-radius: 2px; padding: 0.5rem 1rem; cursor: pointer;
+}
+button.plain {
+  color: var(--link); background: none; border: none; padding: 0; font-weight: 400;
+  text-decoration: underline; text-underline-offset: 0.15em; text-align: left;
+}
+.examples { margin: 0 0 0.8rem; padding: 0; list-style: none; font-size: 0.94rem; }
+.examples li { margin: 0 0 0.3rem; }
+.switches { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-size: 0.94rem; margin-bottom: 1rem; }
+.switches label { display: inline-flex; gap: 0.4rem; align-items: center; cursor: pointer; }
+
+.trace { border-top: 2px solid var(--rule); padding-top: 0.6rem; font-size: 0.94rem; min-height: 1.5em; }
+.trace p { margin: 0 0 0.3rem; }
+.hits { list-style: none; padding: 0; margin: 0.5rem 0 0; counter-reset: hit; }
+.hits > li { border-top: 1px solid var(--hair); padding: 0.7rem 0 0.6rem; margin: 0; }
+.hit-head { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; align-items: baseline; font-size: 0.94rem; }
+.hit-head .where { font-weight: 650; }
+.hit-head .rank { min-width: 1.4rem; font-weight: 650; }
+.gold { font-weight: 650; }
+.excerpt { font: 1.02rem/1.5 var(--serif); margin: 0.35rem 0 0 2.3rem; overflow-wrap: anywhere; }
+.excerpt mark, .page-text mark { background: var(--mark); color: inherit; padding: 0 0.05em; }
+details.page { margin: 0.35rem 0 0 2.3rem; font-size: 0.9rem; }
+.page-text {
+  font: 0.98rem/1.5 var(--serif); white-space: pre-wrap; overflow-wrap: anywhere;
+  max-height: 26rem; overflow: auto; border-left: 2px solid var(--hair); padding: 0.4rem 0 0.4rem 0.8rem;
+}
+.note { font-size: 0.94rem; margin-top: 1rem; }
+.error { color: var(--miss); }
+
+/* Tables set like a financial statement */
+.table-wrap { overflow-x: auto; margin: 0.5rem 0 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.94rem; }
+caption { text-align: left; font-weight: 700; padding-bottom: 0.4rem; }
+th, td { padding: 0.32rem 0.6rem 0.32rem 0; vertical-align: baseline; }
+table, .trace, .hit-head, #capacity-out, .risk { font-variant-numeric: tabular-nums; }
+th { font-weight: 650; text-align: left; vertical-align: bottom; border-bottom: 1px solid var(--rule); }
+td.n, th.n { text-align: right; white-space: nowrap; }
+table.wrap th { white-space: normal; }
+td.ci { color: var(--ink-2); }
+.ci-inline { display: none; }
+tr.subtotal td { border-top: 1px solid var(--rule); }
+tr.total td { border-top: 1px solid var(--rule); border-bottom: 3px double var(--rule); font-weight: 650; }
+tr.alt td { color: var(--ink-2); }
+tr.total + tr.alt td { padding-top: 0.75rem; }
+
+/* Readmission planner */
+.slider { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; font-weight: 650; margin: 1.2rem 0 0.2rem; }
+.slider input { flex: 1 1 14rem; max-width: 24rem; accent-color: var(--ink); }
+.patient {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.7rem 1.2rem;
+  align-items: end; font-size: 0.94rem; margin: 0.6rem 0 0;
+}
+.patient label { display: flex; flex-direction: column; gap: 0.2rem; }
+.patient input, .patient select {
+  font: inherit; color: inherit; background: var(--field); border: 1px solid var(--ink);
+  border-radius: 2px; padding: 0.35rem 0.5rem; min-width: 0; height: 2.4rem;
+}
+.risk { border-top: 2px solid var(--rule); margin-top: 1rem; padding-top: 0.6rem; min-height: 3.2rem; }
+.risk p { margin: 0; }
+.risk strong { font-size: 1.25rem; }
+
+/* Work */
+.role { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1rem; margin: 1.8rem 0 0.3rem; }
+.role h3 { margin: 0; }
+.role .when { color: var(--ink-2); font-size: 0.94rem; }
+
+footer { margin-top: 4rem; padding-bottom: 3rem; border-top: 1px solid var(--hair); padding-top: 1rem; }
+footer p { font-size: 0.9rem; color: var(--ink-2); }
+
+@media (max-width: 34rem) {
+  body { font-size: 16px; }
+  h1 { font-size: 1.75rem; margin-top: 2.2rem; }
+  .ask { flex-direction: column; }
+  table { font-size: 0.86rem; }
+  th, td { padding-right: 0.45rem; }
+  th, th.n { white-space: normal; }
+  th.ci, td.ci { display: none; }
+  .ci-inline { display: block; font-size: 0.78rem; font-weight: 400; color: var(--ink-2); }
+  .excerpt, details.page { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+}
+
+/* The call list: everything but the reasons stays on one line */
+table.calllist td:not(:last-child) { white-space: nowrap; }
+.plain-list { list-style: none; padding: 0; }
+.plain-list li { margin-bottom: 0.2rem; }
