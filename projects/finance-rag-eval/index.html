@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finding the page that answers a question about a 10-K, Bharath Mandha</title>
+<meta name="description" content="Retrieval over SEC filings measured page by page on FinanceBench: what a company and period filter, statement routing and an embedding model are each worth on held-out questions, where it still misses, and what it costs to serve.">
+<link rel="canonical" href="https://bharathkumardev1.github.io/projects/finance-rag-eval/">
+<!-- head:start -->
+<link rel="preload" href="../../assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Finding the page that answers a question about a 10-K, Bharath Mandha">
+<meta property="og:description" content="Retrieval over SEC filings measured page by page on FinanceBench: what a company and period filter, statement routing and an embedding model are each worth on held-out questions, where it still misses, and what it costs to serve.">
+<meta property="og:url" content="https://bharathkumardev1.github.io/projects/finance-rag-eval/">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- head:end -->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<!-- header:start -->
+<header class="site-header"><div class="wrap">
+<a class="brand" href="../../"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<nav class="site-nav" aria-label="Site">
+<a href="../../#projects">Projects</a>
+<a class="hide-sm" href="../../#experience">Experience</a>
+<a href="../../Bharath_Mandha_Resume.pdf">Résumé</a>
+<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
+</nav>
+</div></header>
+<!-- header:end -->
+<main id="main">
+<div class="wrap">
+<header class="cs-head">
+<p class="crumb"><a href="../../#projects">Projects</a></p>
+<h1>Finding the page that answers a question about a 10-K</h1>
+<p class="lede">When an analyst asks about a filing, the answer can only be as good as the pages retrieval puts in front of the model. FinanceBench labels the page that answers each of its questions, so I could measure retrieval on its own, one step at a time, on questions I never tuned on.</p>
+<dl class="facts">
+<!-- facts:start -->
+<div><dt>Benchmark</dt><dd><b>FinanceBench</b>: 150 analyst questions over 360 SEC filings, 53,399 pages</dd></div>
+<div><dt>Held out</dt><dd><b>100</b> questions kept out of all tuning, which used the other 50</dd></div>
+<div><dt>Result</dt><dd>Hit@10 from <b>0.14</b> to <b>0.75</b> on the held-out questions</dd></div>
+<div><dt>Serving</dt><dd>BM25 on one core: <b>126</b> queries a second at 12 ms p95</dd></div>
+<!-- facts:end -->
+</dl>
+<ul class="actions">
+<!-- links:start -->
+<li><a href="https://github.com/bharathkumardev1/finance-rag-eval">Code on GitHub</a></li>
+<li><a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md">Every results table</a></li>
+<!-- links:end -->
+</ul>
+</header>
+
+<div class="cs">
+<nav class="toc" aria-label="On this page">
+<p>On this page</p>
+<ol>
+<li><a href="#demo">Try it</a></li>
+<li><a href="#pipeline">How it narrows the search</a></li>
+<li><a href="#results">What each step is worth</a></li>
+<li><a href="#misses">Where it still misses</a></li>
+<li><a href="#service">As a service</a></li>
+<li><a href="#checks">Two smaller checks</a></li>
+<li><a href="#run">Run it yourself</a></li>
+</ol>
+</nav>
+
+<div class="prose">
+<section id="demo" aria-labelledby="demo-h">
+<div class="search demo-block" data-k="5">
+<h2 id="demo-h">Ask a 10-K a question</h2>
+<p class="about"><!-- demo-about:start -->This is the BM25 pipeline from the repo, ported to JavaScript and running in your browser. The two switches turn off the last two steps in the figures below. On this question, turn off the first one and the income statement drops out of the top 10.<!-- demo-about:end --></p>
+<form id="ask" class="ask" role="search">
+<input id="q" name="q" type="search" autocomplete="off" value="What is Coca Cola's FY2021 COGS % margin? Calculate what was asked by utilizing the line items clearly shown in the income statement." aria-label="Question about a filing">
+<button type="submit">Search</button>
+</form>
+<ul class="examples" aria-label="Other questions to try">
+<li><button class="text" type="button" data-example="What was the largest liability in American Express's Balance Sheet in 2022?">American Express's largest liability</button></li>
+<li><button class="text" type="button" data-example="Did Pfizer grow its PPNE between FY20 and FY21?">Pfizer's PP&amp;E, FY20 to FY21</button></li>
+<li><button class="text" type="button" data-example="Has MGM Resorts paid dividends to common shareholders in FY2022?">MGM's dividends in 2022</button></li>
+<li><button class="text" type="button" data-example="Is Boeing's business subject to cyclicality?" data-misses>Boeing's cyclicality</button> <span class="why">(it misses this one)</span></li>
+<li><button class="text" type="button" id="random">A random held-out question</button></li>
+</ul>
+<div class="switches">
+<label><input type="checkbox" id="route" checked> Send statement questions to statement pages</label>
+<label><input type="checkbox" id="drop" checked> Leave the company's name out of the BM25 query</label>
+</div>
+<div id="trace" class="trace" aria-live="polite">
+<!-- demo-trace:start -->
+<ol class="steps" aria-label="What the pipeline did"><li><b>360</b> filings</li><li><b>1</b> filing: Coca-Cola 2021 10-K</li><li><b>183</b> pages</li><li>income statement first</li><li>top 5 by BM25</li></ol><p>FinanceBench question <code>09724</code>, one of the 100 held-out questions, labels page 62 as the answer. Here it's result 1. In the benchmark run, BM25 over all 53,399 pages put it below 100 and the hybrid with MiniLM at 1. Expected answer: 39.7%.</p>
+<!-- demo-trace:end -->
+</div>
+<ol id="hits" class="hits">
+<!-- demo-hits:start -->
+<li>
+<div class="hit-head"><span class="rank">1</span><span class="at">Page 62</span><span class="tag">Income statement</span><span class="tag answer">Labeled answer</span><span class="score">BM25 1.01</span></div>
+<p class="excerpt">…SUBSIDIARIES CONSOLIDATED STATEMENTS OF <mark>INCOME</mark> (In millions except per share data) Year Ended December 31, 2021 2020 2019 Net Operating Revenues $ 38,655 $ 33,014 $ 37,266 Cost of goods sold 15,357 13,433 14,619 Gross Profit 23,298 19,581 22,647 Selling, general and administrative expenses 12,144 9,…</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">THE COCA-COLA COMPANY AND SUBSIDIARIES
+CONSOLIDATED STATEMENTS OF <mark>INCOME</mark>
+(In millions except per share data)
+Year Ended December 31,
+2021
+2020
+2019
+Net Operating Revenues
+$
+38,655  $
+33,014  $
+37,266 
+Cost of goods sold
+15,357 
+13,433 
+14,619 
+Gross Profit
+23,298 
+19,581 
+22,647 
+Selling, general and administrative expenses
+12,144 
+9,731 
+12,103 
+Other operating charges
+846 
+853 
+458 
+Operating <mark>Income</mark>
+10,308 
+8,997 
+10,086 
+Interest <mark>income</mark>
+276 
+370 
+563 
+Interest expense
+1,597 
+1,437 
+946 
+Equity <mark>income</mark> (loss) — net
+1,438 
+978 
+1,049 
+Other <mark>income</mark> (loss) — net
+2,000 
+841 
+34 
+<mark>Income</mark> Before <mark>Income</mark> Taxes
+12,425 
+9,749 
+10,786 
+<mark>Income</mark> taxes
+2,621 
+1,981 
+1,801 
+Consolidated Net <mark>Income</mark>
+9,804 
+7,768 
+8,985 
+Less: Net <mark>income</mark> (loss) attributable to noncontrolling interests
+33 
+21 
+65 
+Net <mark>Income</mark> Attributable to Shareowners of The Coca-Cola Company
+$
+9,771  $
+7,747  $
+8,920 
+Basic Net <mark>Income</mark> Per Share
+$
+2.26  $
+1.80  $
+2.09 
+Diluted Net <mark>Income</mark> Per Share
+$
+2.25  $
+1.79  $
+2.07 
+Average Shares Outstanding — Basic
+4,315 
+4,295 
+4,276 
+Effect of dilutive securities
+25 
+28 
+38 
+Average Shares Outstanding — Diluted
+4,340 
+4,323 
+4,314 
+Calculated based on net <mark>income</mark> attributable to shareowners of The Coca-Cola Company.
+Refer to Notes to Consolidated Financial Statements.
+1
+1
+1 
+60
+</div></details>
+</li>
+<li>
+<div class="hit-head"><span class="rank">2</span><span class="at">Page 132</span><span class="score">BM25 5.27</span></div>
+<p class="excerpt">…it Matters” in the Company’s 2022 Proxy <mark>Statement</mark> is incorporated herein by reference. Part IV ITEM 15. EXHIBITS AND FINANCIAL <mark>STATEMENT</mark> SCHEDULES (a) The following documents are filed as part of this report: 1. Financial Statements: Consolidated Statements of <mark>Income</mark> — Years Ended December 31, 2021,…</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">ITEM 13.  CERTAIN RELATIONSHIPS AND RELATED TRANSACTIONS, AND DIRECTOR INDEPENDENCE
+The information under the subheading “Director Independence and Related Person Transactions” under the principal heading
+“Governance” in the Company’s 2022 Proxy <mark>Statement</mark> is incorporated herein by reference.
+ITEM 14.  PRINCIPAL ACCOUNTANT FEES AND SERVICES
+The information regarding Audit Fees, Audit-Related Fees, Tax Fees, All Other Fees and Audit Committee Pre-Approval of Audit and Permissible Non-Audit Services of
+Independent Auditors under the subheading “Item 3 Ratification of the Appointment of Ernst &amp; Young LLP as Independent Auditors” under the principal heading “Audit
+Matters” in the Company’s 2022 Proxy <mark>Statement</mark> is incorporated herein by reference.
+Part IV
+ITEM 15.  EXHIBITS AND FINANCIAL <mark>STATEMENT</mark> SCHEDULES
+(a) The following documents are filed as part of this report:
+1.
+Financial Statements:
+Consolidated Statements of <mark>Income</mark> — Years Ended December 31, 2021, 2020 and 2019.
+Consolidated Statements of Comprehensive <mark>Income</mark> — Years Ended December 31, 2021, 2020 and 2019.
+Consolidated Balance Sheets — December 31, 2021 and 2020.
+Consolidated Statements of Cash Flows — Years Ended December 31, 2021, 2020 and 2019.
+Consolidated Statements of Shareowners’ Equity — Years Ended December 31, 2021, 2020 and 2019.
+Notes to Consolidated Financial Statements.
+Report of Independent Registered Public Accounting Firm.
+Report of Independent Registered Public Accounting Firm on Internal Control Over Financial Reporting.
+2.
+Financial <mark>Statement</mark> Schedules:
+The schedules for which provision is made in the applicable accounting regulations of the Securities and Exchange Commission (“SEC”) are not required
+under the related instructions or are inapplicable and, therefore, have been omitted.
+3.
+Exhibits:
+In reviewing the agreements included as exhibits to this report, please remember they are included to provide you with information regarding their terms and
+are not intended to provide any other factual or disclosure information about the Company or the other parties to the agreements. The agreements contain
+representations, warranties, covenants and conditions by or of each of the parties to the applicable agreement. These representations, warranties, covenants
+and conditions have been made solely for the benefit of the other parties to the applicable agreement and:
+• should not in all instances be treated as categorical statements of fact, but rather as a way of allocating the risk to one of the parties if those statements
+prove to be inaccurate;
+• may have been qualified by disclosures that were made to the other party in connection with the negotiation of the applicable agreement, which
+disclosures are not necessarily reflected in the agreement;
+• may apply standards of materiality in a way that is different from <mark>what</mark> may be viewed as material to you or other investors; and
+• were made only as of the date of the applicable agreement or such other date or dates as may be specified in the agreement and are subject to more
+recent developments.
+Accordingly, these representations and warranties may not describe the actual state of affairs as of the date they were made or at any other time. Additional
+information about the Company may be found elsewhere in this report and the Company’s other public filings, which are available without charge through the
+SEC’s website at http://www.sec.gov.
+130
+</div></details>
+</li>
+<li>
+<div class="hit-head"><span class="rank">3</span><span class="at">Page 42</span><span class="score">BM25 5.13</span></div>
+<p class="excerpt">…ur variable consideration, we generally <mark>calculate</mark> our estimates using a portfolio approach at the country and product <mark>line</mark> level rather than at the individual contract level. The result of making these estimates will impact the <mark>line</mark> <mark>items</mark> trade accounts receivable and accounts payable and accrued ex…</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">Revenue Recognition
+Revenue is recognized when performance obligations under the terms of the contracts with our customers are satisfied. Our performance obligation generally consists of the
+promise to sell concentrates, syrups or finished products to our bottling partners, wholesalers, distributors or retailers. Control of the concentrates, syrups or finished products is
+transferred upon shipment to, or receipt at, our customers’ locations, as determined by the specific terms of the contract. Upon transfer of control to the customer, which
+completes our performance obligation, revenue is recognized. Our sales terms generally do not allow for a right of return except for matters related to any manufacturing
+defects on our part. After completion of our performance obligation, we have an unconditional right to consideration as outlined in the contract. Our receivables will generally
+be collected in less than six months, in accordance with the underlying payment terms. All of our performance obligations under the terms of contracts with our customers have
+an original duration of one year or less.
+Our customers and bottling partners may be entitled to cash discounts, funds for promotional and marketing activities, volume‑based incentive programs, support for
+infrastructure programs and other similar programs. In most markets, in an effort to allow our Company and our bottling partners to grow together through shared value, aligned
+financial objectives and the flexibility necessary to meet consumers’ always changing needs and tastes, we have implemented an incidence-based concentrate pricing model.
+Under this model, the concentrate price we charge is impacted by a number of factors, including, but not limited to, bottler pricing, the channels in which the finished products
+produced from the concentrates are sold, and package mix. The amounts associated with the arrangements described above represent variable consideration, an estimate of
+which is included in the transaction price as a component of net operating revenues in our consolidated <mark>statement</mark> of <mark>income</mark> upon completion of our performance obligations.
+The total revenue recorded, including any variable consideration, cannot exceed the amount for which it is probable that a significant reversal will not occur when uncertainties
+related to variability are resolved. As a result, we are recognizing revenue based on our faithful depiction of the consideration that we expect to receive. In making our estimates
+of variable consideration, we consider past results and make significant assumptions related to: (1) customer sales volumes; (2) customer ending inventories; (3) customer
+selling price per unit; (4) selling channels; and (5) discount rates, rebates and other pricing allowances, as applicable. In gathering data to estimate our variable consideration,
+we generally <mark>calculate</mark> our estimates using a portfolio approach at the country and product <mark>line</mark> level rather than at the individual contract level. The result of making these
+estimates will impact the <mark>line</mark> <mark>items</mark> trade accounts receivable and accounts payable and accrued expenses in our consolidated balance sheet. The actual amounts ultimately paid
+and/or received may be different from our estimates.
+<mark>Income</mark> Taxes
+Our annual effective tax rate is based on our <mark>income</mark> and the tax laws in the various jurisdictions in which we operate. Significant judgment is required in determining our
+annual <mark>income</mark> tax expense and in evaluating our tax positions. We establish reserves to remove some or all of the tax benefit of any of our tax positions at the time we
+determine that the position becomes uncertain based upon one of the following conditions: (1) the tax position is not “more likely than not” to be sustained; (2) the tax position
+is “more likely than not” to be sustained, but for a lesser amount; or (3) the tax position is “more likely than not” to be sustained, but not in the financial period in which the tax
+position was originally taken. For purposes of evaluating whether or not a tax position is uncertain, (1) we presume the tax position will be examined by the relevant taxing
+authority that has full knowledge of all relevant information; (2) the technical merits of a tax position are derived from authorities such as legislation and statutes, legislative
+intent, regulations, rulings and caselaw and their applicability to the facts and circumstances of the tax position; and (3) each tax position is evaluated without consideration of
+the possibility of offset or aggregation with other tax positions taken. We adjust these reserves, including any impact on the related interest and penalties, in light of changing
+facts and circumstances, such as the progress of a tax audit. Refer to the heading “Operations Review — <mark>Income</mark> Taxes” below and Note 14 of Notes to Consolidated Financial
+Statements.
+A number of years may elapse before a particular uncertain tax position is audited and finally resolved. The number of years subject to tax audits or tax assessments varies
+depending on the tax jurisdiction. The tax benefit that has been previously reserved because of a failure to meet the “more likely than not” recognition threshold would be
+recognized in <mark>income</mark> tax expense in the first interim period when the uncertainty disappears under any one of the following conditions: (1) the tax position is “more likely than
+not” to be sustained; (2) the tax position, amount, and/or timing is ultimately settled through negotiation or litigation; or (3) the statute of limitations for the tax position has
+expired. Settlement of any particular issue would usually require the use of cash. Refer to Note 11 of Notes to Consolidated Financial Statements.
+Tax laws require certain <mark>items</mark> to be included in the tax return at different times than when these <mark>items</mark> are reflected in the consolidated financial statements. As a result, the
+annual effective tax rate reflected in our consolidated financial statements is different from that reported in our tax return (our cash tax rate). Some of these differences are
+permanent, such as expenses that are not deductible in our tax return, and some differences reverse over time, such as depreciation expense. These timing differences create
+deferred tax assets and liabilities. Deferred tax assets and liabilities are determined based on temporary
+40
+</div></details>
+</li>
+<li>
+<div class="hit-head"><span class="rank">4</span><span class="at">Page 85</span><span class="score">BM25 5.11</span></div>
+<p class="excerpt">…mediately recognized in earnings in the <mark>line</mark> <mark>items</mark> net operating revenues, cost of goods sold or other <mark>income</mark> (loss) — net in our consolidated <mark>statement</mark> of <mark>income</mark>, as applicable. The total notional values of derivatives related to our foreign currency economic hedges were $4,258 million and $5,727 m…</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">Hedges of Net Investments in Foreign Operations Strategy
+The Company uses forward contracts and a portion of its foreign currency denominated debt, a non-derivative financial instrument, to protect the value of our net investments
+in a number of foreign operations. For derivative financial instruments that are designated and qualify as hedges of net investments in foreign operations, the changes in the fair
+values of the derivative financial instruments are recognized in net foreign currency translation adjustments, a component of AOCI, to offset the changes in the values of the net
+investments being hedged. For non-derivative financial instruments that are designated and qualify as hedges of net investments in foreign operations, the changes in the
+carrying values of the designated portions of the non-derivative financial instruments due to fluctuations in foreign currency exchange rates are recorded in net foreign currency
+translation adjustments. Any ineffective portions of net investment hedges are reclassified from AOCI into earnings during the period of change.
+The following table summarizes the notional values and pretax impact of changes in the fair values of instruments designated as net investment hedges (in millions):
+Notional Amount
+Gain (Loss) Recognized in OCI
+as of December 31,
+Year Ended December 31,
+ 
+2021
+2020
+2021
+2020
+2019
+Foreign currency contracts
+$
+40  $
+451 
+$
+(10) $
+(5) $
+51 
+Foreign currency denominated debt
+12,812 
+13,336 
+928 
+(1,089)
+144 
+Total
+$
+12,852  $
+13,787 
+$
+918  $
+(1,094) $
+195 
+The Company reclassified a loss of $4 million related to net investment hedges from AOCI into earnings during the year ended December 31, 2021. The Company did not
+reclassify any gains or losses related to net investment hedges from AOCI into earnings during the years ended December 31, 2020 and 2019. In addition, the Company did not
+have any ineffectiveness related to net investment hedges during the years ended December 31, 2021, 2020 and 2019. The cash inflows and outflows associated with the
+Company’s derivative contracts designated as net investment hedges are classified in the <mark>line</mark> item other investing activities in our consolidated <mark>statement</mark> of cash flows.
+Economic (Non-Designated) Hedging Strategy
+In addition to derivative instruments that are designated and qualify for hedge accounting, the Company also uses certain derivatives as economic hedges of foreign currency,
+interest rate and commodity exposure. Although these derivatives were not designated and/or did not qualify for hedge accounting, they are effective economic hedges. The
+changes in the fair values of economic hedges are immediately recognized in earnings.
+The Company uses foreign currency economic hedges to offset the earnings impact that fluctuations in foreign currency exchange rates have on certain monetary assets and
+liabilities denominated in nonfunctional currencies. The changes in the fair values of economic hedges used to offset those monetary assets and liabilities are immediately
+recognized in earnings in the <mark>line</mark> item other <mark>income</mark> (loss) — net in our consolidated <mark>statement</mark> of <mark>income</mark>. In addition, we use foreign currency economic hedges to minimize
+the variability in cash flows associated with fluctuations in foreign currency exchange rates, including those related to certain acquisition and divestiture activities. The changes
+in the fair values of economic hedges used to offset the variability in U.S. dollar net cash flows are immediately recognized in earnings in the <mark>line</mark> <mark>items</mark> net operating revenues,
+cost of goods sold or other <mark>income</mark> (loss) — net in our consolidated <mark>statement</mark> of <mark>income</mark>, as applicable. The total notional values of derivatives related to our foreign currency
+economic hedges were $4,258 million and $5,727 million as of December 31, 2021 and 2020, respectively.
+The Company uses interest rate contracts as economic hedges to minimize exposure to changes in the fair value of fixed-rate debt that result from fluctuations in benchmark
+interest rates. The total notional value of derivatives related to our economic hedges of this type was $200 million as of both December 31, 2021 and 2020.
+The Company also uses certain derivatives as economic hedges to mitigate the price risk associated with the purchase of materials used in the manufacturing process and
+vehicle fuel. The changes in the fair values of these economic hedges are immediately recognized in earnings in the <mark>line</mark> <mark>items</mark> net operating revenues, cost of goods sold, or
+selling, general and administrative expenses in our consolidated <mark>statement</mark> of <mark>income</mark>, as applicable. The total notional values of derivatives related to our economic hedges of
+this type were $908 million and $715 million as of December 31, 2021 and 2020, respectively.
+83
+</div></details>
+</li>
+<li>
+<div class="hit-head"><span class="rank">5</span><span class="at">Page 77</span><span class="score">BM25 5.01</span></div>
+<p class="excerpt">…ur variable consideration, we generally <mark>calculate</mark> our estimates using a portfolio approach at the country and product <mark>line</mark> level rather than at the individual contract level. The result of making these estimates will impact the <mark>line</mark> <mark>items</mark> trade accounts receivable and accounts payable and accrued ex…</p>
+<details class="page"><summary>Whole page</summary><div class="page-text">Revenue is recognized when performance obligations under the terms of the contracts with our customers are satisfied. Our performance obligation generally consists of the
+promise to sell concentrates, syrups or finished products to our bottling partners, wholesalers, distributors or retailers. Control of the concentrates, syrups or finished products is
+transferred upon shipment to, or receipt at, our customers’ locations, as determined by the specific terms of the contract. Upon transfer of control to the customer, which
+completes our performance obligation, revenue is recognized. Our sales terms generally do not allow for a right of return except for matters related to any manufacturing
+defects on our part. After completion of our performance obligation, we have an unconditional right to consideration as outlined in the contract. Our receivables will generally
+be collected in less than six months, in accordance with the underlying payment terms. All of our performance obligations under the terms of contracts with our customers have
+an original duration of one year or less.
+Our customers and bottling partners may be entitled to cash discounts, funds for promotional and marketing activities, volume-based incentive programs, support for
+infrastructure programs and other similar programs. In most markets, in an effort to allow our Company and our bottling partners to grow together through shared value, aligned
+financial objectives and the flexibility necessary to meet consumers’ always changing needs and tastes, we have implemented an incidence-based concentrate pricing model.
+Under this model, the price we charge bottlers for concentrates they use to prepare and package finished products is impacted by a number of factors, including, but not limited
+to, the prices charged by the bottlers for such finished products, the channels in which they are sold, and package mix. The amounts associated with the arrangements described
+above represent variable consideration, an estimate of which is included in the transaction price as a component of net operating revenues in our consolidated <mark>statement</mark> of
+<mark>income</mark> upon completion of our performance obligations. The total revenue recorded, including any variable consideration, cannot exceed the amount for which it is probable
+that a significant reversal will not occur when uncertainties related to variability are resolved. As a result, we are recognizing revenue based on our faithful depiction of the
+consideration that we expect to receive. In making our estimates of variable consideration, we consider past results and make significant assumptions related to: (1) customer
+sales volumes; (2) customer ending inventories; (3) customer selling price per unit; (4) selling channels; and (5) discount rates, rebates and other pricing allowances, as
+applicable. In gathering data to estimate our variable consideration, we generally <mark>calculate</mark> our estimates using a portfolio approach at the country and product <mark>line</mark> level rather
+than at the individual contract level. The result of making these estimates will impact the <mark>line</mark> <mark>items</mark> trade accounts receivable and accounts payable and accrued expenses in our
+consolidated balance sheet. The actual amounts ultimately paid and/or received may be different from our estimates. The change in the amount of variable consideration
+recognized during the year ended December 31, 2021 related to performance obligations satisfied in prior periods was immaterial.
+The following table presents net operating revenues disaggregated between the United States and International and further by <mark>line</mark> of business (in millions):
+United States
+International
+Total
+Year Ended December 31, 2021
+Concentrate operations
+$
+6,551  $
+15,248  $
+21,799 
+Finished product operations
+6,459 
+10,397 
+16,856 
+Total
+$
+13,010  $
+25,645  $
+38,655 
+Year Ended December 31, 2020
+Concentrate operations
+$
+5,443  $
+13,139  $
+18,582 
+Finished product operations
+5,838 
+8,594 
+14,432 
+Total
+$
+11,281  $
+21,733  $
+33,014 
+Year Ended December 31, 2019
+Concentrate operations
+$
+5,252  $
+15,247  $
+20,499 
+Finished product operations
+6,463 
+10,304 
+16,767 
+Total
+$
+11,715  $
+25,551  $
+37,266 
+Refer to Note 19 for additional revenue disclosures by operating segment and Corporate.
+NOTE 4: INVESTMENTS
+We measure all equity investments that do not result in consolidation and are not accounted for under the equity method at fair value with the change in fair value included in
+net <mark>income</mark>. We use quoted market prices to determine the fair values of equity securities with readily determinable fair values. For equity securities without readily
+determinable fair values, we have elected the measurement alternative under which we measure these investments at cost minus impairment, if any, plus or minus
+75
+</div></details>
+</li>
+<!-- demo-hits:end -->
+</ol>
+<noscript><p class="search-foot">This result was searched when the page was built. Asking your own question needs JavaScript; the rest of the page doesn't.</p></noscript>
+<p class="search-foot"><!-- demo-note:start -->It holds the 84 filings that FinanceBench questions cite, from 32 companies, out of the benchmark's 360. The first search fetches 114 KB of index data, then about 170 KB of compressed page text for each filing it opens. The tests run it against the Python pipeline on every benchmark question it can search (146 of 150, 438 question and setting pairs): same top 10 pages in the same order, same scores to the last bit.<!-- demo-note:end --></p>
+</div>
+</section>
+
+<section id="pipeline" aria-labelledby="pipeline-h">
+<h2 id="pipeline-h">How it narrows the search</h2>
+<!-- pipeline:start -->
+<p>Filings share most of their vocabulary: every 10-K has a balance sheet, a risk section and the same accounting terms. BM25 over all 53,399 pages puts a page from the right filing in its top 10 for only 42% of the held-out questions, so the first step isn't ranking. The filter reads the company, fiscal year and quarter from the question and keeps the matching filings, 2.5 of 360 on average. BM25 then ranks only their pages, and questions about a financial statement get that statement's pages first.</p>
+<figure class="fig" id="fig-pipeline"><div class="fig-frame"><ol class="flow" aria-label="One question through the pipeline"><li><div class="box"><span class="what">Question</span><span class="how">“What was the largest liability in American Express's Balance Sheet in 2022?”</span></div></li><li><div class="box"><span class="what">Filter</span><span class="count">1</span><span class="unit">of 360 filings</span><span class="how">company, fiscal year and quarter, read from the question</span></div></li><li><div class="box"><span class="what">BM25</span><span class="count">260</span><span class="unit">pages</span><span class="how">over that filing's pages, the company's name left out of the query</span></div></li><li><div class="box"><span class="what">Routing</span><span class="count">1</span><span class="unit">balance sheet page</span><span class="how">the question names the balance sheet, so balance sheet pages go first</span></div></li><li><div class="box key-step"><span class="what">Result</span><span class="count">Page 98</span><span class="unit">ranked first</span><span class="how">the page FinanceBench labels as the answer</span></div></li></ol></div><figcaption><b>Figure 1.</b> One held-out question through the pipeline. With routing switched off, the same search doesn't have page 98 in its top 10.</figcaption></figure>
+<!-- pipeline:end -->
+</section>
+
+<section id="results" aria-labelledby="results-h">
+<h2 id="results-h">What each step is worth</h2>
+<!-- results:start -->
+<p>I split the questions once: 50 for development and 100 held out. Everything I tuned, I tuned on the 50, and everything below is the 100. Hit@10 asks whether the labeled page made the top 10, which is what a model answering from ten retrieved pages needs.</p>
+<figure class="fig" id="fig-ladder"><div class="fig-frame"><div class="rows" role="img" aria-label="Hit@10 on 100 held-out questions: BM25 over every page 0.14, Company filter 0.17, + fiscal year 0.41, + quarter 0.43, + statement routing 0.71, + company name left out 0.75; with MiniLM instead of BM25 0.71, fused 0.73.">
+<div class="lab">BM25 over every page</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:8%;width:13%"></span><span class="dot" style="left:14%"></span></div><div class="val">0.14</div>
+<div class="lab">Company filter</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:10%;width:15%"></span><span class="dot" style="left:17%"></span></div><div class="val">0.17</div>
+<div class="lab">+ fiscal year</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:32%;width:19%"></span><span class="dot" style="left:41%"></span></div><div class="val">0.41</div>
+<div class="lab">+ quarter</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:34%;width:19%"></span><span class="dot" style="left:43%"></span></div><div class="val">0.43</div>
+<div class="lab">+ statement routing</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:62%;width:18%"></span><span class="dot" style="left:71%"></span></div><div class="val">0.71</div>
+<div class="lab">+ company name left out</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:66%;width:17%"></span><span class="dot" style="left:75%"></span></div><div class="val">0.75</div>
+<div class="row-split"></div>
+<div class="lab alt">MiniLM instead of BM25</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:62%;width:18%"></span><span class="dot" style="left:71%"></span></div><div class="val alt">0.71</div>
+<div class="lab alt">BM25 and MiniLM fused</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:64%;width:18%"></span><span class="dot" style="left:73%"></span></div><div class="val alt">0.73</div>
+</div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0.00</span><span style="left:25%">0.25</span><span style="left:50%">0.50</span><span style="left:75%">0.75</span><span style="left:100%">1.00</span></div><span></span><span class="name">Hit@10</span></div><details class="twin"><summary>Show the table, with MRR and latency</summary><div class="table-wrap"><table>
+<caption>100 held-out questions. Hit@10: the labeled page is in the top 10.</caption>
+<thead><tr><th>Each row adds one step to the row above</th><th class="n">Hit@10</th><th class="n">95% interval</th><th class="n">MRR@10</th><th class="n">p50 / p95</th></tr></thead>
+<tbody>
+<tr data-config="bm25/all-pages"><td>BM25 over all 53,399 pages</td><td class="n">0.14</td><td class="n ci">0.08 to 0.21</td><td class="n">0.091</td><td class="n">2.7 / 5.3 ms</td></tr>
+<tr data-config="bm25/company"><td>Only filings from the company the question names</td><td class="n">0.17</td><td class="n ci">0.10 to 0.25</td><td class="n">0.100</td><td class="n">2.5 / 5.2 ms</td></tr>
+<tr data-config="bm25/company_year"><td>Only that company's filings for the year asked about</td><td class="n">0.41</td><td class="n ci">0.32 to 0.51</td><td class="n">0.155</td><td class="n">2.3 / 5.0 ms</td></tr>
+<tr data-config="bm25/company_year+quarter"><td>Narrowed to the quarter's filing when a quarter is asked about</td><td class="n">0.43</td><td class="n ci">0.34 to 0.53</td><td class="n">0.158</td><td class="n">2.2 / 5.1 ms</td></tr>
+<tr data-config="bm25/company_year+quarter+route"><td>Statement questions sent to statement pages first</td><td class="n">0.71</td><td class="n ci">0.62 to 0.80</td><td class="n">0.499</td><td class="n">2.5 / 5.1 ms</td></tr>
+<tr class="total" data-config="bm25/company_year+quarter+drop+route"><td>Company's name left out of the BM25 query</td><td class="n">0.75</td><td class="n ci">0.66 to 0.83</td><td class="n">0.534</td><td class="n">2.4 / 4.8 ms</td></tr>
+<tr class="alt" data-config="dense/company_year+quarter+route"><td>Same pipeline, MiniLM embeddings instead of BM25</td><td class="n">0.71</td><td class="n ci">0.62 to 0.80</td><td class="n">0.527</td><td class="n">11 / 25 ms</td></tr>
+<tr class="alt" data-config="hybrid/company_year+quarter+drop+route"><td>Same pipeline, BM25 and MiniLM fused (my pick on the dev split)</td><td class="n">0.73</td><td class="n ci">0.64 to 0.82</td><td class="n">0.542</td><td class="n">13 / 30 ms</td></tr>
+</tbody></table></div></details></div><figcaption><b>Figure 2.</b> Hit@10 on the 100 held-out questions. Each blue row adds one step to the row above; the gray rows run the finished pipeline with MiniLM embeddings. Lines are 95% bootstrap intervals.</figcaption></figure>
+<p>The filter recognized the company in 97 of the 100 held-out questions and kept the filing with the answer for 96. On its own it took Hit@10 from 0.14 to 0.43 (+0.29, 95% interval +0.20 to +0.38).</p>
+<p>Routing is worth as much again, and it's a small piece of domain knowledge. For 78 of the 150 questions the labeled page is a balance sheet, income statement or cash flow statement: a table of numbers that shares almost no words with "what is the FY2019 fixed asset turnover ratio". Questions that name a statement, or a line item or ratio that lives on one, get those pages first. 62 of the 100 held-out questions trigger it, and Hit@10 went from 0.43 to 0.71 (+0.28, 95% interval +0.19 to +0.37).</p>
+<p>Leaving the company's name out of the query is the step I'm least sure of. Without routing it hurts (0.43 to 0.33), because the name is one of the few words a statement page shares with the question. With routing it adds +0.04, 95% interval -0.02 to +0.10, which is within noise.</p>
+<p>The embedding model didn't earn its cost. Fused with BM25, MiniLM scored 0.73 against BM25's 0.75 on the held-out questions (-0.02, 95% interval -0.08 to +0.03) and takes 13 ms a query instead of 2.4. On the 50 development questions it looked better (0.78 against 0.66), which is why it's the configuration I committed to before testing; a gap that size on 50 questions turned out to be noise. Without the filter MiniLM does beat BM25 (0.24 against 0.14), because it finds the right filing more often (61% against 42%). The filter makes that redundant.</p>
+<p>25 of the held-out questions need more than one page. The BM25 pipeline gets 66% of their labeled pages into the top 10, and the hybrid 64%.</p>
+<!-- results:end -->
+</section>
+
+<section id="misses" aria-labelledby="misses-h">
+<h2 id="misses-h">Where it still misses</h2>
+<!-- misses:start -->
+<p>Every held-out question whose answer page missed the top 10 goes in the first stage of the pipeline that lost it. The rules run on every evaluation, so the counts change when the code does. These are the hybrid pipeline's misses, the configuration I committed to before testing.</p>
+<figure class="fig" id="fig-misses"><div class="fig-frame"><div class="rows bars" role="img" aria-label="27 missed questions by cause: The answer page shares at most two words with the question, 12; The filter kept several filings, and a page from the wrong one won, 4; The answer page shares words with the question, but other pages share more, 4; The question never names a company the filter knows, 3; It needed a statement page, but nothing in the question said so, 2; The filter dropped the filing with the answer, 1; Right kind of statement, but another statement page ranked first, 1.">
+<div class="lab">The answer page shares at most two words with the question</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:100%"></span><span class="tipval" style="left:100%">12</span></div><div class="val"></div>
+<div class="lab">The filter kept several filings, and a page from the wrong one won</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:33.33%"></span><span class="tipval" style="left:33.33%">4</span></div><div class="val"></div>
+<div class="lab">The answer page shares words with the question, but other pages share more</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:33.33%"></span><span class="tipval" style="left:33.33%">4</span></div><div class="val"></div>
+<div class="lab">The question never names a company the filter knows</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:25%"></span><span class="tipval" style="left:25%">3</span></div><div class="val"></div>
+<div class="lab">It needed a statement page, but nothing in the question said so</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:16.67%"></span><span class="tipval" style="left:16.67%">2</span></div><div class="val"></div>
+<div class="lab">The filter dropped the filing with the answer</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:8.33%"></span><span class="tipval" style="left:8.33%">1</span></div><div class="val"></div>
+<div class="lab">Right kind of statement, but another statement page ranked first</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:8.33%"></span><span class="tipval" style="left:8.33%">1</span></div><div class="val"></div>
+</div><div class="scale bars" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0</span><span style="left:25%">3</span><span style="left:50%">6</span><span style="left:75%">9</span><span style="left:100%">12</span></div><span></span><span class="name">Questions</span></div></div><figcaption><b>Figure 3.</b> The 27 held-out questions whose answer page missed the top 10, by the first stage of the pipeline that lost it.</figcaption></figure>
+<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. Routing's own failures are few: 2 questions needed a statement page without saying so, and 1 routed to the right kind of statement but ranked a different statement page first.</p>
+<!-- misses:end -->
+</section>
+
+<section id="service" aria-labelledby="service-h">
+<h2 id="service-h">As a service</h2>
+<!-- service:start -->
+<p>Behind the FastAPI service, with one worker pinned to one CPU core and the load generator on the other, BM25 serves 126 requests a second to a single client (p50 7.6 ms, p95 12 ms) and up to 162 as clients are added; the hybrid tops out at 55. No request failed at any load.</p>
+<figure class="fig" id="fig-service"><div class="fig-frame"><ul class="legend"><li><i class="key s1" aria-hidden="true"></i>BM25</li><li><i class="key s2" aria-hidden="true"></i>Hybrid: BM25 and MiniLM fused</li></ul><div class="multiples"><div><p class="fig-title">Requests a second</p><div class="chart short live"><div class="area">
+<div class="plot" role="img" aria-label="Requests a second by concurrent clients. BM25 from 126 to 162, the hybrid from 49 to 55."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="50" y2="50" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,37.1 25,30.2 50,28.2 75,22.8 100,18.8"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,75.3 25,74.4 50,73 75,72.45 100,74.1"/></svg>
+<span class="tick y" style="top:100%">0</span><span class="tick y" style="top:50%">100</span><span class="tick y" style="top:0%">200</span><span class="tick x" style="left:0%">1</span><span class="tick x" style="left:25%">2</span><span class="tick x" style="left:50%">4</span><span class="tick x" style="left:75%">8</span><span class="tick x" style="left:100%">16</span><span class="axis-title x">concurrent clients</span><span class="end-label left above" style="left:100%;top:18.8%">BM25</span><span class="end-label left above" style="left:100%;top:74.1%">Hybrid</span></div><div class="hover" tabindex="0" role="slider" aria-label="Values along the chart" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-valuetext="1 client: BM25 126/s, Hybrid 49/s"></div><span class="cross" aria-hidden="true"></span><div class="tip" aria-hidden="true"></div></div><script type="application/json" class="chart-data">{"x":[1,2,4,8,16],"at":[0,25,50,75,100],"xfmt":"clients","yfmt":"rps","top":200,"bottom":0,"series":[{"name":"BM25","cls":"s1","y":[125.8,139.6,143.6,154.4,162.4]},{"name":"Hybrid","cls":"s2","y":[49.4,51.2,54,55.1,51.8]}]}</script></div></div><div><p class="fig-title">p95 latency, ms</p><div class="chart short live"><div class="area">
+<div class="plot" role="img" aria-label="p95 latency by concurrent clients. BM25 from 12 to 156 ms, the hybrid from 35 to 483 ms."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="50" y2="50" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,98.07 25,96.53 50,92.53 75,85.77 100,73.94"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,94.14 25,88.5 50,78.49 75,58.88 100,19.58"/></svg>
+<span class="tick y" style="top:100%">0</span><span class="tick y" style="top:50%">300</span><span class="tick y" style="top:0%">600</span><span class="tick x" style="left:0%">1</span><span class="tick x" style="left:25%">2</span><span class="tick x" style="left:50%">4</span><span class="tick x" style="left:75%">8</span><span class="tick x" style="left:100%">16</span><span class="axis-title x">concurrent clients</span><span class="end-label left above" style="left:100%;top:73.94%">BM25</span><span class="end-label left above" style="left:100%;top:19.58%">Hybrid</span></div><div class="hover" tabindex="0" role="slider" aria-label="Values along the chart" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-valuetext="1 client: BM25 12 ms, Hybrid 35 ms"></div><span class="cross" aria-hidden="true"></span><div class="tip" aria-hidden="true"></div></div><script type="application/json" class="chart-data">{"x":[1,2,4,8,16],"at":[0,25,50,75,100],"xfmt":"clients","yfmt":"ms","top":600,"bottom":0,"series":[{"name":"BM25","cls":"s1","y":[11.57,20.82,44.83,85.39,156.38]},{"name":"Hybrid","cls":"s2","y":[35.17,69.02,129.03,246.73,482.51]}]}</script></div></div></div><details class="twin"><summary>Show the numbers</summary><div class="table-wrap"><table>
+<thead><tr><th>Retriever</th><th class="n">Clients</th><th class="n">Requests/s</th><th class="n">p50</th><th class="n">p95</th></tr></thead>
+<tbody>
+<tr><td>BM25</td><td class="n">1</td><td class="n">126</td><td class="n">7.6 ms</td><td class="n">12 ms</td></tr>
+<tr><td>BM25</td><td class="n">2</td><td class="n">140</td><td class="n">14 ms</td><td class="n">21 ms</td></tr>
+<tr><td>BM25</td><td class="n">4</td><td class="n">144</td><td class="n">27 ms</td><td class="n">45 ms</td></tr>
+<tr><td>BM25</td><td class="n">8</td><td class="n">154</td><td class="n">49 ms</td><td class="n">85 ms</td></tr>
+<tr><td>BM25</td><td class="n">16</td><td class="n">162</td><td class="n">95 ms</td><td class="n">156 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">1</td><td class="n">49</td><td class="n">18 ms</td><td class="n">35 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">2</td><td class="n">51</td><td class="n">35 ms</td><td class="n">69 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">4</td><td class="n">54</td><td class="n">68 ms</td><td class="n">129 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">8</td><td class="n">55</td><td class="n">135 ms</td><td class="n">247 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">16</td><td class="n">52</td><td class="n">299 ms</td><td class="n">483 ms</td></tr>
+</tbody></table></div></details></div><figcaption><b>Figure 4.</b> The FastAPI service with one worker pinned to one CPU core and the load generator on the other, 30 seconds per level.</figcaption></figure>
+<p>Pricing one vCPU at half an AWS c7i.large's on-demand rate, that's $0.10 per million BM25 queries and $0.25 for the hybrid, if this throughput carries over to that vCPU, which I haven't measured.</p>
+<!-- service:end -->
+</section>
+
+<section id="checks" aria-labelledby="checks-h">
+<h2 id="checks-h">Two smaller checks</h2>
+<!-- checks:start -->
+<h3>Adding filings without a rebuild</h3>
+<p>The BM25 index is kept in segments so filings can be added without rebuilding it. With 36 filings held out and added back in batches, every score on 300 queries matched a one-pass build exactly, and so did every top 100. A full build takes 13.1 s; each batch took 0.42 to 0.64 s.</p>
+<h3>Chunk size</h3>
+<p>Chunking pages into smaller passages didn't help. 650-token chunks score the same as whole pages (0.75), and 256- and 128-token chunks score 0.71 and 0.72 while indexing two to four times as many units, so the index stays at one entry per page.</p>
+<!-- checks:end -->
+</section>
+
+<section id="run" aria-labelledby="run-h">
+<h2 id="run-h">Run it yourself</h2>
+<p>The repo downloads FinanceBench at a pinned commit and checks every PDF against its SHA-256, so a rerun scores the same pages:</p>
+<pre><code>make install
+make data      # 150 questions, 360 PDFs (about 670 MB), page text
+make embed     # MiniLM over every page: hours on a laptop CPU, resumable
+make eval      # every configuration on dev and test, and RESULTS.md
+make studies   # the incremental-index check and the chunk-size study
+make loadtest</code></pre>
+<p>On every push, CI runs the tests on Python 3.11 and 3.13, a regression gate that runs the BM25 pipeline over the 40 filings behind the dev questions and fails if Hit@10 drops more than one question, a smoke test of the Docker image, a secret scan, and the browser port's parity test against the Python scores.</p>
+<!-- sources:start -->
+<p class="sources">Retrieval numbers on this page are from the code at commit <a href="https://github.com/bharathkumardev1/finance-rag-eval/commit/8034887"><code>8034887</code></a>, run on 2026-10-21. Every results file, with the command and commit that wrote it, is in <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>
+<!-- sources:end -->
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- footer:start -->
+<footer class="site-footer"><div class="wrap">
+<p>Bharath Mandha<br>Dallas, TX<br><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></p>
+<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is 139 KB, about 59 KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+</div></footer>
+<!-- footer:end -->
+<script type="module" src="../../assets/site.js"></script>
+<script type="module" src="../../assets/charts.js"></script>
+<script type="module" src="../../assets/demo.js"></script>
+</body>
+</html>

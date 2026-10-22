@@ -3,226 +3,222 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bharath Mandha</title>
-<meta name="description" content="Bharath Mandha, machine learning engineer in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with a demo that runs in the browser next to the measurements behind it.">
+<title>Bharath Mandha, machine learning engineer</title>
+<meta name="description" content="Bharath Mandha, machine learning engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
+<link rel="canonical" href="https://bharathkumardev1.github.io/">
+<!-- head:start -->
 <link rel="preload" href="assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23000'/%3E%3Crect x='3' y='9' width='10' height='3' fill='%23fff176'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bharath Mandha, machine learning engineer">
+<meta property="og:description" content="Bharath Mandha, machine learning engineer at Goldman Sachs in Dallas, TX. Retrieval over SEC filings and readmission outreach planning, each with code, measured results and a demo that runs in the browser, and an agent that reviews its own answers.">
+<meta property="og:url" content="https://bharathkumardev1.github.io/">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- head:end -->
 </head>
 <body>
-<main>
+<a class="skip" href="#main">Skip to content</a>
+<!-- header:start -->
+<header class="site-header"><div class="wrap">
+<a class="brand" href="./"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<nav class="site-nav" aria-label="Site">
+<a href="#projects">Projects</a>
+<a class="hide-sm" href="#experience">Experience</a>
+<a href="Bharath_Mandha_Resume.pdf">Résumé</a>
+<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
+</nav>
+</div></header>
+<!-- header:end -->
+<main id="main">
 
-<h1>Bharath Mandha</h1>
-<p class="lede">I'm a machine learning engineer. At Goldman Sachs I build retrieval and agent systems over internal financial documents, and before that I built readmission risk models at Cigna and demand forecasts at Best Buy. The two demos below run in your browser on my own projects, next to the measurements behind them.</p>
-<ul class="contact">
-  <li>Dallas, TX</li>
-  <li><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></li>
-  <li><a href="https://github.com/bharathkumardev1">GitHub</a></li>
-  <li><a href="https://www.linkedin.com/in/bharathmandha">LinkedIn</a></li>
-  <li><a href="Bharath_Mandha_Resume.pdf">Résumé (PDF)</a></li>
+<section class="hero" aria-label="Introduction">
+<div class="wrap">
+<div class="intro">
+<!-- portrait:start --><!-- portrait:end -->
+<h1 class="display">Bharath Mandha</h1>
+<p class="role">Machine learning engineer at Goldman Sachs</p>
+<p class="body">I build retrieval and agent systems over financial documents for credit and risk analysts. Before that I built readmission risk models at Cigna and demand forecasts at Best Buy.</p>
+<p class="body">Most of it comes down to ranking under a budget: which ten pages go in front of the model, which one patient in ten a care team calls. So that's how I measure it, at work and in the projects below.</p>
+<ul class="links">
+<li><a href="mailto:bharathmandha.200@gmail.com">Email</a></li>
+<li><a href="https://github.com/bharathkumardev1">GitHub</a></li>
+<li><a href="https://www.linkedin.com/in/bharathmandha">LinkedIn</a></li>
+<li><a href="Bharath_Mandha_Resume.pdf">Résumé (PDF)</a></li>
 </ul>
-
-<section id="search" aria-labelledby="search-h">
-<h2 id="search-h">Ask a 10-K a question</h2>
-<p>This searches real SEC filings with the retrieval pipeline from <a href="https://github.com/bharathkumardev1/finance-rag-eval">finance-rag-eval</a>. It reads the company and period from your question, narrows the search to those filings, ranks their pages with BM25, and puts balance sheet, income statement and cash flow pages first when the question needs one. All of it runs in your browser.</p>
-<noscript><p class="error">The search runs in JavaScript, which is off in this browser. The measured results below don't need it.</p></noscript>
-<form id="ask" class="ask" role="search">
-  <input id="q" name="q" type="search" autocomplete="off" placeholder="What was the largest liability in American Express's balance sheet in 2022?" aria-label="Question about a filing">
-  <button type="submit">Search</button>
-</form>
-<ul class="examples" aria-label="Example questions">
-  <li><button class="plain" type="button" data-example="Did Pfizer grow its PPNE between FY20 and FY21?">Did Pfizer grow its PPNE between FY20 and FY21?</button></li>
-  <li><button class="plain" type="button" data-example="What was the largest liability in American Express's Balance Sheet in 2022?">What was the largest liability in American Express's Balance Sheet in 2022?</button></li>
-  <li><button class="plain" type="button" data-example="Has MGM Resorts paid dividends to common shareholders in FY2022?">Has MGM Resorts paid dividends to common shareholders in FY2022?</button></li>
-  <li><button class="plain" type="button" data-example="Is Boeing's business subject to cyclicality?" data-misses>Is Boeing's business subject to cyclicality?</button> (one the pipeline gets wrong)</li>
-  <li><button class="plain" type="button" id="random">Pick a random held-out benchmark question</button></li>
-</ul>
-<div class="switches">
-  <label><input type="checkbox" id="route" checked> Send statement questions to statement pages</label>
-  <label><input type="checkbox" id="drop" checked> Leave the company's name out of the BM25 query</label>
+<p class="where">Dallas, TX</p>
 </div>
-<div id="trace" class="trace" aria-live="polite"><p class="quiet">Pick an example or type a question. <!-- finrag-sizes:start -->The first search fetches 114 KB of index data, then about 170 KB of compressed page text for each filing it opens.<!-- finrag-sizes:end --></p></div>
-<ol id="hits" class="hits"></ol>
-<p class="note quiet"><!-- finrag-scope:start -->The demo holds the 84 filings that FinanceBench questions cite, from 32 companies, out of the benchmark's 360.<!-- finrag-scope:end --> <!-- finrag-parity:start -->Checked against the Python pipeline on every benchmark question it can search (146 of 150, 438 question and setting pairs): same top 10 pages in the same order, same scores to the last bit.<!-- finrag-parity:end --> The two switches turn off the last two steps in the table below, so you can see what each one does to a single question.</p>
-</section>
 
-<section id="finance-rag-eval" aria-labelledby="fre-h">
-<h2 id="fre-h">What each step is worth</h2>
-<p>FinanceBench has 150 analyst questions over 360 filings (53,399 pages), and each question is labeled with the page that answers it. That makes retrieval measurable without grading generated answers: did the right page make the top 10? I split the questions once into 50 for development and 100 held out. Everything I tuned, I tuned on the 50; the table is the 100.</p>
-<!-- finrag-results:start -->
-<div class="table-wrap"><table>
-<caption>100 held-out questions. Hit@10: the labeled page is in the top 10.</caption>
-<thead><tr><th>Each row adds one step to the row above</th><th class="n">Hit@10</th><th class="n ci">95% interval</th><th class="n">MRR@10</th><th class="n">p50 / p95</th></tr></thead>
-<tbody>
-<tr data-config="bm25/all-pages"><td>BM25 over all 53,399 pages</td><td class="n">0.14<span class="ci-inline">0.08 to 0.21</span></td><td class="n ci">0.08 to 0.21</td><td class="n">0.091</td><td class="n">2.7 / 5.3 ms</td></tr>
-<tr data-config="bm25/company"><td>Only filings from the company the question names</td><td class="n">0.17<span class="ci-inline">0.10 to 0.25</span></td><td class="n ci">0.10 to 0.25</td><td class="n">0.100</td><td class="n">2.5 / 5.2 ms</td></tr>
-<tr data-config="bm25/company_year"><td>Only that company's filings for the year asked about</td><td class="n">0.41<span class="ci-inline">0.32 to 0.51</span></td><td class="n ci">0.32 to 0.51</td><td class="n">0.155</td><td class="n">2.3 / 5.0 ms</td></tr>
-<tr data-config="bm25/company_year+quarter"><td>Narrowed to the quarter's filing when a quarter is asked about</td><td class="n">0.43<span class="ci-inline">0.34 to 0.53</span></td><td class="n ci">0.34 to 0.53</td><td class="n">0.158</td><td class="n">2.2 / 5.1 ms</td></tr>
-<tr data-config="bm25/company_year+quarter+route"><td>Statement questions sent to statement pages first</td><td class="n">0.71<span class="ci-inline">0.62 to 0.80</span></td><td class="n ci">0.62 to 0.80</td><td class="n">0.499</td><td class="n">2.5 / 5.1 ms</td></tr>
-<tr class="total" data-config="bm25/company_year+quarter+drop+route"><td>Company's name left out of the BM25 query</td><td class="n">0.75<span class="ci-inline">0.66 to 0.83</span></td><td class="n ci">0.66 to 0.83</td><td class="n">0.534</td><td class="n">2.4 / 4.8 ms</td></tr>
-<tr class="alt" data-config="dense/company_year+quarter+route"><td>Same pipeline, MiniLM embeddings instead of BM25</td><td class="n">0.71<span class="ci-inline">0.62 to 0.80</span></td><td class="n ci">0.62 to 0.80</td><td class="n">0.527</td><td class="n">11 / 25 ms</td></tr>
-<tr class="alt" data-config="hybrid/company_year+quarter+drop+route"><td>Same pipeline, BM25 and MiniLM fused (my pick on the dev split)</td><td class="n">0.73<span class="ci-inline">0.64 to 0.82</span></td><td class="n ci">0.64 to 0.82</td><td class="n">0.542</td><td class="n">13 / 30 ms</td></tr>
-</tbody></table></div>
-<!-- finrag-results:end -->
-<!-- finrag-notes:start -->
-<p>Filings share most of their vocabulary, so BM25 over everything puts a page from the right filing in its top 10 only 42% of the time. The filter reads the company, year and quarter from the question. It recognized the company in 97 of the 100 held-out questions, kept the filing with the answer for 96, narrowed 360 filings to 2.5 on average, and took Hit@10 from 0.14 to 0.43 (+0.29, 95% interval +0.20 to +0.38).</p>
-<p>Routing is worth as much again, and it's a small piece of domain knowledge. For 78 of the 150 questions the labeled page is a balance sheet, income statement or cash flow statement: a table of numbers that shares almost no words with "what is the FY2019 fixed asset turnover ratio". Questions that name a statement, or a line item or ratio that lives on one, get those pages first. 62 of the 100 held-out questions trigger it, and Hit@10 went from 0.43 to 0.71 (+0.28, 95% interval +0.19 to +0.37).</p>
-<p>Leaving the company's name out of the query is the step I'm least sure of. Without routing it hurts (0.43 to 0.33), because the name is one of the few words a statement page shares with the question. With routing it adds +0.04, 95% interval -0.02 to +0.10, which is within noise.</p>
-<p>The embedding model didn't earn its cost. Fused with BM25, MiniLM scored 0.73 against BM25's 0.75 on the held-out questions (-0.02, 95% interval -0.08 to +0.03) and takes 13 ms a query instead of 2.4. On the 50 development questions it looked better (0.78 against 0.66), which is why it's the configuration I committed to before testing; a gap that size on 50 questions turned out to be noise. Without the filter MiniLM does beat BM25 (0.24 against 0.14), because it finds the right filing more often (61% against 42%). The filter makes that redundant.</p>
-<p>25 of the held-out questions need more than one page. The BM25 pipeline gets 66% of their labeled pages into the top 10, and the hybrid 64%.</p>
-<h3>Where it still misses</h3>
-<p>Each held-out question whose answer page didn't make the top 10 goes in the first stage of the pipeline that lost it. The rules run on every evaluation, so the counts change when the code does. The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for.</p>
-<div class="table-wrap"><table>
-<thead><tr><th>27 of 100 held-out questions missed by the hybrid pipeline</th><th class="n">Questions</th></tr></thead>
-<tbody>
-<tr><td>The answer page shares at most two words with the question</td><td class="n">12</td></tr>
-<tr><td>The filter kept several filings, and pages from the wrong one won</td><td class="n">4</td></tr>
-<tr><td>The answer page shares words with the question, but other pages share more</td><td class="n">4</td></tr>
-<tr><td>The question never names a company the filter knows</td><td class="n">3</td></tr>
-<tr><td>Needed a statement page, but nothing in the question said so</td><td class="n">2</td></tr>
-<tr><td>The filter dropped the filing with the answer</td><td class="n">1</td></tr>
-<tr><td>Right kind of statement, but another statement page ranked first</td><td class="n">1</td></tr>
-</tbody></table></div>
-<h3>As a service</h3>
-<p>Behind the FastAPI service, with one worker pinned to one CPU core and the load generator on the other, BM25 serves 126 requests a second to a single client (p50 7.6 ms, p95 12 ms) and up to 162 as clients are added; the hybrid tops out at 55. No request failed at any load. Pricing one vCPU at half an AWS c7i.large's on-demand rate, that's $0.10 per million BM25 queries and $0.25 for the hybrid, if this throughput carries over to that vCPU, which I haven't measured.</p>
-<div class="table-wrap"><table>
-<thead><tr><th>Retriever</th><th class="n">Clients</th><th class="n">Requests/s</th><th class="n">p50</th><th class="n">p95</th></tr></thead>
-<tbody>
-<tr><td>BM25</td><td class="n">1</td><td class="n">126</td><td class="n">7.6 ms</td><td class="n">12 ms</td></tr>
-<tr><td>BM25</td><td class="n">4</td><td class="n">144</td><td class="n">27 ms</td><td class="n">45 ms</td></tr>
-<tr><td>BM25</td><td class="n">16</td><td class="n">162</td><td class="n">95 ms</td><td class="n">156 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">1</td><td class="n">49</td><td class="n">18 ms</td><td class="n">35 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">4</td><td class="n">54</td><td class="n">68 ms</td><td class="n">129 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">16</td><td class="n">52</td><td class="n">299 ms</td><td class="n">483 ms</td></tr>
-</tbody></table></div>
-<h3>Two smaller checks</h3>
-<p>The BM25 index is kept in segments so filings can be added without a rebuild. With 36 filings held out and added back in batches, every score on 300 queries matched a one-pass build exactly, and so did every top 100. A full build takes 13.1 s; each batch took 0.42 to 0.64 s.</p>
-<p>Chunking pages into smaller passages didn't help. 650-token chunks score the same as whole pages (0.75), and 256- and 128-token chunks score 0.71 and 0.72 while indexing two to four times as many units, so the index stays at one entry per page.</p>
-<p>Code, the evaluation, the service and the load test: <a href="https://github.com/bharathkumardev1/finance-rag-eval">github.com/bharathkumardev1/finance-rag-eval</a>. Retrieval numbers from commit <code>8034887</code>, 2026-10-21.</p>
-<!-- finrag-notes:end -->
-</section>
-
-<section id="readmission" aria-labelledby="readmission-h">
-<h2 id="readmission-h">Who to call after discharge</h2>
-<!-- readmit-lead:start -->
-<p>At Cigna I judged readmission models by how many high-need patients a fixed outreach capacity would reach, alongside AUC. <a href="https://github.com/bharathkumardev1/readmission-capacity">readmission-capacity</a> is the same problem on public data: 101,766 diabetic inpatient encounters from 130 US hospitals (UCI, 1999 to 2008), split by patient, with death and hospice discharges removed. On 19,745 held-out encounters, a LightGBM call list the size of 10% of discharges holds 25.0% of the patients who were back within 30 days, against 20.5% when calling whoever had the most inpatient stays in the prior year and 15.8% with the LACE index.</p>
-<!-- readmit-lead:end -->
-<label class="slider" for="capacity">Calls the team can make <input id="capacity" type="range" min="1" max="30" value="10" step="1"></label>
-<p id="capacity-out" class="quiet" aria-live="polite"><!-- readmit-capacity-out:start -->10% of discharges, 100 calls per 1,000 patients sent home<!-- readmit-capacity-out:end --></p>
-<div class="table-wrap"><table class="wrap">
-<thead><tr><th>Who gets called first</th><th class="n">Readmissions reached per 1,000 discharges</th><th class="n">Share of all readmissions</th><th class="n">Share of calls that reach one</th></tr></thead>
-<tbody id="capacity-table">
-<!-- readmit-capacity:start -->
-<tr><td>LightGBM</td><td class="n">29</td><td class="n">25.0%</td><td class="n">28.8%</td></tr>
-<tr><td>XGBoost</td><td class="n">29</td><td class="n">24.8%</td><td class="n">28.7%</td></tr>
-<tr><td>Logistic regression</td><td class="n">27</td><td class="n">23.0%</td><td class="n">26.5%</td></tr>
-<tr><td>Most prior inpatient stays first</td><td class="n">24</td><td class="n">20.5%</td><td class="n">23.7%</td></tr>
-<tr><td>LACE score</td><td class="n">18</td><td class="n">15.8%</td><td class="n">18.3%</td></tr>
-<tr><td>Calling at random</td><td class="n">12</td><td class="n">10.0%</td><td class="n">11.5%</td></tr>
-<!-- readmit-capacity:end -->
-</tbody>
-</table></div>
-<h3>The top of the list, and why each patient is on it</h3>
-<p>Each patient on the list comes with the three things that pushed the model's score up most, from exact TreeSHAP, written the way a care coordinator would read them. The descriptions of admission and discharge codes are checked in CI against the code table that ships with the UCI download. A reason explains the score, not the patient: "no payer recorded" can show up, and it describes the record, not the person's care.</p>
-<div class="table-wrap"><table class="wrap calllist">
-<thead><tr><th class="n">Rank</th><th class="n">Risk</th><th>Age</th><th>Back in 30 days</th><th>Reasons</th></tr></thead>
-<tbody id="call-list">
-<!-- readmit-list:start -->
-<tr><td class="n">1</td><td class="n">67%</td><td>40s</td><td>yes</td><td>10 inpatient stays in the prior year; Charlson comorbidity score 10; third diagnosis: neoplasms</td></tr>
-<tr><td class="n">2</td><td class="n">67%</td><td>20s</td><td>yes</td><td>14 inpatient stays in the prior year; transferred to another inpatient care facility; primary diagnosis: diabetes</td></tr>
-<tr><td class="n">3</td><td class="n">65%</td><td>20s</td><td>no</td><td>18 inpatient stays in the prior year; 9 emergency visits in the prior year; LACE score 13</td></tr>
-<tr><td class="n">4</td><td class="n">64%</td><td>20s</td><td>yes</td><td>21 inpatient stays in the prior year; 1 emergency visit in the prior year; second diagnosis: digestive</td></tr>
-<tr><td class="n">5</td><td class="n">64%</td><td>20s</td><td>yes</td><td>9 inpatient stays in the prior year; Charlson comorbidity score 3; age 20 to 30</td></tr>
-<tr><td class="n">6</td><td class="n">64%</td><td>40s</td><td>yes</td><td>10 inpatient stays in the prior year; 2 emergency visits in the prior year; primary diagnosis: diabetes</td></tr>
-<tr><td class="n">7</td><td class="n">64%</td><td>80s</td><td>no</td><td>discharged to a rehab facility; Charlson comorbidity score 3; 8 diagnoses on record</td></tr>
-<tr><td class="n">8</td><td class="n">64%</td><td>60s</td><td>no</td><td>discharged to a rehab facility; no admitting specialty recorded; insulin: down</td></tr>
-<tr><td class="n">9</td><td class="n">64%</td><td>40s</td><td>yes</td><td>13 inpatient stays in the prior year; 2 emergency visits in the prior year; Charlson comorbidity score 3</td></tr>
-<tr><td class="n">10</td><td class="n">64%</td><td>20s</td><td>no</td><td>19 inpatient stays in the prior year; 13 emergency visits in the prior year; LACE score 11</td></tr>
-<!-- readmit-list:end -->
-</tbody>
-</table></div>
-<p><button type="button" class="plain" id="more" hidden>Show the next 10</button></p>
-<h3>Score a patient</h3>
-<form id="patient" class="patient">
-  <label>Age <select name="age">
-    <option value="[30-40)">30s</option><option value="[40-50)">40s</option><option value="[50-60)">50s</option><option value="[60-70)" selected>60s</option><option value="[70-80)">70s</option><option value="[80-90)">80s</option>
-  </select></label>
-  <label>Days in hospital <input name="time_in_hospital" type="number" min="1" max="14" value="4"></label>
-  <label>Inpatient stays in the past year <input name="number_inpatient" type="number" min="0" max="20" value="0"></label>
-  <label>Emergency visits in the past year <input name="number_emergency" type="number" min="0" max="20" value="0"></label>
-  <label>Outpatient visits in the past year <input name="number_outpatient" type="number" min="0" max="40" value="0"></label>
-  <label>Medications given <input name="num_medications" type="number" min="1" max="80" value="15"></label>
-  <label>Diagnoses recorded <input name="number_diagnoses" type="number" min="1" max="16" value="8"></label>
-  <label>Admitted as <select name="admission_type_id"><option value="1" selected>Emergency</option><option value="2">Urgent</option><option value="3">Elective</option></select></label>
-  <label>Primary diagnosis <select name="diag_1_group">
-    <option value="circulatory" selected>Circulatory</option><option value="respiratory">Respiratory</option><option value="diabetes">Diabetes</option><option value="digestive">Digestive</option><option value="injury">Injury</option><option value="genitourinary">Genitourinary</option><option value="musculoskeletal">Musculoskeletal</option><option value="neoplasms">Neoplasms</option><option value="other">Other</option>
-  </select></label>
-  <label>Discharged to <select name="discharge_disposition_id"><option value="1" selected>Home</option><option value="6">Home with home health</option><option value="3">Skilled nursing facility</option><option value="22">Rehab facility</option><option value="2">Another hospital</option></select></label>
-  <label>Insulin <select name="insulin"><option value="No" selected>Not prescribed</option><option value="Steady">Steady dose</option><option value="Up">Dose raised</option><option value="Down">Dose lowered</option></select></label>
-  <label>HbA1c <select name="A1Cresult"><option value="missing" selected>Not measured</option><option value="Norm">Normal</option><option value=">7">Above 7%</option><option value=">8">Above 8%</option></select></label>
+<div class="search" id="search" data-k="3" data-compact="true" role="region" aria-labelledby="search-h">
+<div class="search-head"><h2 id="search-h">Ask a 10-K a question</h2><p>Runs in your browser</p></div>
+<p class="search-about"><!-- hero-scope:start -->The retrieval pipeline from <a href="projects/finance-rag-eval/">my FinanceBench project</a>, over the 84 SEC filings its questions cite.<!-- hero-scope:end --></p>
+<form id="ask" class="ask" role="search">
+<input id="q" name="q" type="search" autocomplete="off" value="What was the largest liability in American Express's Balance Sheet in 2022?" aria-label="Question about a filing">
+<button type="submit">Search</button>
 </form>
-<div id="risk-out" class="risk" aria-live="polite"><noscript><p class="quiet">Scoring a patient needs JavaScript; the tables above don't.</p></noscript></div>
-<p class="note quiet">The trees run in your browser and give LightGBM's own scores, which the tests check on 300 held-out rows here and 2,000 in the project's CI. Inputs not on the form are held at the held-out set's median or most common value.</p>
-<!-- readmit-notes:start -->
-<p>The boosting library doesn't matter here: XGBoost's list holds 24.8% of the readmissions to LightGBM's 25.0%, and paired over the same patients LightGBM is ahead by 0.2 points (95% interval -0.8 to +1.1). LightGBM ships because it led on validation. Against the prior-stays rule it reaches 4.4 points more of the readmissions (+2.7 to +6.0).</p>
-<p>The calibrated probabilities said the 10% list would hold 539 readmissions, and it held 569. The list has a blind spot: 943 of the 2,279 readmissions (41%) were patients with no inpatient, emergency or outpatient visit in the year before, and the list holds 110 of them (12%). They're 833 of its 1,710 misses.</p>
-<p>The extract has no admission dates, so drift over time can't be tested with it. Instead I shift the held-out set on purpose. With patients 70 and over made 70% of discharges, the list holds 23.9% of readmissions, the model expects 523 on it where 585 happen, and the PSI check on age fires. Blanking the second and third diagnoses on 30% of encounters barely moves the list (25.1%), no PSI alert fires, and only the missing-value check notices.</p>
-<p>The scoring API, on one CPU core with the load generator on another, answers 72 single-encounter requests a second (p50 13.3 ms, p95 18.7 ms), and scores about 515 encounters a second in batches of 100, reasons included. No request failed.</p>
-<p>Code, the evaluation, the service and its load test: <a href="https://github.com/bharathkumardev1/readmission-capacity">github.com/bharathkumardev1/readmission-capacity</a>. Numbers from commit <code>9ea167a</code>, 2026-10-21.</p>
-<!-- readmit-notes:end -->
+<ul class="examples" aria-label="Other questions to try">
+<li><button class="text" type="button" data-example="Did Pfizer grow its PPNE between FY20 and FY21?">Pfizer's PP&amp;E</button></li>
+<li><button class="text" type="button" data-example="Has MGM Resorts paid dividends to common shareholders in FY2022?">MGM's dividends</button></li>
+<li><button class="text" type="button" data-example="Is Boeing's business subject to cyclicality?" data-misses>Boeing's cyclicality</button> <span class="why">(a miss)</span></li>
+<li><button class="text" type="button" id="random">Random held-out question</button></li>
+</ul>
+<div id="trace" class="trace" aria-live="polite">
+<!-- hero-trace:start -->
+<ol class="steps" aria-label="What the pipeline did"><li><b>360</b> filings</li><li><b>1</b> filing: American Express 2022 10-K</li><li><b>260</b> pages</li><li>balance sheet first</li><li>top 3 by BM25</li></ol><p>FinanceBench labels page 98 as the answer, and here it's result 1. BM25 over all 53,399 pages had it below 100.</p>
+<!-- hero-trace:end -->
+</div>
+<ol id="hits" class="hits">
+<!-- hero-hits:start -->
+<li>
+<div class="hit-head"><span class="rank">1</span><span class="at">Page 98</span><span class="tag">Balance sheet</span><span class="tag answer">Labeled answer</span><span class="score">BM25 2.18</span></div>
+<p class="excerpt">Table of Contents CONSOLIDATED <mark>BALANCE</mark> SHEETS December 31 (Millions, except share data) <mark>2022</mark> 2021 Assets Cash and cash equivalents Cash and due from banks (includes restricted cash of consolidated variable interest entities: <mark>2022</mark>, $5; 2021, $11) $ 5,510 $ 1,292 Interest-bearing deposits in other ban…</p>
+</li>
+<li>
+<div class="hit-head"><span class="rank">2</span><span class="at">Page 152</span><span class="score">BM25 6.40</span></div>
+<p class="excerpt">…s our maximum credit exposure of the on-<mark>balance</mark> <mark>sheet</mark> assets by category as of December 31: (Billions) <mark>2022</mark> 2021 Individuals: $ 156 $ 131 United States 129 108 Outside the United States 27 23 Institutions: Financial services 36 24 Other 17 15 U.S. Government and agencies 4 2 Total on-<mark>balance</mark> <mark>sheet</mark> $…</p>
+</li>
+<li>
+<div class="hit-head"><span class="rank">3</span><span class="at">Page 65</span><span class="score">BM25 4.53</span></div>
+<p class="excerpt">…apital adequacy guidelines. On- and off-<mark>balance</mark> <mark>sheet</mark> items are weighted for risk, with off-<mark>balance</mark> <mark>sheet</mark> items converted to <mark>balance</mark> <mark>sheet</mark> equivalents, using risk conversion factors, before being allocated a risk-adjusted weight. Off-<mark>balance</mark> <mark>sheet</mark> exposures comprise a minimal part of the total risk-…</p>
+</li>
+<!-- hero-hits:end -->
+</ol>
+<noscript><p class="search-foot">This result was searched when the page was built. Asking your own question needs JavaScript.</p></noscript>
+</div>
+</div>
 </section>
 
-<section id="research-assistant" aria-labelledby="ra-h">
-<h2 id="ra-h">A research assistant that reviews its own answers</h2>
-<p><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Agentic Research Assistant</a> answers questions about research papers and cites the passages it used. A second model call reviews each answer against the passages it cites and, when something is missing, writes a new search query; the loop runs up to three rounds and stops early at a deadline, at a spending cap, or when a search finds nothing new. What I'm measuring is whether the review loop earns its extra calls over a single pass: on QASPER's questions about NLP papers, with the dataset's official answer and evidence F1, a model judge I check against my own grades, and what each system costs in dollars and seconds. Every model reply is recorded, so CI reruns the evaluation without an API key.</p>
+<section class="section" id="projects" aria-labelledby="projects-h">
+<div class="wrap">
+<div class="section-head">
+<h2 id="projects-h">Projects</h2>
+<p>Two problems from my jobs, rebuilt on public data so anyone can check the numbers, and an agent loop I wanted measured before trusting it. Each has its code, committed results and CI that reruns them.</p>
+</div>
+
+<article class="project">
+<a class="thumb" href="projects/finance-rag-eval/" tabindex="-1" aria-hidden="true">
+<!-- thumb-finance:start -->
+<p class="fig-title">Hit@10 on 100 held-out questions, one step at a time</p><div class="rows" role="img" aria-label="Hit@10 rises from 0.14 with BM25 over every page to 0.75 with the filter, routing and the company name left out.">
+<div class="lab">All pages</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:14%"></span></div><div class="val">0.14</div>
+<div class="lab">Company</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:17%"></span></div><div class="val">0.17</div>
+<div class="lab">+ year</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:41%"></span></div><div class="val">0.41</div>
+<div class="lab">+ quarter</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:43%"></span></div><div class="val">0.43</div>
+<div class="lab">+ routing</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:71%"></span></div><div class="val">0.71</div>
+<div class="lab">+ name left out</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:50%"></span><span class="g" style="left:100%"></span><span class="dot" style="left:75%"></span></div><div class="val">0.75</div>
+</div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0.00</span><span style="left:50%">0.50</span><span style="left:100%">1.00</span></div><span></span><span class="name">Hit@10</span></div>
+<!-- thumb-finance:end -->
+</a>
+<div>
+<h3><a href="projects/finance-rag-eval/">Finding the page that answers a question about a 10-K</a></h3>
+<!-- card-finance:start -->
+<p>FinanceBench labels the page that answers each of its 150 questions about 360 SEC filings, so retrieval can be measured on its own. Reading the company and period from the question and sending statement questions to statement pages takes Hit@10 from 0.14 to 0.75 on 100 held-out questions. An embedding hybrid tied BM25 at about five times the latency, so the service runs BM25: 126 queries a second on one core.</p>
+<!-- card-finance:end -->
+<ul class="actions">
+<li><a href="projects/finance-rag-eval/">Read the case study</a></li>
+<li><a href="#search">Try the search</a></li>
+<li><a href="https://github.com/bharathkumardev1/finance-rag-eval">Code on GitHub</a></li>
+</ul>
+</div>
+</article>
+
+<article class="project">
+<a class="thumb" href="projects/readmission-capacity/" tabindex="-1" aria-hidden="true">
+<!-- thumb-readmit:start -->
+<p class="fig-title">Readmissions reached, by share of discharges called</p><ul class="legend"><li><i class="key s1" aria-hidden="true"></i>LightGBM</li><li><i class="key s2" aria-hidden="true"></i>Most prior stays first</li><li><i class="key sx thin" aria-hidden="true"></i>Calling at random</li></ul><div class="chart short"><div class="area">
+<div class="plot" role="img" aria-label="Share of readmissions reached as more discharges are called. At 10% called, LightGBM reaches 25.0% and most prior stays first 20.5%."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,100 3.33,92.98 6.67,87.79 10,83.18 13.33,79.45 16.67,75.5 20,71.7 23.33,67.97 26.67,64.97 30,61.68 33.33,58.39 36.67,55.61 40,53.12 43.33,50.49 46.67,46.61 50,43.91 53.33,41.64 56.67,39.74 60,37.4 63.33,35.06 66.67,32.94 70,31.26 73.33,28.7 76.67,26.58 80,25.11 83.33,23.29 86.67,21.24 90,19.41 93.33,17.43 96.67,15.31 100,13.41"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,100 3.33,94.44 6.67,89.54 10,85.37 13.33,82.23 16.67,79.23 20,75.79 23.33,72.94 26.67,70.75 30,68.33 33.33,65.77 36.67,63.29 40,60.58 43.33,58.32 46.67,55.39 50,52.9 53.33,51.44 56.67,49.25 60,46.91 63.33,44.71 66.67,42.52 70,40.62 73.33,38.79 76.67,36.81 80,35.5 83.33,33.6 86.67,31.26 90,29.35 93.33,27.53 96.67,26.21 100,23.5"/><polyline class="line sx thin" vector-effect="non-scaling-stroke" points="0,100 3.33,98.33 6.67,96.67 10,95 13.33,93.33 16.67,91.67 20,90 23.33,88.33 26.67,86.67 30,85 33.33,83.33 36.67,81.67 40,80 43.33,78.33 46.67,76.67 50,75 53.33,73.33 56.67,71.67 60,70 63.33,68.33 66.67,66.67 70,65 73.33,63.33 76.67,61.67 80,60 83.33,58.33 86.67,56.67 90,55 93.33,53.33 96.67,51.67 100,50"/></svg>
+<span class="tick y" style="top:100%">0%</span><span class="tick y" style="top:66.67%">20%</span><span class="tick y" style="top:33.33%">40%</span><span class="tick y" style="top:0%">60%</span><span class="tick x" style="left:0%">0%</span><span class="tick x" style="left:33.33%">10%</span><span class="tick x" style="left:66.67%">20%</span><span class="tick x" style="left:100%">30%</span><span class="marker" style="left:33.33%"><span class="flag">10% called</span></span></div></div></div>
+<!-- thumb-readmit:end -->
+</a>
+<div>
+<h3><a href="projects/readmission-capacity/">Who to call after a hospital discharge</a></h3>
+<!-- card-readmit:start -->
+<p>The problem I worked on at Cigna, on 101,766 public encounters from 130 US hospitals: if a care team can call one discharged patient in ten, who should it be? A LightGBM call list reaches 25.0% of the patients readmitted within 30 days, against 20.5% when calling whoever had the most inpatient stays the year before. Every call comes with the three reasons behind its score.</p>
+<!-- card-readmit:end -->
+<ul class="actions">
+<li><a href="projects/readmission-capacity/">Read the case study</a></li>
+<li><a href="projects/readmission-capacity/#plan">Plan the calls</a></li>
+<li><a href="https://github.com/bharathkumardev1/readmission-capacity">Code on GitHub</a></li>
+</ul>
+</div>
+</article>
+
+<article class="project">
+<a class="thumb" href="projects/research-assistant/" tabindex="-1" aria-hidden="true">
+<!-- thumb-ara:start -->
+<p class="fig-title">Review until the answer is supported</p><svg class="diagram compact" viewBox="0 0 420 182" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="8" y="64" width="76" height="44" rx="10"/><text class="title" x="46" y="91" text-anchor="middle">Question</text></g><g class="node "><rect x="112" y="64" width="84" height="44" rx="10"/><text class="title" x="154" y="91" text-anchor="middle">Retrieve</text></g><g class="node "><rect x="224" y="64" width="84" height="44" rx="10"/><text class="title" x="266" y="91" text-anchor="middle">Answer</text></g><g class="node strong"><rect x="336" y="64" width="76" height="44" rx="10"/><text class="title" x="374" y="91" text-anchor="middle">Review</text></g><path class="wire" d="M84,86 L110,86"/><polygon class="head" points="110,86 103.7,82.96 103.7,89.04"/><path class="wire" d="M196,86 L222,86"/><polygon class="head" points="222,86 215.7,82.96 215.7,89.04"/><path class="wire" d="M308,86 L334,86"/><polygon class="head" points="334,86 327.7,82.96 327.7,89.04"/><path class="wire loop" d="M374,108 L374,150 L154,150 L154,110"/><polygon class="head loop" points="154,110 150.96,116.3 157.04,116.3"/><text class="edge" x="264" y="168" text-anchor="middle">refined query</text><path class="wire" d="M374,64 L374,30 L300,30"/><polygon class="head" points="300,30 306.3,33.04 306.3,26.96"/><text class="edge" x="330" y="22" text-anchor="middle">accepted</text><text x="292" y="34" text-anchor="end" class="title">answer + citations</text></svg>
+<!-- thumb-ara:end -->
+</a>
+<div>
+<h3><a href="projects/research-assistant/">A research assistant that reviews its own answers</a></h3>
+<p>A LangGraph loop that answers questions about research papers and cites the passages it used. A second model call reviews each answer against those passages and asks for another search when it falls short. I'm measuring whether that review earns its extra calls over a single pass on QASPER, and every model reply is recorded so CI can rerun the evaluation without an API key.</p>
+<p class="status">The QASPER comparison isn't published yet. The loop, the evaluation harness and the replay are in the repo now.</p>
+<ul class="actions">
+<li><a href="projects/research-assistant/">Read the design</a></li>
+<li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Code on GitHub</a></li>
+</ul>
+</div>
+</article>
+</div>
 </section>
 
-<section id="work" aria-labelledby="work-h">
-<h2 id="work-h">Work</h2>
+<section class="section" id="experience" aria-labelledby="experience-h">
+<div class="wrap">
+<div class="section-head">
+<h2 id="experience-h">Experience</h2>
+<p>More than four years building production ML and LLM systems. Every role and bullet is on my <a href="Bharath_Mandha_Resume.pdf">résumé</a>.</p>
+</div>
 
-<div class="role"><h3>Goldman Sachs, AI/ML Engineer</h3><span class="when">June 2025 to now</span></div>
+<div class="job">
+<div><h3>Goldman Sachs</h3><p class="title">AI/ML Engineer</p><p class="when">June 2025 to now</p></div>
 <ul>
-  <li>Designed the retrieval and LangGraph orchestration layers, and their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks), used weekly by 70+ credit and risk analysts.</li>
-  <li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
-  <li>Built a 500+ query retrieval benchmark of factual lookups, comparisons and multi-document questions, and scored retrieval apart from generation and from the 10 to 20 second end-to-end workflow, so tuning of chunking, metadata filtering, the FAISS index and a cross-encoder reranker went where the time and errors were. RAGAS groundedness stayed above 90%.</li>
-  <li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
-  <li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, chunking, metadata enrichment, embedding generation) that updated the vector index incrementally, without full index rebuilds.</li>
-  <li>Evaluated quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and showed that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
+<li>Designed the retrieval and LangGraph orchestration layers, and their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks), used weekly by 70+ credit and risk analysts.</li>
+<li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
+<li>Built a 500+ query retrieval benchmark of factual lookups, comparisons and multi-document questions, and scored retrieval apart from generation and from the 10 to 20 second end-to-end workflow, so tuning of chunking, metadata filtering, the FAISS index and a cross-encoder reranker went where the time and errors were. RAGAS groundedness stayed above 90%.</li>
+<li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, chunking, metadata enrichment, embedding generation) that updated the vector index incrementally, without full index rebuilds.</li>
+<li>Evaluated quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and showed that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
 </ul>
+</div>
 
-<div class="role"><h3>Cigna, Machine Learning Engineer</h3><span class="when">March 2022 to August 2023</span></div>
+<div class="job">
+<div><h3>Cigna</h3><p class="title">Machine Learning Engineer</p><p class="when">March 2022 to August 2023</p></div>
 <ul>
-  <li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and raised ROC-AUC from 0.85 to 0.91 on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation.</li>
-  <li>At a fixed outreach capacity of 1,000 patients a month, identified about 15% more high-need patients, through feature engineering, class-imbalance handling and precision-recall threshold tuning.</li>
-  <li>Engineered 150+ candidate features from labs, demographics, encounter history and clinical notes, and kept about 100 in production based on predictive value and stability.</li>
-  <li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize thousands of high-risk patients a month.</li>
+<li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and raised ROC-AUC from 0.85 to 0.91 on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation.</li>
+<li>At a fixed outreach capacity of 1,000 patients a month, identified about 15% more high-need patients, through feature engineering, class-imbalance handling and precision-recall threshold tuning.</li>
+<li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize thousands of high-risk patients a month.</li>
 </ul>
+</div>
 
-<div class="role"><h3>Best Buy, Associate Data Scientist</h3><span class="when">June 2020 to February 2022</span></div>
+<div class="job">
+<div><h3>Best Buy</h3><p class="title">Associate Data Scientist</p><p class="when">June 2020 to February 2022</p></div>
 <ul>
-  <li>Cut the weighted MAPE of SKU- and store-level demand forecasts by about 14%, with gradient-boosted models benchmarked against time-series baselines on time-based holdouts, tracking RMSE alongside MAPE.</li>
-  <li>Built PySpark, SQL and BigQuery pipelines over 50M+ transactions across thousands of SKUs and hundreds of stores.</li>
-  <li>Raised response on comparable targeted campaigns by about 12% with six customer segments from clustering and cohort analysis.</li>
+<li>Cut the weighted MAPE of SKU- and store-level demand forecasts by about 14%, with gradient-boosted models benchmarked against time-series baselines on time-based holdouts, tracking RMSE alongside MAPE.</li>
+<li>Raised response on comparable targeted campaigns by about 12% with six customer segments from clustering and cohort analysis.</li>
 </ul>
-</section>
+</div>
 
-<section id="education" aria-labelledby="edu-h">
-<h2 id="edu-h">Education and certifications</h2>
-<p>Master of Science in Computer Science, University of North Texas, August 2023 to May 2025.</p>
-<ul class="plain-list">
-  <li>AWS Certified Machine Learning Engineer, Associate</li>
-  <li>Google Cloud Professional Machine Learning Engineer</li>
-  <li>Databricks Certified Generative AI Engineer Associate</li>
+<div class="creds">
+<div><h3>Education</h3><p>Master of Science in Computer Science, University of North Texas, August 2023 to May 2025</p></div>
+<div><h3>Certifications</h3>
+<ul>
+<li>AWS Certified Machine Learning Engineer, Associate</li>
+<li>Google Cloud Professional Machine Learning Engineer</li>
+<li>Databricks Certified Generative AI Engineer Associate</li>
 </ul>
+</div>
+</div>
+</div>
 </section>
 
 </main>
-<footer>
 <!-- footer:start -->
-<p>This page is one HTML file, a stylesheet, five small scripts and one font: 85 KB, about 48 KB compressed, before either demo fetches data. Its numbers are written in by <code>tools/build.mjs</code> from the projects' results files, and the build fails if a sentence stops matching them. No framework and no analytics. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+<footer class="site-footer"><div class="wrap">
+<p>Bharath Mandha<br>Dallas, TX<br><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></p>
+<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is 100 KB, about 49 KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+</div></footer>
 <!-- footer:end -->
-</footer>
+<script type="module" src="assets/site.js"></script>
 <script type="module" src="assets/demo.js"></script>
-<script type="module" src="assets/readmit.js"></script>
 </body>
 </html>

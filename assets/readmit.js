@@ -1,22 +1,25 @@
-// The readmission section: capacity slider, call list and patient scorer for
-// readmission-capacity. Trees are scored by assets/gbdt.mjs, which that repo tests against
-// LightGBM itself; the slider uses the real held-out rankings, and the rows come from
-// assets/readmit-view.mjs, the same code tools/build.mjs uses to write them into the page.
+// The readmission case study's controls: capacity slider and chart marker, call list and patient
+// scorer. Trees are scored by assets/gbdt.mjs, which the project tests against LightGBM itself;
+// the slider uses the real held-out rankings, and the rows come from assets/readmit-view.mjs,
+// the same code tools/build.mjs uses to write them into the page.
 import { makeScorer, calibrate } from "./gbdt.mjs";
-import { capacityView, listRows } from "./readmit-view.mjs";
+import { capacityView, listRows, patientRow, riskHtml } from "./readmit-view.mjs";
 
 const DATA = new URL("../data/readmit/", import.meta.url);
 const $ = (s) => document.querySelector(s);
 const slider = $("#capacity");
 const capOut = $("#capacity-out");
 const table = $("#capacity-table");
+const chart = $("#capacity-chart");
+const marker = $("#cap-marker");
 const list = $("#call-list");
 const more = $("#more");
 const form = $("#patient");
 const riskOut = $("#risk-out");
+const XMAX = Number(chart?.dataset.xmax || 0.3);
 
 const load = (name) => fetch(new URL(name, DATA)).then((r) => {
-  if (!r.ok) throw new Error(`Couldn't load ${name} (HTTP ${r.status}). The tables above still show the 10% list.`);
+  if (!r.ok) throw new Error(`Couldn't load ${name} (HTTP ${r.status}). The tables on this page still show the 10% list.`);
   return r.json();
 });
 
@@ -37,8 +40,13 @@ async function capacityReady() {
 
 async function drawCapacity() {
   const v = await capacityReady();
-  capOut.textContent = v.out(Number(slider.value));
-  table.innerHTML = v.rows(Number(slider.value) / 100);
+  const percent = Number(slider.value);
+  capOut.textContent = v.out(percent);
+  table.innerHTML = v.rows(percent / 100);
+  if (marker) {
+    marker.style.left = `${(percent / 100 / XMAX) * 100}%`;
+    marker.querySelector(".flag").textContent = `${percent}% called`;
+  }
 }
 
 async function showMore() {
@@ -48,42 +56,17 @@ async function showMore() {
   more.hidden = shown >= calls.length;
 }
 
-const ageMid = (band) => Number(band.slice(1, band.indexOf("-"))) + 5;
-
-// Same points as readmit.features.lace. Charlson stays at its default, since the form
-// doesn't take diagnosis codes.
-function lace(los, admissionType, charlson, emergency) {
-  const l = los < 1 ? 0 : los <= 3 ? los : los <= 6 ? 4 : los <= 13 ? 5 : 7;
-  const a = admissionType === "1" || admissionType === "7" ? 3 : 0;
-  return l + a + (charlson >= 4 ? 5 : charlson) + Math.min(emergency, 4);
-}
-
-const NUMBERS = ["time_in_hospital", "number_inpatient", "number_emergency", "number_outpatient", "num_medications", "number_diagnoses"];
-const CHOICES = ["diag_1_group", "discharge_disposition_id", "insulin", "A1Cresult", "admission_type_id"];
-const pct = (x) => `${(x * 100).toFixed(1)}%`;
-
 async function drawRisk() {
   if (!model) {
     model = await load("model.json");
     score = makeScorer(model);
   }
   const f = new FormData(form);
-  const row = { ...model.defaults };
-  for (const key of NUMBERS) {
-    const text = String(f.get(key)).trim();
-    const v = text === "" ? NaN : Number(text);
-    if (!Number.isFinite(v) || v < 0) return; // half-typed input: keep the last answer
-    row[key] = v;
-  }
-  for (const key of CHOICES) row[key] = String(f.get(key));
-  row.age_years = ageMid(String(f.get("age")));
-  row.lace = lace(row.time_in_hospital, row.admission_type_id, row.charlson, row.number_emergency);
+  const row = patientRow(model, (key) => f.get(key));
+  if (!row) return; // half-typed input: keep the last answer
   const raw = score(row);
-  const risk = calibrate(model.calibration, raw);
-  const listed = raw >= model.call_threshold_raw;
   await capacityReady();
-  riskOut.innerHTML = `<p><strong>${pct(risk)}</strong> chance of being readmitted within 30 days, against ${pct(cap.positives / cap.n)} across the held-out encounters. ` +
-    (listed ? "This patient makes the 10% call list." : "This patient doesn't make the 10% call list.") + "</p>";
+  riskOut.innerHTML = riskHtml(calibrate(model.calibration, raw), raw >= model.call_threshold_raw, cap);
 }
 
 function fail(el) {
@@ -91,6 +74,10 @@ function fail(el) {
 }
 
 slider.addEventListener("input", () => drawCapacity().catch(fail(capOut)));
+chart?.addEventListener("pick", (ev) => {
+  slider.value = String(Math.max(1, Math.min(30, Math.round(ev.detail.x * 100))));
+  drawCapacity().catch(fail(capOut));
+});
 more.addEventListener("click", () => showMore().catch(fail(more.parentElement)));
 form.addEventListener("input", () => drawRisk().catch(fail(riskOut)));
 form.addEventListener("submit", (e) => { e.preventDefault(); drawRisk().catch(fail(riskOut)); });
