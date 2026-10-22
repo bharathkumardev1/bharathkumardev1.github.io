@@ -95,9 +95,11 @@ test("pages read without JavaScript: results, tables and a scored patient are in
 test("links within and between pages resolve, and so do local files", () => {
   for (const [file, html] of Object.entries(pages)) {
     const base = new URL(file, root);
+    // The 404 page's links start at the site's root, wherever it's served from.
+    const resolve = (ref) => (ref.startsWith("/") ? new URL(ref.slice(1), root) : new URL(ref, base));
     for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
       if (/^(https?:|mailto:|data:)/.test(href)) continue;
-      const url = new URL(href, base);
+      const url = resolve(href);
       const path = url.pathname.endsWith("/") ? `${url.pathname}index.html` : url.pathname;
       const target = new URL(path, root);
       assert.ok(existsSync(target), `${file}: ${href}`);
@@ -106,16 +108,17 @@ test("links within and between pages resolve, and so do local files", () => {
         assert.ok(ids(other).has(url.hash.slice(1)), `${file}: ${href}`);
       }
     }
-    for (const [, src] of html.matchAll(/src="([^"]+)"/g)) assert.ok(existsSync(new URL(src, base)), `${file}: ${src}`);
+    for (const [, src] of html.matchAll(/src="([^"]+)"/g)) assert.ok(existsSync(resolve(src)), `${file}: ${src}`);
   }
   assert.ok(HOME.includes('href="Bharath_Mandha_Resume.pdf"'));
 });
 
-test("every page has one h1, a description, and a canonical URL", () => {
+test("every page has one h1, a description, and a canonical URL or a noindex", () => {
   for (const [file, html] of Object.entries(pages)) {
     assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, file);
     assert.match(html, /<meta name="description" content="[^"]{60,}">/, file);
-    assert.match(html, /<link rel="canonical" href="https:\/\/bharathkumardev1\.github\.io\/[^"]*">/, file);
+    if (file === "404.html") assert.match(html, /<meta name="robots" content="noindex">/);
+    else assert.match(html, /<link rel="canonical" href="https:\/\/bharathkumardev1\.github\.io\/[^"]*">/, file);
     assert.equal(ids(html).size, [...html.matchAll(/\sid="([^"]+)"/g)].length, `${file} repeats an id`);
   }
 });
