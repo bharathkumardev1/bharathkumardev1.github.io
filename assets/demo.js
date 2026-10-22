@@ -15,7 +15,7 @@ const hitsEl = $("#hits");
 const K = Number(box.dataset.k) || 5;
 const COMPACT = box.dataset.compact === "true"; // the home page's card: shorter notes and quotes
 
-let engine = null;
+let loading = null;
 let questions = [];
 let byText = new Map();
 let kb = new Map();
@@ -41,11 +41,19 @@ async function loadFiling(doc) {
   return JSON.parse(text);
 }
 
-async function ready() {
-  if (engine) return engine;
+// One load of the index, shared by every caller; a failed load can be retried.
+function ready() {
+  loading ??= load().catch((err) => {
+    loading = null;
+    throw err;
+  });
+  return loading;
+}
+
+async function load() {
   if (!PLAIN && !("DecompressionStream" in window)) throw new Error("This browser can't unpack the filing data (no DecompressionStream)");
   const [meta, qs] = await Promise.all([json("meta.json"), json("questions.json")]);
-  engine = new Engine(meta, loadFiling);
+  const engine = new Engine(meta, loadFiling);
   questions = qs;
   byText = new Map(qs.map((q) => [squash(q.q), q]));
   names = filingNames(meta);
@@ -84,13 +92,25 @@ async function run(text) {
     }
     const bq = byText.get(question);
     const timing = `<p>Ranked in ${ms.toFixed(1)} ms in your browser${res.loadMs > 5 ? `, after ${res.loadMs.toFixed(0)} ms loading the filing` : ""}.</p>`;
-    trace.innerHTML = steps(res, total, names, K, { route, compact: COMPACT }) + (COMPACT ? "" : timing) + (bq ? benchmarkLine(bq, res.hits, names, { compact: COMPACT }) : "");
+    trace.innerHTML = steps(res, total, names, K, { route, compact: COMPACT }) + timing + (bq ? benchmarkLine(bq, res.hits, names, { compact: COMPACT }) : "");
     const gold = new Set((bq ? bq.gold : []).map(([d, p]) => `${d}#${p}`));
     hitsEl.innerHTML = renderHits(res, gold, names, { compact: COMPACT });
   } catch (err) {
     trace.innerHTML = `<p class="error">${esc(String(err.message || err))}. The measured results on this site don't depend on the demo.</p>`;
   }
 }
+
+// A pointer over the search or focus inside it starts loading the index and the filing the
+// current question needs, so the first search doesn't wait on the network.
+function warm() {
+  ready().then((e) => {
+    for (const doc of e.filter.allowedDocs(squash(input.value)) || []) {
+      if (e.demo.has(doc) && !e.cache.has(doc)) e.filing(doc).catch(() => e.cache.delete(doc));
+    }
+  }, () => {});
+}
+box.addEventListener("pointerenter", warm, { once: true });
+box.addEventListener("focusin", warm, { once: true });
 
 form.addEventListener("submit", (ev) => {
   ev.preventDefault();
