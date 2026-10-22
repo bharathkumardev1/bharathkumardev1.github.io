@@ -1,10 +1,10 @@
 // finance-rag-eval: the home page's search card and project row, and its case study. Every
 // number comes from data/finrag/, which `finrag export-demo` copies out of the repo's results/.
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Engine } from "../assets/finrag.mjs";
 import { filingNames, steps, benchmarkLine, hits as renderHits } from "../assets/finrag-view.mjs";
-import { root, json, f2, f3, ms, signed, pct, int, claim, facts, repo, TIMES } from "./common.mjs";
+import { root, json, f2, f3, ms, signed, int, claim, facts, repo, TIMES } from "./common.mjs";
 import * as F from "./figures.mjs";
 
 const S = json("data/finrag/summary.json");
@@ -125,24 +125,18 @@ export const links = () => `<li><a href="${repo("finance-rag-eval")}">Code on Gi
 <li><a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">Every results table</a></li>`;
 
 export async function demo() {
-  const r = await render(DEMO_EXAMPLE, 5);
+  const r = await render(DEMO_EXAMPLE, 3);
   const off = await ENGINE.search(DEMO_EXAMPLE, { k: 10, route: false, drop: true });
   const offRank = off.hits.findIndex((h) => r.gold.has(`${h.doc}#${h.page}`)) + 1;
   claim(r.rank === 1 && offRank === 0, "routing is what puts this example's answer page first");
   claim(r.res.wanted.includes("income"), "the demo example is routed to income statements");
-  const about = `This is the BM25 pipeline from the repo, ported to JavaScript and running in your browser. The two switches turn off the last two steps in the figures below. On this question, turn off the first one and the income statement drops out of the top 10.`;
+  const about = `The repo's BM25 pipeline, ported to JavaScript. The switches turn off the last two steps in Figure 2; turn off the first one on this question and the income statement drops out of the results.`;
   return { ...r, about };
 }
 
 export function demoNote() {
-  const kb = (b) => Math.round(b / 1024);
-  const index = ["meta.json", "questions.json"].reduce((a, f) => a + statSync(new URL(`data/finrag/${f}`, root)).size, 0);
   const demoFilings = META.filings.filter((f) => f.demo);
-  const gz = demoFilings.map((f) => f.gz_bytes).sort((a, b) => a - b);
-  const median = gz[Math.floor(gz.length / 2)];
-  const questions = new Set(PARITY.map((c) => c.id)).size;
-  const companies = new Set(demoFilings.map((f) => f.company)).size;
-  return `It holds the ${demoFilings.length} filings that FinanceBench questions cite, from ${companies} companies, out of the benchmark's ${META.filings.length}. The first search fetches ${kb(index)} KB of index data, then about ${Math.round(kb(median) / 10) * 10} KB of compressed page text for each filing it opens. The tests run it against the Python pipeline on every benchmark question it can search (${questions} of ${QUESTIONS.length}, ${PARITY.length} question and setting pairs): same top 10 pages in the same order, same scores to the last bit.`;
+  return `It covers the ${demoFilings.length} filings that FinanceBench questions cite. On all ${PARITY.length} question and setting pairs the tests run, it returns the same top 10 pages as the Python pipeline, with the same scores to the last bit.`;
 }
 
 export async function pipeline() {
@@ -168,7 +162,7 @@ export async function pipeline() {
     ], "One question through the pipeline"),
     caption: `<b>Figure 1.</b> One held-out question through the pipeline. With routing switched off, the same search doesn't have page ${q.gold[0][1] + 1} in its top 10.`,
   });
-  return `<p>Filings share most of their vocabulary: every 10-K has a balance sheet, a risk section and the same accounting terms. BM25 over all ${int(META.n_pages)} pages puts a page from the right filing in its top 10 for only ${docPct(none)} of the held-out questions, so the first step isn't ranking. The filter reads the company, fiscal year and quarter from the question and keeps the matching filings, ${flt.mean_filings_after.toFixed(1)} of ${META.filings.length} on average. BM25 then ranks only their pages, and questions about a financial statement get that statement's pages first.</p>
+  return `<p>Every 10-K has a balance sheet, a risk section and the same accounting terms, so BM25 over all ${int(META.n_pages)} pages finds the right filing for only ${docPct(none)} of held-out questions. The first step isn't ranking: the filter reads the company, fiscal year and quarter from the question and keeps ${flt.mean_filings_after.toFixed(1)} of ${META.filings.length} filings on average. Questions about a financial statement then get that statement's pages first.</p>
 ${fig}`;
 }
 
@@ -218,13 +212,12 @@ export function results() {
     }) + F.twin(ladderTable(), "Show the table, with MRR and latency"),
     caption: `<b>Figure 2.</b> Hit@10 on the ${none.n} held-out questions. Each blue row adds one step to the row above; the gray rows run the finished pipeline with MiniLM embeddings. Lines are 95% bootstrap intervals.`,
   });
-  return `<p>I split the questions once: ${devHy.n} for development and ${none.n} held out. Everything I tuned, I tuned on the ${devHy.n}, and everything below is the ${none.n}. Hit@10 asks whether the labeled page made the top 10, which is what a model answering from ten retrieved pages needs.</p>
+  const short = (c) => `${signed(c.diff)}, ${signed(c.ci95[0])} to ${signed(c.ci95[1])}`;
+  return `<p>I tuned on ${devHy.n} questions and kept ${none.n} aside; everything here is the ${none.n}. Hit@10 asks whether the labeled page made the top 10, which is what a model answering from ten pages needs.</p>
 ${fig}
-<p>The filter recognized the company in ${flt.company_found} of the ${flt.n} held-out questions and kept the filing with the answer for ${flt.gold_filing_kept}. On its own it took Hit@10 from ${f2(none["hit@10"])} to ${f2(filt["hit@10"])} (${interval(cFilter)}).</p>
-<p>Routing is worth as much again, and it's a small piece of domain knowledge. For ${statementGold} of the ${QUESTIONS.length} questions the labeled page is a balance sheet, income statement or cash flow statement: a table of numbers that shares almost no words with "what is the FY2019 fixed asset turnover ratio". Questions that name a statement, or a line item or ratio that lives on one, get those pages first. ${routed} of the ${flt.n} held-out questions trigger it, and Hit@10 went from ${f2(filt["hit@10"])} to ${f2(route["hit@10"])} (${interval(cRoute)}).</p>
-<p>Leaving the company's name out of the query is the step I'm least sure of. Without routing it hurts (${f2(filt["hit@10"])} to ${f2(t(DROP_ALONE)["hit@10"])}), because the name is one of the few words a statement page shares with the question. With routing it adds ${interval(cDrop)}, which is within noise.</p>
-<p>The embedding model didn't earn its cost. Fused with BM25, MiniLM scored ${f2(hy["hit@10"])} against BM25's ${f2(bm["hit@10"])} on the held-out questions (${interval(cHybrid)}) and takes ${ms(hy.p50_ms)} ms a query instead of ${ms(bm.p50_ms)}. On the ${devHy.n} development questions it looked better (${f2(devHy["hit@10"])} against ${f2(devBm["hit@10"])}), which is why it's the configuration I committed to before testing; a gap that size on ${devHy.n} questions turned out to be noise. Without the filter MiniLM does beat BM25 (${f2(dense0["hit@10"])} against ${f2(none["hit@10"])}), because it finds the right filing more often (${docPct(dense0)} against ${docPct(none)}). The filter makes that redundant.</p>
-<p>${bm.n_multi_page} of the held-out questions need more than one page. The BM25 pipeline gets ${pct(bm["recall@10_multi_page"], 0)} of their labeled pages into the top 10, and the hybrid ${pct(hy["recall@10_multi_page"], 0)}.</p>`;
+<p>The filter found the company in ${flt.company_found} of ${flt.n} questions and kept the right filing for ${flt.gold_filing_kept}, taking Hit@10 from ${f2(none["hit@10"])} to ${f2(filt["hit@10"])} (${interval(cFilter)}). Routing added as much again. ${statementGold} of the ${QUESTIONS.length} answer pages are financial statements, tables of numbers that share almost no words with a question like "what is the FY2019 fixed asset turnover ratio". Routing fires on ${routed} held-out questions and took Hit@10 to ${f2(route["hit@10"])} (${short(cRoute)}).</p>
+<p>Leaving the company's name out of the query hurts without routing (${f2(filt["hit@10"])} to ${f2(t(DROP_ALONE)["hit@10"])}) and adds ${signed(cDrop.diff)} with it, inside noise (${signed(cDrop.ci95[0])} to ${signed(cDrop.ci95[1])}). It's the step I'm least sure of.</p>
+<p>MiniLM didn't earn its cost. Fused with BM25 it scored ${f2(hy["hit@10"])} against ${f2(bm["hit@10"])} (${short(cHybrid)}) at ${ms(hy.p50_ms)} ms a query instead of ${ms(bm.p50_ms)}. It looked better on the ${devHy.n} dev questions (${f2(devHy["hit@10"])} against ${f2(devBm["hit@10"])}), which is why I committed to it before testing; that gap was noise. Without the filter MiniLM does win (${f2(dense0["hit@10"])} against ${f2(none["hit@10"])}) by finding the right filing more often (${docPct(dense0)} against ${docPct(none)}), and the filter makes that redundant.</p>`;
 }
 
 // Statement pages among the labeled answers, read from the filings the demo ships (every
@@ -264,7 +257,7 @@ export function misses() {
     }),
     caption: `<b>Figure 3.</b> The ${tax.misses} held-out questions whose answer page missed the top 10, by the first stage of the pipeline that lost it.`,
   });
-  return `<p>Every held-out question whose answer page missed the top 10 goes in the first stage of the pipeline that lost it. The rules run on every evaluation, so the counts change when the code does. These are the hybrid pipeline's misses, the configuration I committed to before testing.</p>
+  return `<p>Each held-out question the hybrid pipeline missed is filed under the first stage that lost it. The rules run on every evaluation, so the counts follow the code.</p>
 ${fig}
 <p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. Routing's own failures are few: ${tax.counts.statement_not_detected} questions needed a statement page without saying so, and ${tax.counts.statement_outranked} routed to the right kind of statement but ranked a different statement page first.</p>`;
 }
@@ -311,9 +304,9 @@ export function service() {
       `<div class="multiples"><div><p class="fig-title">Requests a second</p>${rps}</div><div><p class="fig-title">p95 latency, ms</p>${lat}</div></div>` + F.twin(table),
     caption: `<b>Figure 4.</b> The FastAPI service with one worker pinned to one CPU core and the load generator on the other, 30 seconds per level.`,
   });
-  return `<p>Behind the FastAPI service, with one worker pinned to one CPU core and the load generator on the other, BM25 serves ${b1.throughput_rps.toFixed(0)} requests a second to a single client (p50 ${ms(b1.p50_ms)} ms, p95 ${ms(b1.p95_ms)} ms) and up to ${peak(bm).toFixed(0)} as clients are added; the hybrid tops out at ${peak(hy).toFixed(0)}. No request failed at any load.</p>
+  return `<p>With one FastAPI worker pinned to one core and the load generator on the other, BM25 serves ${b1.throughput_rps.toFixed(0)} requests a second to one client (p95 ${ms(b1.p95_ms)} ms) and up to ${peak(bm).toFixed(0)} with more clients; the hybrid tops out at ${peak(hy).toFixed(0)}. No request failed.</p>
 ${fig}
-<p>Pricing one vCPU at half an AWS c7i.large's on-demand rate, that's $${b1.usd_per_million.toFixed(2)} per million BM25 queries and $${h1.usd_per_million.toFixed(2)} for the hybrid, if this throughput carries over to that vCPU, which I haven't measured.</p>`;
+<p>At half an AWS c7i.large's on-demand price, one vCPU, that's $${b1.usd_per_million.toFixed(2)} per million BM25 queries and $${h1.usd_per_million.toFixed(2)} for the hybrid, if the throughput carries over to that machine, which I haven't measured.</p>`;
 }
 
 export function checks() {
@@ -330,10 +323,8 @@ export function checks() {
   const c128 = ct("bm25-chunks-128-32/company_year+quarter+drop+route");
   claim(c650["hit@10"] === pages["hit@10"] && c256["hit@10"] < pages["hit@10"] && c128["hit@10"] < pages["hit@10"], "smaller chunks don't beat pages");
   const batches = inc.add_batch_seconds;
-  return `<h3>Adding filings without a rebuild</h3>
-<p>The BM25 index is kept in segments so filings can be added without rebuilding it. With ${inc.held_out_filings} filings held out and added back in batches, every score on ${inc.queries} queries matched a one-pass build exactly, and so did every top 100. A full build takes ${inc.full_build_seconds.toFixed(1)} s; each batch took ${Math.min(...batches).toFixed(2)} to ${Math.max(...batches).toFixed(2)} s.</p>
-<h3>Chunk size</h3>
-<p>Chunking pages into smaller passages didn't help. 650-token chunks score the same as whole pages (${f2(c650["hit@10"])}), and 256- and 128-token chunks score ${f2(c256["hit@10"])} and ${f2(c128["hit@10"])} while indexing two to four times as many units, so the index stays at one entry per page.</p>`;
+  return `<p><b>Adding filings without a rebuild.</b> The index is kept in segments. With ${inc.held_out_filings} filings held out and added back in batches, every score on ${inc.queries} queries matched a one-pass build exactly. A full build takes ${inc.full_build_seconds.toFixed(1)} s; a batch took ${Math.min(...batches).toFixed(2)} to ${Math.max(...batches).toFixed(2)} s.</p>
+<p><b>Chunk size.</b> Smaller passages didn't help: 650-token chunks tie whole pages (${f2(c650["hit@10"])}), and 256- and 128-token chunks score ${f2(c256["hit@10"])} and ${f2(c128["hit@10"])} with two to four times as many entries.</p>`;
 }
 
-export const sources = () => `<p class="sources">Retrieval numbers on this page are from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. Every results file, with the command and commit that wrote it, is in <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
+export const sources = () => `<p class="sources">Numbers from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. Every results file and the command that wrote it: <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;

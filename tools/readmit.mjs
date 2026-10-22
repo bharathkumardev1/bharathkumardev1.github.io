@@ -79,7 +79,7 @@ export const links = () => `<li><a href="${repo("readmission-capacity")}">Code o
 <li><a href="${repo("readmission-capacity")}/blob/main/results/RESULTS.md">Every results table</a></li>`;
 
 export function planAbout() {
-  return `<p class="about">Drag the slider or click the chart. Each line ranks the ${int(CAP.n)} held-out encounters a different way and calls from the top; the table reads every ranking where the slider is. Logistic regression and XGBoost are in the table but not drawn, since they sit between and on top of the lines that are.</p>`;
+  return `<p class="about">Drag the slider or click the chart. Each line ranks the ${int(CAP.n)} held-out encounters a different way and calls from the top.</p>`;
 }
 
 export function capacityChart() {
@@ -120,7 +120,7 @@ export function defaultRisk(html) {
 
 export const capacityOut = () => VIEW.out(10);
 export const capacityRows = () => VIEW.rows(0.1);
-export const listTop = () => listRows(LIST.slice(0, 10));
+export const listTop = () => listRows(LIST.slice(0, 5));
 
 export function pipeline() {
   const rows = M.meta.rows, sp = M.meta.splits, dc = M.design_checks;
@@ -143,20 +143,18 @@ export function pipeline() {
   claim(at10("LightGBM").flagged === lists || at10("LightGBM").flagged === lists - 1, "the call list is 10% of the held-out discharges");
   return `${fig}
 <ul>
-<li>The label is the extract's own: back within 30 days. Encounters that ended in death or hospice are dropped, since those patients can't come back, and keeping them teaches the model that a hospice discharge means low risk. Kept in, they lift test AUROC to ${dc["keep death and hospice discharges"].test_auroc.toFixed(3)}, because a discharge code that says the patient died predicts no readmission almost perfectly.</li>
-<li>Nobody appears in both training and test: the split is by patient, not by encounter.</li>
-<li>Features: prior-year inpatient, emergency and outpatient visits; length of stay; lab, procedure and medication counts; the three diagnoses grouped as in Strack et al. (2014); a Charlson score from those ICD-9 codes; LACE; admission type and source; discharge disposition; payer; admitting specialty; A1C and glucose results; insulin, metformin and medication changes; age band.</li>
-<li>Race and gender aren't features. They stay in the data for the subgroup checks below. Retrained with them as features, LightGBM scores ${rg.test_auroc.toFixed(3)} AUROC and ${pct(rg.recall_at_10)} on the list, no better.</li>
-<li>LACE here is an approximation: the extract has three diagnosis codes per encounter and counts emergency visits over a year rather than six months, so it probably understates the published index.</li>
-</ul>`;
+<li>Death and hospice discharges are dropped: those patients can't come back, and keeping them lifts AUROC to ${dc["keep death and hospice discharges"].test_auroc.toFixed(3)} for the wrong reason.</li>
+<li>Race and gender aren't features; they're kept for the subgroup checks. As features they don't help (${pct(rg.recall_at_10)} on the list).</li>
+<li>LACE is approximate here: the extract has three diagnosis codes and counts emergency visits over a year, not six months.</li>
+</ul>
+<details class="more"><summary>The 25 features</summary><p>Prior-year inpatient, emergency and outpatient visits; length of stay; lab, procedure and medication counts; the three diagnoses grouped as in Strack et al. (2014); a Charlson score from those ICD-9 codes; LACE; admission type and source; discharge disposition; payer; admitting specialty; A1C and glucose results; insulin, metformin and medication changes; age band.</p></details>`;
 }
 
 export function reasons() {
   const r = M.reasons_at_10;
   const first = Object.entries(r.first_reason).sort((a, b) => b[1] - a[1]);
   claim(first[0][0] === "number_inpatient" && first[1][0] === "discharge_disposition_id", "prior stays and discharge disposition lead the first reasons");
-  return `<p>Each patient on the list comes with the three things that pushed the model's score up most, from exact TreeSHAP, written the way a care coordinator would read them. Prior inpatient stays are the first reason for ${pct(first[0][1], 0)} of the list and the discharge disposition for ${pct(first[1][1], 0)}.</p>
-<p>The plain-language descriptions of admission and discharge codes are checked in CI against the code table that ships with the UCI download. A reason explains the score, not the patient: "no payer recorded" can be a reason, and it describes the record, not the person's care.</p>`;
+  return `<p>Every call comes with the three things that raised its score most, from exact TreeSHAP, in words a care coordinator would use; CI checks the code descriptions against the table that ships with the UCI download. Prior inpatient stays lead for ${pct(first[0][1], 0)} of the list and the discharge disposition for ${pct(first[1][1], 0)}. A reason explains the score, not the patient.</p>`;
 }
 
 export function trust() {
@@ -202,10 +200,10 @@ export function trust() {
     caption: `<b>Figure 4.</b> The ${int(mi.readmissions)} held-out readmissions, by whether the patient had an inpatient, emergency or outpatient visit in the year before.`,
   });
   const share = mi.share_with_prior_inpatient;
-  return `<p>Against the prior-stays rule, the LightGBM list reaches ${(-rule.mean * 100).toFixed(1)} points more of the readmissions (95% interval ${signed(-rule.ci95[1] * 100, 1)} to ${signed(-rule.ci95[0] * 100, 1)}, paired over the same patients), which is ${more} more readmitted patients on the list. The boosting library doesn't matter: XGBoost's list holds ${pct(M.test.XGBoost.top10.recall)} to LightGBM's ${pct(M.test.LightGBM.top10.recall)}, a gap well inside its interval (${signed(paired.ci95[0] * 100, 1)} to ${signed(paired.ci95[1] * 100, 1)} points). LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
-<p>The calibrated probabilities said the 10% list would hold ${mi.expected_on_list.toFixed(0)} readmissions, and it held ${mi.caught}. By tenth of predicted risk, predicted and observed rates stay within ${(Math.max(...gaps) * 100).toFixed(1)} points of each other, the widest gap being the top tenth (${pct(dec.at(-1).predicted)} predicted, ${pct(dec.at(-1).observed)} observed).</p>
+  return `<p>Against the prior-stays rule the list reaches ${(-rule.mean * 100).toFixed(1)} points more of the readmissions (95% interval ${signed(-rule.ci95[1] * 100, 1)} to ${signed(-rule.ci95[0] * 100, 1)}), ${more} more patients who came back. XGBoost ties LightGBM (${pct(M.test.XGBoost.top10.recall)} against ${pct(M.test.LightGBM.top10.recall)}); LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
+<p>The probabilities said the list would hold ${mi.expected_on_list.toFixed(0)} readmissions, and it held ${mi.caught}. Every tenth of predicted risk is within ${(Math.max(...gaps) * 100).toFixed(1)} points of what happened.</p>
 ${calib}
-<p>The list has a blind spot. ${int(none)} of the ${int(mi.readmissions)} readmissions (${pct(none / mi.readmissions, 0)}) were patients with no inpatient, emergency or outpatient visit in the year before, and the list holds ${mi.caught_with_no_prior_visits} of them. They're ${int(mi.missed_with_no_prior_visits)} of its ${int(mi.missed)} misses. ${pct(share.on_list, 0)} of the list had a prior inpatient stay, against ${pct(share.all, 0)} of all discharges: the model finds people with a history, and most of what it misses are people the record says little about.</p>
+<p>The list has a blind spot: ${pct(none / mi.readmissions, 0)} of readmissions were patients with no visit in the year before, and they're ${int(mi.missed_with_no_prior_visits)} of its ${int(mi.missed)} misses. ${pct(share.on_list, 0)} of the list had a prior inpatient stay, against ${pct(share.all, 0)} of all discharges. The model finds people with a history; it misses people the record says little about.</p>
 ${blind}`;
 }
 
@@ -282,32 +280,30 @@ export function checks() {
     rows: Object.entries(dc).map(([k, v]) => [LABEL[k], v.test_auroc.toFixed(3), pct(v.recall_at_10), int(v.test_n)]),
   });
   const r = (g) => pct(M.subgroups.age.find((x) => x.group === g).recall_at_10);
+  const same = Object.entries(dc).filter(([k, v]) => k !== "as built" && v.test_n === dc["as built"].test_n);
+  claim(same.length === 2 && same.every(([, v]) => v.recall_at_10 < dc["as built"].recall_at_10), "the variants scored on the same split don't beat the model as built");
   return `<h3>Simulated shifts</h3>
-<p>The extract has no admission dates, so drift over time can't be tested with it. Instead I shift the held-out set on purpose, score it as if it were next month's discharges, and see what the monitoring catches. The first two shifts resample real encounters with their real outcomes, so their numbers are measured rather than modeled.</p>
+<p>The extract has no admission dates, so I shift the held-out set on purpose and check what the monitoring catches. The first two shifts resample real encounters with their real outcomes.</p>
 ${shifts}
-<p>The older population is where calibration slips most: ${older.expected_on_list.toFixed(0)} readmissions expected on the list, ${older.observed_on_list} observed. Blanking diagnoses barely moves the list, and no PSI alert fires; the largest is ${psiMax.toFixed(3)}, for the ${psiName === "charlson" ? "Charlson score" : psiName}, against an alert threshold of ${PSI_ALERT}. Only the missing-value check catches it, which is why monitoring needs both.</p>
+<p>Calibration slips most for the older population (${older.expected_on_list.toFixed(0)} expected on the list, ${older.observed_on_list} observed). Blanking diagnoses fires no PSI alert, the largest being ${psiMax.toFixed(3)} against a threshold of ${PSI_ALERT}; only the missing-value check catches it, so monitoring needs both.</p>
 <h3>Who the list reaches</h3>
-<p>With the list cut at 10% of all discharges, ${r("under 50")} of readmissions under 50 make it, ${r("50 to 69")} at 50 to 69 and ${r("70 and over")} at 70 and over. For race, only African American and Caucasian patients have more than a few hundred encounters. For the ${int(miss.n)} encounters with no race recorded, ${pct(miss.flagged_share)} make the list and ${missCaught} of their ${missRe} readmissions do. That's too few to conclude much from, and it's the group I'd watch.</p>
-${sub}
+<p>The list reaches ${r("under 50")} of readmissions under 50, ${r("50 to 69")} at 50 to 69 and ${r("70 and over")} at 70 and over. The ${int(miss.n)} encounters with no race recorded get ${missCaught} of their ${missRe} readmissions on the list: too few to conclude much from, and the group I'd watch.</p>
+${F.twin(sub, "Every subgroup")}
 <h3>Choices I tested</h3>
-<p>Each row retrains LightGBM with one decision changed and scores its own held-out split.</p>
-${design}`;
+<p>I retrained LightGBM with one decision changed at a time. The two scored on the same held-out split, class weights and race and gender as features, both land below the model as built.</p>
+${F.twin(design, "Every variant")}`;
 }
 
 export function service() {
   const o = one();
   claim(LOAD.levels.every((x) => x.errors === 0), "no scoring request failed");
-  const singles = LOAD.levels.filter((x) => x.batch === 1);
   const hundred = LOAD.levels.filter((x) => x.batch === 100);
-  const peak = singles.reduce((a, x) => (x.requests_per_s > a.requests_per_s ? x : a));
   const batchRate = hundred.reduce((a, x) => a + x.encounters_per_s, 0) / hundred.length;
-  const rss = LOAD.levels.map((x) => x.server_rss_mb);
   const table = F.table({
     head: ["Encounters per request", "Clients", "Encounters/s", "p50", "p95"], numeric: [0, 1, 2, 3, 4],
     rows: LOAD.levels.map((x) => [x.batch, x.concurrency, x.encounters_per_s.toFixed(0), `${x.p50_ms.toFixed(1)} ms`, `${x.p95_ms.toFixed(1)} ms`]),
   });
-  return `<p><code>POST /score</code> takes encounters with the extract's field names and returns calibrated risk, the percentile among validation scores, whether the encounter makes the call list at the configured capacity, and the three reasons.</p>
-<p>In a closed-loop load test with one uvicorn worker on one core and the load generator on the other, it scores one encounter per request at ${o.requests_per_s.toFixed(1)} requests a second for a single client (p50 ${o.p50_ms.toFixed(1)} ms, p95 ${o.p95_ms.toFixed(1)} ms) and tops out at ${peak.requests_per_s.toFixed(1)} with ${peak.concurrency} clients. In batches of 100 it scores about ${Math.round(batchRate / 5) * 5} encounters a second, most of that time going to exact TreeSHAP for the reasons. No request failed, and the server held ${Math.min(...rss).toFixed(0)} to ${Math.max(...rss).toFixed(0)} MB.</p>
+  return `<p><code>POST /score</code> returns calibrated risk, whether the encounter makes the call list at the configured capacity, and its three reasons. On one core it answers ${o.requests_per_s.toFixed(1)} single-encounter requests a second (p95 ${o.p95_ms.toFixed(1)} ms) and scores about ${Math.round(batchRate / 5) * 5} encounters a second in batches of 100, most of that time on exact TreeSHAP. No request failed.</p>
 ${F.twin(table, "Show every load level")}`;
 }
 
