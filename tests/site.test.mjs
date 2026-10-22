@@ -1,6 +1,7 @@
 // Checks that keep the site honest: the generated parts match the results files, both demos
 // return what the Python code returned, every page reads without JavaScript, links resolve,
-// figures carry their text alternatives, the copy stays clean, and pages stay small.
+// figures carry their text alternatives, search engines get accurate data, the copy stays
+// clean, and pages stay small.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -121,6 +122,19 @@ test("every page has one h1, a description, and a canonical URL or a noindex", (
     else assert.match(html, /<link rel="canonical" href="https:\/\/bharathkumardev1\.github\.io\/[^"]*">/, file);
     assert.equal(ids(html).size, [...html.matchAll(/\sid="([^"]+)"/g)].length, `${file} repeats an id`);
   }
+});
+
+test("search engines get a sitemap of every page and structured data that matches the home page", () => {
+  const listed = [...read("sitemap.xml").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort();
+  const canonical = Object.values(pages).flatMap((html) => html.match(/<link rel="canonical" href="([^"]+)">/)?.[1] ?? []).sort();
+  assert.deepEqual(listed, canonical);
+  assert.match(read("robots.txt"), /^Sitemap: https:\/\/bharathkumardev1\.github\.io\/sitemap\.xml$/m);
+  const person = JSON.parse(HOME.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(person["@type"], "Person");
+  assert.equal(person.name, "Bharath Mandha");
+  assert.equal(person.url, HOME.match(/<link rel="canonical" href="([^"]+)">/)[1]);
+  assert.ok(HOME.includes(`href="mailto:${person.email}"`), person.email);
+  for (const url of person.sameAs) assert.ok(HOME.includes(`href="${url}"`), url);
 });
 
 test("figures carry their text: captions, labels and the numbers behind the hover", () => {
