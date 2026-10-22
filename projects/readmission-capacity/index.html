@@ -42,7 +42,7 @@
 <header class="cs-head">
 <p class="crumb"><a href="../../#projects">Projects</a></p>
 <h1>Who to call after a hospital discharge</h1>
-<p class="lede">A care team that can call one discharged patient in ten needs the right tenth. At Cigna I judged readmission models by how many high-need patients a fixed outreach capacity would reach, alongside AUC. This is the same problem on public data, measured the same way.</p>
+<p class="lede">A care team that can call one discharged patient in ten needs the right tenth. At Cigna I judged readmission models by how many high-need patients a fixed outreach capacity reaches, not by AUC alone. This is the same problem on public data.</p>
 <dl class="facts">
 <!-- facts:start -->
 <div><dt>Data</dt><dd><b>101,766</b> diabetic inpatient encounters from 130 US hospitals (UCI, 1999 to 2008)</dd></div>
@@ -79,7 +79,7 @@
 <div class="demo-block">
 <h2 id="plan-h">Plan the calls</h2>
 <!-- plan-about:start -->
-<p class="about">Drag the slider or click the chart. Each line ranks the 19,745 held-out encounters a different way and calls from the top; the table reads every ranking where the slider is. Logistic regression and XGBoost are in the table but not drawn, since they sit between and on top of the lines that are.</p>
+<p class="about">Drag the slider or click the chart. Each line ranks the 19,745 held-out encounters a different way and calls from the top.</p>
 <!-- plan-about:end -->
 <div class="capacity-control">
 <label for="capacity">Calls the team can make</label>
@@ -112,20 +112,18 @@
 <!-- pipeline:start -->
 <figure class="fig" id="fig-pipeline"><div class="fig-frame"><ol class="flow" aria-label="From the extract to a call list"><li><div class="box"><span class="what">UCI extract</span><span class="count">101,766</span><span class="unit">encounters</span><span class="how">diabetic inpatient encounters, 130 US hospitals, 1999 to 2008</span></div></li><li><div class="box"><span class="what">Exclusions</span><span class="count">2,423</span><span class="unit">removed</span><span class="how">deaths and discharges to hospice, who can't be readmitted</span></div></li><li><div class="box"><span class="what">Split by patient</span><span class="count">19,745</span><span class="unit">held out</span><span class="how">60/20/20 by a hash of the patient number</span></div></li><li><div class="box"><span class="what">LightGBM</span><span class="count">287</span><span class="unit">trees</span><span class="how">25 features, early stopping and isotonic calibration on validation</span></div></li><li><div class="box key-step"><span class="what">Call list</span><span class="count">1,974</span><span class="unit">calls</span><span class="how">the top 10% of discharges by risk, three TreeSHAP reasons each</span></div></li></ol></div><figcaption><b>Figure 2.</b> From the public extract to the 10% call list on the held-out split.</figcaption></figure>
 <ul>
-<li>The label is the extract's own: back within 30 days. Encounters that ended in death or hospice are dropped, since those patients can't come back, and keeping them teaches the model that a hospice discharge means low risk. Kept in, they lift test AUROC to 0.679, because a discharge code that says the patient died predicts no readmission almost perfectly.</li>
-<li>Nobody appears in both training and test: the split is by patient, not by encounter.</li>
-<li>Features: prior-year inpatient, emergency and outpatient visits; length of stay; lab, procedure and medication counts; the three diagnoses grouped as in Strack et al. (2014); a Charlson score from those ICD-9 codes; LACE; admission type and source; discharge disposition; payer; admitting specialty; A1C and glucose results; insulin, metformin and medication changes; age band.</li>
-<li>Race and gender aren't features. They stay in the data for the subgroup checks below. Retrained with them as features, LightGBM scores 0.673 AUROC and 24.7% on the list, no better.</li>
-<li>LACE here is an approximation: the extract has three diagnosis codes per encounter and counts emergency visits over a year rather than six months, so it probably understates the published index.</li>
+<li>Death and hospice discharges are dropped: those patients can't come back, and keeping them lifts AUROC to 0.679 for the wrong reason.</li>
+<li>Race and gender aren't features; they're kept for the subgroup checks. As features they don't help (24.7% on the list).</li>
+<li>LACE is approximate here: the extract has three diagnosis codes and counts emergency visits over a year, not six months.</li>
 </ul>
+<details class="more"><summary>The 25 features</summary><p>Prior-year inpatient, emergency and outpatient visits; length of stay; lab, procedure and medication counts; the three diagnoses grouped as in Strack et al. (2014); a Charlson score from those ICD-9 codes; LACE; admission type and source; discharge disposition; payer; admitting specialty; A1C and glucose results; insulin, metformin and medication changes; age band.</p></details>
 <!-- pipeline:end -->
 </section>
 
 <section id="reasons" aria-labelledby="reasons-h">
 <h2 id="reasons-h">Why each patient is on the list</h2>
 <!-- reasons:start -->
-<p>Each patient on the list comes with the three things that pushed the model's score up most, from exact TreeSHAP, written the way a care coordinator would read them. Prior inpatient stays are the first reason for 61% of the list and the discharge disposition for 37%.</p>
-<p>The plain-language descriptions of admission and discharge codes are checked in CI against the code table that ships with the UCI download. A reason explains the score, not the patient: "no payer recorded" can be a reason, and it describes the record, not the person's care.</p>
+<p>Every call comes with the three things that raised its score most, from exact TreeSHAP, in words a care coordinator would use; CI checks the code descriptions against the table that ships with the UCI download. Prior inpatient stays lead for 61% of the list and the discharge disposition for 37%. A reason explains the score, not the patient.</p>
 <!-- reasons:end -->
 <div class="table-wrap"><table class="calllist">
 <caption>The top of the 10% call list, held-out encounters</caption>
@@ -137,11 +135,6 @@
 <tr><td class="n">3</td><td class="n">65%</td><td>20s</td><td>no</td><td>18 inpatient stays in the prior year; 9 emergency visits in the prior year; LACE score 13</td></tr>
 <tr><td class="n">4</td><td class="n">64%</td><td>20s</td><td>yes</td><td>21 inpatient stays in the prior year; 1 emergency visit in the prior year; second diagnosis: digestive</td></tr>
 <tr><td class="n">5</td><td class="n">64%</td><td>20s</td><td>yes</td><td>9 inpatient stays in the prior year; Charlson comorbidity score 3; age 20 to 30</td></tr>
-<tr><td class="n">6</td><td class="n">64%</td><td>40s</td><td>yes</td><td>10 inpatient stays in the prior year; 2 emergency visits in the prior year; primary diagnosis: diabetes</td></tr>
-<tr><td class="n">7</td><td class="n">64%</td><td>80s</td><td>no</td><td>discharged to a rehab facility; Charlson comorbidity score 3; 8 diagnoses on record</td></tr>
-<tr><td class="n">8</td><td class="n">64%</td><td>60s</td><td>no</td><td>discharged to a rehab facility; no admitting specialty recorded; insulin: down</td></tr>
-<tr><td class="n">9</td><td class="n">64%</td><td>40s</td><td>yes</td><td>13 inpatient stays in the prior year; 2 emergency visits in the prior year; Charlson comorbidity score 3</td></tr>
-<tr><td class="n">10</td><td class="n">64%</td><td>20s</td><td>no</td><td>19 inpatient stays in the prior year; 13 emergency visits in the prior year; LACE score 11</td></tr>
 <!-- list:end -->
 </tbody>
 </table></div>
@@ -150,7 +143,7 @@
 
 <section id="score" aria-labelledby="score-h">
 <h2 id="score-h">Score a patient</h2>
-<p>The trees run in your browser and give LightGBM's own scores, which the tests check on 300 held-out rows here and 2,000 in the project's CI. Inputs not on the form are held at the held-out set's median or most common value.</p>
+<p>The model's trees run in your browser and match LightGBM's own scores; the tests check 300 held-out rows. Anything not on the form is held at its median or most common value.</p>
 <form id="patient" class="patient">
 <label>Age <select name="age">
 <option value="[30-40)">30s</option><option value="[40-50)">40s</option><option value="[50-60)">50s</option><option value="[60-70)" selected>60s</option><option value="[70-80)">70s</option><option value="[80-90)">80s</option>
@@ -180,8 +173,8 @@
 <section id="trust" aria-labelledby="trust-h">
 <h2 id="trust-h">How far to trust it</h2>
 <!-- trust:start -->
-<p>Against the prior-stays rule, the LightGBM list reaches 4.4 points more of the readmissions (95% interval +2.7 to +6.0, paired over the same patients), which is 101 more readmitted patients on the list. The boosting library doesn't matter: XGBoost's list holds 24.8% to LightGBM's 25.0%, a gap well inside its interval (-0.8 to +1.1 points). LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
-<p>The calibrated probabilities said the 10% list would hold 539 readmissions, and it held 569. By tenth of predicted risk, predicted and observed rates stay within 1.6 points of each other, the widest gap being the top tenth (27.3% predicted, 28.9% observed).</p>
+<p>Against the prior-stays rule the list reaches 4.4 points more of the readmissions (95% interval +2.7 to +6.0), 101 more patients who came back. XGBoost ties LightGBM (24.8% against 25.0%); LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
+<p>The probabilities said the list would hold 539 readmissions, and it held 569. Every tenth of predicted risk is within 1.6 points of what happened.</p>
 <figure class="fig" id="fig-calibration"><div class="fig-frame"><div class="pair"><div><div class="chart square points"><div class="area">
 <div class="plot" role="img" aria-label="Predicted against observed readmission rate for each tenth of the held-out encounters by risk. All ten points sit within 1.6 points of the diagonal."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><line class="ref" x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke"/></svg>
 <span class="tick y" style="top:100%">0%</span><span class="tick y" style="top:66.67%">10%</span><span class="tick y" style="top:33.33%">20%</span><span class="tick y" style="top:0%">30%</span><span class="tick x" style="left:0%">0%</span><span class="tick x" style="left:33.33%">10%</span><span class="tick x" style="left:66.67%">20%</span><span class="tick x" style="left:100%">30%</span><span class="axis-title x">predicted</span><span class="axis-title y">observed</span></div><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 1: 3.8% predicted, 4.1% observed, 1,975 encounters" data-tip="Tenth 1: 3.8% predicted, 4.1% observed, 1,975 encounters" style="left:12.75%;top:86.33%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 2: 5.0% predicted, 6.2% observed, 1,975 encounters" data-tip="Tenth 2: 5.0% predicted, 6.2% observed, 1,975 encounters" style="left:16.59%;top:79.41%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 3: 6.8% predicted, 6.4% observed, 1,975 encounters" data-tip="Tenth 3: 6.8% predicted, 6.4% observed, 1,975 encounters" style="left:22.68%;top:78.73%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 4: 8.5% predicted, 8.4% observed, 1,975 encounters" data-tip="Tenth 4: 8.5% predicted, 8.4% observed, 1,975 encounters" style="left:28.31%;top:72.15%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 5: 9.3% predicted, 9.3% observed, 1,975 encounters" data-tip="Tenth 5: 9.3% predicted, 9.3% observed, 1,975 encounters" style="left:30.85%;top:68.95%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 6: 10.5% predicted, 10.5% observed, 1,974 encounters" data-tip="Tenth 6: 10.5% predicted, 10.5% observed, 1,974 encounters" style="left:35.05%;top:64.88%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 7: 11.6% predicted, 10.8% observed, 1,974 encounters" data-tip="Tenth 7: 11.6% predicted, 10.8% observed, 1,974 encounters" style="left:38.62%;top:63.86%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 8: 13.0% predicted, 13.3% observed, 1,974 encounters" data-tip="Tenth 8: 13.0% predicted, 13.3% observed, 1,974 encounters" style="left:43.22%;top:55.59%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 9: 18.0% predicted, 17.5% observed, 1,974 encounters" data-tip="Tenth 9: 18.0% predicted, 17.5% observed, 1,974 encounters" style="left:60.06%;top:41.74%"></span><span class="pt hit s1" tabindex="0" role="img" aria-label="Tenth 10: 27.3% predicted, 28.9% observed, 1,974 encounters" data-tip="Tenth 10: 27.3% predicted, 28.9% observed, 1,974 encounters" style="left:91.08%;top:3.58%"></span><div class="tip" aria-hidden="true"></div></div></div></div><div><div class="table-wrap"><table>
@@ -198,7 +191,7 @@
 <tr><td class="n">9</td><td class="n">1,974</td><td class="n">18.0%</td><td class="n">17.5%</td></tr>
 <tr class="on"><td class="n">10</td><td class="n">1,974</td><td class="n">27.3%</td><td class="n">28.9%</td></tr>
 </tbody></table></div></div></div></div><figcaption><b>Figure 3.</b> Predicted against observed 30-day readmission rate for each tenth of the held-out encounters, ranked by LightGBM's calibrated risk. A point on the diagonal is perfectly calibrated. The highlighted row is the top tenth, the same size as the call list.</figcaption></figure>
-<p>The list has a blind spot. 943 of the 2,279 readmissions (41%) were patients with no inpatient, emergency or outpatient visit in the year before, and the list holds 110 of them. They're 833 of its 1,710 misses. 78% of the list had a prior inpatient stay, against 33% of all discharges: the model finds people with a history, and most of what it misses are people the record says little about.</p>
+<p>The list has a blind spot: 41% of readmissions were patients with no visit in the year before, and they're 833 of its 1,710 misses. 78% of the list had a prior inpatient stay, against 33% of all discharges. The model finds people with a history; it misses people the record says little about.</p>
 <figure class="fig" id="fig-blind-spot"><div class="fig-frame"><ul class="legend"><li><i class="key box s1" aria-hidden="true"></i>On the 10% call list</li><li><i class="key box track" aria-hidden="true"></i>Missed</li></ul><div class="rows" role="img" aria-label="Of 943 readmitted patients with no visit in the prior year, the list reaches 110. Of 1,336 with at least one visit, it reaches 459.">
 <div class="lab">No visit in the prior year (943 readmissions)</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:33.33%"></span><span class="g" style="left:66.67%"></span><span class="g" style="left:100%"></span><span class="bar part" style="width:7.33%"></span><span class="bar track" style="left:calc(7.33% + 2px);width:calc(55.54% - 2px)"></span></div><div class="val">12%</div>
 <div class="lab">At least one visit (1,336 readmissions)</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:33.33%"></span><span class="g" style="left:66.67%"></span><span class="g" style="left:100%"></span><span class="bar part" style="width:30.6%"></span><span class="bar track" style="left:calc(30.6% + 2px);width:calc(58.47% - 2px)"></span></div><div class="val">34%</div>
@@ -210,7 +203,7 @@
 <h2 id="checks-h">What I checked</h2>
 <!-- checks:start -->
 <h3>Simulated shifts</h3>
-<p>The extract has no admission dates, so drift over time can't be tested with it. Instead I shift the held-out set on purpose, score it as if it were next month's discharges, and see what the monitoring catches. The first two shifts resample real encounters with their real outcomes, so their numbers are measured rather than modeled.</p>
+<p>The extract has no admission dates, so I shift the held-out set on purpose and check what the monitoring catches. The first two shifts resample real encounters with their real outcomes.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>What was shifted</th><th class="n">Readmissions on the list</th><th class="n">Expected on list</th><th class="n">Observed</th><th>Alerts</th></tr></thead>
 <tbody>
@@ -219,10 +212,10 @@
 <tr><td>Patients with a prior inpatient stay made 60% (33% in test)</td><td class="n">23.4%</td><td class="n">600</td><td class="n">628</td><td>PSI on prior inpatient stays</td></tr>
 <tr><td>Second and third diagnoses blanked on a random 30%</td><td class="n">25.1%</td><td class="n">533</td><td class="n">571</td><td>missing-value rate on both</td></tr>
 </tbody></table></div>
-<p>The older population is where calibration slips most: 523 readmissions expected on the list, 585 observed. Blanking diagnoses barely moves the list, and no PSI alert fires; the largest is 0.028, for the Charlson score, against an alert threshold of 0.2. Only the missing-value check catches it, which is why monitoring needs both.</p>
+<p>Calibration slips most for the older population (523 expected on the list, 585 observed). Blanking diagnoses fires no PSI alert, the largest being 0.028 against a threshold of 0.2; only the missing-value check catches it, so monitoring needs both.</p>
 <h3>Who the list reaches</h3>
-<p>With the list cut at 10% of all discharges, 31.1% of readmissions under 50 make it, 26.7% at 50 to 69 and 21.5% at 70 and over. For race, only African American and Caucasian patients have more than a few hundred encounters. For the 417 encounters with no race recorded, 4.1% make the list and 2 of their 31 readmissions do. That's too few to conclude much from, and it's the group I'd watch.</p>
-<div class="table-wrap"><table>
+<p>The list reaches 31.1% of readmissions under 50, 26.7% at 50 to 69 and 21.5% at 70 and over. The 417 encounters with no race recorded get 2 of their 31 readmissions on the list: too few to conclude much from, and the group I'd watch.</p>
+<details class="twin"><summary>Every subgroup</summary><div class="table-wrap"><table>
 <thead><tr><th>Group</th><th class="n">Encounters</th><th class="n">Readmitted</th><th class="n">On the list</th><th class="n">Readmissions on the list</th></tr></thead>
 <tbody>
 <tr class="group"><th colspan="5" scope="colgroup">Age</th></tr>
@@ -238,10 +231,10 @@
 <tr><td>Hispanic</td><td class="n">400</td><td class="n">10.8%</td><td class="n">8.0%</td><td class="n">23.3%</td></tr>
 <tr><td>Other</td><td class="n">288</td><td class="n">9.7%</td><td class="n">10.1%</td><td class="n">39.3%</td></tr>
 <tr><td>Not recorded</td><td class="n">417</td><td class="n">7.4%</td><td class="n">4.1%</td><td class="n">6.5%</td></tr>
-</tbody></table></div>
+</tbody></table></div></details>
 <h3>Choices I tested</h3>
-<p>Each row retrains LightGBM with one decision changed and scores its own held-out split.</p>
-<div class="table-wrap"><table>
+<p>I retrained LightGBM with one decision changed at a time. The two scored on the same held-out split, class weights and race and gender as features, both land below the model as built.</p>
+<details class="twin"><summary>Every variant</summary><div class="table-wrap"><table>
 <thead><tr><th>LightGBM retrained with</th><th class="n">AUROC</th><th class="n">Readmissions on the 10% list</th><th class="n">Test encounters</th></tr></thead>
 <tbody>
 <tr><td>As built</td><td class="n">0.673</td><td class="n">25.0%</td><td class="n">19,745</td></tr>
@@ -249,15 +242,14 @@
 <tr><td>Death and hospice discharges kept</td><td class="n">0.679</td><td class="n">25.2%</td><td class="n">20,225</td></tr>
 <tr><td>Class-weighted training</td><td class="n">0.672</td><td class="n">24.5%</td><td class="n">19,745</td></tr>
 <tr><td>Race and gender as features</td><td class="n">0.673</td><td class="n">24.7%</td><td class="n">19,745</td></tr>
-</tbody></table></div>
+</tbody></table></div></details>
 <!-- checks:end -->
 </section>
 
 <section id="service" aria-labelledby="service-h">
 <h2 id="service-h">As a service</h2>
 <!-- service:start -->
-<p><code>POST /score</code> takes encounters with the extract's field names and returns calibrated risk, the percentile among validation scores, whether the encounter makes the call list at the configured capacity, and the three reasons.</p>
-<p>In a closed-loop load test with one uvicorn worker on one core and the load generator on the other, it scores one encounter per request at 71.7 requests a second for a single client (p50 13.3 ms, p95 18.7 ms) and tops out at 78.5 with 4 clients. In batches of 100 it scores about 515 encounters a second, most of that time going to exact TreeSHAP for the reasons. No request failed, and the server held 179 to 185 MB.</p>
+<p><code>POST /score</code> returns calibrated risk, whether the encounter makes the call list at the configured capacity, and its three reasons. On one core it answers 71.7 single-encounter requests a second (p95 18.7 ms) and scores about 515 encounters a second in batches of 100, most of that time on exact TreeSHAP. No request failed.</p>
 <details class="twin"><summary>Show every load level</summary><div class="table-wrap"><table>
 <thead><tr><th class="n">Encounters per request</th><th class="n">Clients</th><th class="n">Encounters/s</th><th class="n">p50</th><th class="n">p95</th></tr></thead>
 <tbody>
@@ -280,7 +272,7 @@ make run        # download (checked against its SHA-256), train, evaluate
 make test       # lint, tests, and the browser scorer against a fresh export
 make loadtest   # the service on one core, the load generator on the other
 make export     # trees, calibration, capacity curves and the call list for this page</code></pre>
-<p>On every push, CI downloads the extract from UCI, retrains with the locked libraries, and fails if AUROC, AUPRC or Brier score move by more than 0.002 or recall at 10% by more than 0.005 from the committed results. The same job checks the reason-code descriptions against the code table that ships with the download, and this page's JavaScript scorer against the freshly trained model.</p>
+<p>On every push, CI downloads the extract, retrains with the locked libraries, and fails if AUROC, AUPRC or Brier move by more than 0.002, or recall at 10% by more than 0.005, from the committed results.</p>
 <!-- sources:start -->
 <p class="sources">Numbers on this page are from the code at commit <a href="https://github.com/bharathkumardev1/readmission-capacity/commit/9ea167a"><code>9ea167a</code></a>, run on 2026-10-21 with LightGBM 4.7.0 and XGBoost 3.4.1. Every table <code>readmit run</code> writes is in <a href="https://github.com/bharathkumardev1/readmission-capacity/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>
 <!-- sources:end -->
@@ -292,7 +284,7 @@ make export     # trees, calibration, capacity curves and the call list for this
 <!-- footer:start -->
 <footer class="site-footer"><div class="wrap">
 <p>Bharath Mandha<br>Dallas, TX<br><a href="mailto:bharathmandha.200@gmail.com">bharathmandha.200@gmail.com</a></p>
-<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is 114 KB, about 52 KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
+<p class="colophon">Plain HTML and CSS with a few small scripts: no framework, no tracking. This page is 111 KB, about 51 KB compressed, before a demo loads its data. The build writes every number on the site from the projects' results files and fails if a sentence stops matching them. <a href="https://github.com/bharathkumardev1/bharathkumardev1.github.io">Source</a>.</p>
 </div></footer>
 <!-- footer:end -->
 <script type="module" src="../../assets/site.js"></script>

@@ -83,9 +83,9 @@ test("readmission scorer matches LightGBM on held-out rows", () => {
 test("pages read without JavaScript: results, tables and a scored patient are in the HTML", () => {
   const body = (html, id) => html.match(new RegExp(`<(?:tbody|ol) id="${id}"[^>]*>([\\s\\S]*?)</(?:tbody|ol)>`))[1];
   assert.equal((body(HOME, "hits").match(/<li>/g) || []).length, 3);
-  assert.equal((body(FINANCE, "hits").match(/<li>/g) || []).length, 5);
+  assert.equal((body(FINANCE, "hits").match(/<li>/g) || []).length, 3);
   assert.equal((body(READMIT, "capacity-table").match(/<tr>/g) || []).length, 6);
-  assert.equal((body(READMIT, "call-list").match(/<tr>/g) || []).length, 10);
+  assert.equal((body(READMIT, "call-list").match(/<tr>/g) || []).length, 5);
   assert.match(READMIT, /<div id="risk-out"[^>]*>\s*<!-- risk:start -->\s*<p><strong>\d+\.\d%<\/strong> chance/);
 });
 

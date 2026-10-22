@@ -28,7 +28,7 @@ let cap = null;
 let model = null;
 let score = null;
 let calls = null;
-let shown = 10;
+let shown = 5;
 
 async function capacityReady() {
   if (!view) {
