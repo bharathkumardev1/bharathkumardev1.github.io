@@ -8,8 +8,8 @@
 // Claims in the prose are asserted against the numbers (tools/common.mjs, claim). If a rerun
 // changes a conclusion, the build fails instead of leaving a sentence that's no longer true.
 //
-//   node tools/build.mjs          rewrite the pages
-//   node tools/build.mjs --check  exit 1 if any page is out of date (CI runs this)
+//   node tools/build.mjs          rewrite the pages, sitemap.xml and robots.txt
+//   node tools/build.mjs --check  exit 1 if any of them is out of date (CI runs this)
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { root, read } from "./common.mjs";
 import * as F from "./figures.mjs";
@@ -34,6 +34,7 @@ function head(p, html) {
   // Link previews for every page with an address of its own; the 404 page has none.
   const preview = url ? [
     `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="Bharath Mandha">`,
     `<meta property="og:title" content="${title}">`,
     `<meta property="og:description" content="${description}">`,
     `<meta property="og:url" content="${url}">`,
@@ -44,6 +45,7 @@ function head(p, html) {
     `<link rel="stylesheet" href="${p}assets/site.css">`,
     `<link rel="icon" href="${FAVICON}">`,
     icon ? `<link rel="apple-touch-icon" href="${p}assets/icon-180.png">` : "",
+    `<meta name="author" content="Bharath Mandha">`,
     `<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">`,
     `<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">`,
     ...preview,
@@ -125,6 +127,23 @@ function profileLinks(where) {
   return `<ul class="links">\n${items.join("\n")}\n</ul>`;
 }
 
+// What search engines read about me: schema.org Person, from the same facts the page shows.
+function person() {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Bharath Mandha",
+    url: SITE,
+    jobTitle: "AI/ML Engineer",
+    worksFor: { "@type": "Organization", name: "Goldman Sachs" },
+    alumniOf: { "@type": "CollegeOrUniversity", name: "University of North Texas" },
+    address: { "@type": "PostalAddress", addressLocality: "Dallas", addressRegion: "TX", addressCountry: "US" },
+    email: EMAIL,
+    sameAs: [GITHUB, LINKEDIN],
+  };
+  return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+}
+
 function portrait() {
   for (const ext of ["webp", "jpg"]) {
     const src = `assets/img/portrait.${ext}`;
@@ -138,6 +157,7 @@ const REPLAY_ARIA = "Recording a run sends model calls to the OpenAI API and wri
 
 export const PAGES = {
   "index.html": async (html) => {
+    html = fill(html, "person", person());
     html = fill(html, "portrait", portrait(), true);
     html = fill(html, "links", profileLinks("hero"));
     html = fill(html, "contact", profileLinks("contact"));
@@ -206,6 +226,21 @@ export const PAGES = {
   "404.html": async (html) => html,
 };
 
+// Written next to the pages, from the list of them.
+const LISTED = Object.keys(PAGES).filter((file) => file !== "404.html");
+const FILES = {
+  "sitemap.xml": () => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${LISTED.map((file) => `<url><loc>${SITE}${file.replace(/index\.html$/, "")}</loc></url>`).join("\n")}
+</urlset>
+`,
+  "robots.txt": () => `User-agent: *
+Allow: /
+
+Sitemap: ${SITE}sitemap.xml
+`,
+};
+
 export async function build(file, before) {
   const p = file === "404.html" ? "/" : "../".repeat(file.split("/").length - 1);
   let html = await PAGES[file](before);
@@ -220,19 +255,21 @@ export { assetsOf };
 if (import.meta.url === `file://${process.argv[1]}`) {
   const check = process.argv.includes("--check");
   let stale = 0;
-  for (const file of Object.keys(PAGES)) {
-    const before = read(file);
-    const html = await build(file, before);
+  const outputs = [];
+  for (const file of Object.keys(PAGES)) outputs.push([file, await build(file, read(file))]);
+  for (const [file, make] of Object.entries(FILES)) outputs.push([file, make()]);
+  for (const [file, text] of outputs) {
+    const path = new URL(file, root);
     if (check) {
-      if (html !== before) {
+      if (!existsSync(path) || readFileSync(path, "utf8") !== text) {
         console.error(`${file} is out of date: run node tools/build.mjs`);
         stale++;
       }
     } else {
-      writeFileSync(new URL(file, root), html);
-      console.log(`wrote ${file} (${Buffer.byteLength(html)} bytes)`);
+      writeFileSync(path, text);
+      console.log(`wrote ${file} (${Buffer.byteLength(text)} bytes)`);
     }
   }
   if (stale) process.exit(1);
-  if (check) console.log("every page is up to date");
+  if (check) console.log("everything the build writes is up to date");
 }
