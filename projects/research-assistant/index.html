@@ -51,7 +51,7 @@
 <div><dt>Benchmark</dt><dd><b>QASPER</b>: 5,049 questions about 1,585 NLP papers, with the annotators' answers and evidence paragraphs</dd></div>
 <div><dt>Sample</dt><dd><b>150</b> dev questions to read errors on, <b>150</b> test questions run once after the last change</dd></div>
 <div><dt>Compared</dt><dd>The loop against a single pass, same retrieval and models, paired by question</dd></div>
-<div><dt>Status</dt><dd>The test run isn't published yet; this page gets its numbers when it is</dd></div>
+<div><dt>Result</dt><dd>The loop scores a little higher on every measure and the difference is within noise at 150 questions</dd></div>
 </dl>
 <ul class="actions">
 <li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Code on GitHub</a></li>
@@ -107,10 +107,21 @@
 <li>Each question is asked against its own paper, split into the dataset's paragraphs, so a citation matches the annotators' evidence exactly.</li>
 <li>150 dev questions for reading errors; 150 test questions, run once after the last change.</li>
 <li>Same retrieval and models for both systems: gpt-6-luna answers and reviews, gpt-6.1-sol judges. The loop's first round replays the single pass's request, so any difference comes from the review.</li>
-<li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. I grade 40 judged answers myself and report agreement and Cohen's kappa.</li>
+<li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. The judge is checked against 40 labels, which are an AI-assisted draft and not independent human annotation; an independent grade is pending.</li>
 <li>Paired differences with 95% bootstrap intervals, the first failed stage for every wrong answer, and a $25 cap that refuses any call that could cross it.</li>
 </ul>
-<p class="callout">When the test run is committed, this section gets the comparison: answer and evidence F1, judged accuracy, the judge's agreement with my grades, and dollars and seconds per question for both systems.</p>
+<p>Both runs used seed 0 at commit <code>daac2a1</code> on 2026-10-28, and the whole recording cost $0.39 of a $5 cap. <code>make check-replay</code> reproduces every row with no key.</p>
+<div class="table-wrap"><table><caption>150 questions per split. Judged correct is the share the judge marked correct.</caption>
+<thead><tr><th>Split and system</th><th class="n">Answer F1</th><th class="n">Evidence F1</th><th class="n">Judged correct</th><th class="n">Calls per question</th><th class="n">p95 seconds</th></tr></thead>
+<tbody>
+<tr><td>Dev, single pass</td><td class="n">0.337</td><td class="n">0.447</td><td class="n">49.3%</td><td class="n">1.0</td><td class="n">2.9</td></tr>
+<tr><td>Dev, loop</td><td class="n">0.349</td><td class="n">0.455</td><td class="n">50.7%</td><td class="n">2.5</td><td class="n">10.8</td></tr>
+<tr><td>Test, single pass</td><td class="n">0.435</td><td class="n">0.563</td><td class="n">56.0%</td><td class="n">1.0</td><td class="n">2.2</td></tr>
+<tr><td>Test, loop</td><td class="n">0.441</td><td class="n">0.587</td><td class="n">58.7%</td><td class="n">2.5</td><td class="n">11.0</td></tr>
+</tbody></table></div>
+<p>Paired by question, the 95% interval on the answer F1 difference is -0.011 to +0.037 on dev and -0.015 to +0.029 on test. On test, evidence F1 is +0.024 (-0.003 to +0.051) and judged accuracy is +2.7 points (0.000 to +0.060), which is 5 questions the loop got right and the single pass got wrong against 1 the other way. With six comparisons I don't read any of that as a finding.</p>
+<p>The loop made 2.5 calls per question against 1. Answering cost about three times as much per question ($0.00028 against $0.00009 on test), the slowest 5% of questions took about 11 seconds against 2 to 3, and with judging included the bill differs by about 20%, because the judge is most of the spend. On this sample I can't say the loop is worth its extra calls.</p>
+<p>The judge agreed with 35 of the 40 labels (87.5%, Cohen's kappa 0.74). Those labels are an AI-assisted draft, not independent human annotation, so this is not a human-versus-judge result. They cover 36 distinct questions, and several apply a stricter standard than the judge's rubric.</p>
 </section>
 
 <section id="replay" aria-labelledby="replay-h">
@@ -127,8 +138,9 @@
 <ul>
 <li>QASPER papers are all NLP, and each question searches only its own paper.</li>
 <li>Figures and tables aren't indexed.</li>
-<li>With 150 test questions the interval on judged accuracy is 7 to 8 points either side, so small differences will show up as ties.</li>
-<li>The judge is a model; 40 hand-graded answers say how far to trust it, not that it's right on the rest.</li>
+<li>With 150 test questions the interval on judged accuracy is 8 points either side, so small differences will show up as ties, and they did.</li>
+<li>The judge is a model. The 40 labels that check it are an AI-assisted draft and say little about how far to trust it.</li>
+<li>One seed, one sample of 150 questions per split, one model pair and one embedding model.</li>
 </ul>
 </section>
 
