@@ -244,9 +244,9 @@
 <details class="more"><summary>Show all bullets</summary>
 <ul>
 <li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
-<li>Built a 500+ query RAG evaluation benchmark of factual retrieval, financial comparison and evidence-based reasoning questions. It scored retrieval with Hit Rate and MRR and generation with RAGAS faithfulness, groundedness and answer relevance, apart from the 10 to 20 second end-to-end workflow, and compared chunk size, overlap, top-k and embedding choices experiment by experiment. Groundedness came out above 90%.</li>
+<li>Built a 500+ query RAG evaluation benchmark of factual retrieval, financial comparison and evidence-based reasoning questions. It scored retrieval with Hit Rate and MRR and generation with RAGAS faithfulness, groundedness and answer relevance, apart from the 10 to 20 second end-to-end workflow, and compared chunk size, overlap, top-k and embedding choices experiment by experiment, alongside metadata-filtering and index-performance work. Groundedness came out above 90%.</li>
 <li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
-<li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, document chunking, metadata enrichment, embedding generation, incremental vector-index updates) so new or modified documents reached the index without a full rebuild for routine updates.</li>
+<li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, recursive and semantic chunking, metadata enrichment, embedding generation, incremental vector-index updates) so new or modified documents reached the index without a full rebuild for routine updates.</li>
 <li>Evaluated quantization and LoRA/QLoRA approaches for open-source models to assess GPU-memory requirements, inference latency, model quality and serving cost, and concluded that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
 </ul>
 </details>
@@ -261,7 +261,7 @@
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>In a fixed-capacity planning scenario, identified about 15% more high-need patients through feature engineering, class-imbalance handling and precision-recall threshold tuning.</li>
+<li>In a fixed-capacity planning scenario, identified about 15% more high-need patients than the previous prioritization approach through feature engineering, class-imbalance handling and precision-recall threshold tuning.</li>
 <li>Engineered 150+ candidate features from labs, demographics, encounter history and clinical notes, and kept about 100 in production based on predictive value and stability.</li>
 <li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize several thousand high-risk patients a month.</li>
 </ul>
