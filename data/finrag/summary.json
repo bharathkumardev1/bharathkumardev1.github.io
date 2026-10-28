@@ -1,7 +1,7 @@
 {
  "eval": {
   "file": "results/eval.json",
-  "git_sha": "8034887c7ff06b4e59991997f3c4bccb5ac10eb8",
+  "git_sha": "95d3fe91e64501e6b414d19077a78fba201b0256",
   "command": "finrag eval",
   "date": "2026-10-21",
   "table": [
@@ -2690,7 +2690,7 @@
  },
  "incremental": {
   "file": "results/incremental.json",
-  "git_sha": "8034887c7ff06b4e59991997f3c4bccb5ac10eb8",
+  "git_sha": "95d3fe91e64501e6b414d19077a78fba201b0256",
   "command": "finrag check-incremental",
   "date": "2026-10-21",
   "passed": true,
@@ -2707,7 +2707,7 @@
  },
  "chunks": {
   "file": "results/chunks.json",
-  "git_sha": "8034887c7ff06b4e59991997f3c4bccb5ac10eb8",
+  "git_sha": "95d3fe91e64501e6b414d19077a78fba201b0256",
   "command": "finrag chunk-study",
   "date": "2026-10-21",
   "table": [
@@ -3658,7 +3658,7 @@
  },
  "load": {
   "file": "results/load.json",
-  "git_sha": "8034887c7ff06b4e59991997f3c4bccb5ac10eb8",
+  "git_sha": "95d3fe91e64501e6b414d19077a78fba201b0256",
   "command": "finrag loadtest --methods bm25,hybrid --levels 1,2,4,8,16 --seconds 30 --server-note '1 uvicorn worker pinned to CPU 0, load generator on CPU 1'",
   "date": "2026-10-21",
   "levels": [
