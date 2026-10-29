@@ -62,7 +62,7 @@
 <ul class="stats" aria-label="Results">
 <li><b>~40%</b> less average credit-memo preparation time <span class="src">(Goldman Sachs)</span></li>
 <li><b>3M+</b> documents in a RAG platform used weekly by 70+ analysts <span class="src">(Goldman Sachs)</span></li>
-<li><b>0.85 to 0.91</b> readmission-risk ROC-AUC on a held-out cohort <span class="src">(Cigna)</span></li>
+<li><b>0.91</b> ROC-AUC for 30-day readmission risk on a held-out internal cohort <span class="src">(Cigna, private data)</span></li>
 <!-- stat-finance:start --><li><b>0.14 to 0.75</b> Hit@10 on held-out FinanceBench questions <span class="src">(finance-rag-eval)</span></li><!-- stat-finance:end -->
 </ul>
 </div>
@@ -239,14 +239,14 @@
 <div><h3>Goldman Sachs</h3><p class="title">AI/ML Engineer</p><p class="when">June 2025 to now</p></div>
 <div class="job-body">
 <ul>
-<li>Designed the retrieval and LangGraph orchestration layers, and their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks), used weekly by 70+ credit and risk analysts.</li>
+<li>Designed and optimized the retrieval layer (metadata filtering, reranking) and the LangGraph orchestration layer, and built their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks) used weekly by 70+ credit and risk analysts, working with platform, risk and compliance teams.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
 <li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
 <li>Built a 500+ query RAG evaluation benchmark of factual retrieval, financial comparison and evidence-based reasoning questions. It scored retrieval with Hit Rate and MRR and generation with RAGAS faithfulness, groundedness and answer relevance, apart from the 10 to 20 second end-to-end workflow, and compared chunk size, overlap, top-k and embedding choices experiment by experiment, alongside metadata-filtering and index-performance work. Groundedness came out above 90%.</li>
 <li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
-<li>Built components of a PySpark and AWS S3 ingestion pipeline (preprocessing, recursive and semantic chunking, metadata enrichment, embedding generation, incremental vector-index updates) so new or modified documents reached the index without a full rebuild for routine updates.</li>
+<li>Implemented document preprocessing, recursive and semantic chunking, metadata enrichment, embedding generation and incremental FAISS index updates in the team's PySpark and AWS S3 ingestion pipeline, so new or modified documents reached the index without a full rebuild for routine updates.</li>
 <li>Evaluated quantization and LoRA/QLoRA approaches for open-source models to assess GPU-memory requirements, inference latency, model quality and serving cost, and concluded that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
 </ul>
 </details>
@@ -257,7 +257,7 @@
 <div><h3>Cigna</h3><p class="title">Machine Learning Engineer</p><p class="when">March 2022 to August 2023</p></div>
 <div class="job-body">
 <ul>
-<li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and raised ROC-AUC from 0.85 to 0.91 on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation.</li>
+<li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and reached 0.91 ROC-AUC on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation. The data is private, so this result can't be reproduced; the readmission-capacity project above is a separate analysis of public data.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
