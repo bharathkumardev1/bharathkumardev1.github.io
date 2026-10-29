@@ -190,6 +190,8 @@ export const PAGES = {
     html = fill(html, "misses", finance.misses());
     html = fill(html, "service", finance.service());
     html = fill(html, "checks", finance.checks());
+    html = fill(html, "rerank", finance.rerank());
+    html = fill(html, "generation", finance.generation());
     html = fill(html, "sources", finance.sources());
     return html;
   },

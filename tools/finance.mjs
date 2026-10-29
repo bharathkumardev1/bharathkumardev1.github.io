@@ -265,7 +265,7 @@ export function misses() {
   });
   return `<p>Each held-out question the hybrid pipeline missed is filed under the first stage that lost it. The rules run on every evaluation, so the counts follow the code.</p>
 ${fig}
-<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. Routing's own failures are few: ${tax.counts.statement_not_detected} questions needed a statement page without saying so, and ${tax.counts.statement_outranked} routed to the right kind of statement but ranked a different statement page first.</p>`;
+<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. I tried one, and it made retrieval worse (<a href="#rerank">below</a>). Routing's own failures are few: ${tax.counts.statement_not_detected} questions needed a statement page without saying so, and ${tax.counts.statement_outranked} routed to the right kind of statement but ranked a different statement page first.</p>`;
 }
 
 export function service() {
@@ -333,4 +333,115 @@ export function checks() {
 <p><b>Chunk size.</b> Smaller passages didn't help: 650-token chunks tie whole pages (${f2(c650["hit@10"])}), and 256- and 128-token chunks score ${f2(c256["hit@10"])} and ${f2(c128["hit@10"])} with two to four times as many entries.</p>`;
 }
 
-export const sources = () => `<p class="sources">Numbers from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. Every results file and the command that wrote it: <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
+export const sources = () => {
+  const G = S.generation, R = S.rerank;
+  claim(G.git_sha.startsWith("cf57ef1") && G.git_dirty === true && R.git_dirty === true, "the study runs came from cf57ef1 with the study code not yet committed");
+  return `<p class="sources">Retrieval numbers from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. The reranker and generation runs are from ${R.date} and ${G.date}, on commit <code>${G.git_sha.slice(0, 7)}</code> with the study code applied but not yet committed; that code is in commit <a href="${repo("finance-rag-eval")}/commit/34c4145"><code>34c4145</code></a> and the results in <a href="${repo("finance-rag-eval")}/commit/3ea5084"><code>3ea5084</code></a>. Every results file and the command that wrote it: <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
+};
+
+// The reranker and the generation study --------------------------------------------------------
+
+const R = S.rerank, RW = S["rerank-windows3"], G = S.generation;
+const rrow = (res, split, k) => {
+  const r = res.table.find((x) => x.split === split && x.config === k);
+  if (!r) throw new Error(`${res.file} has no ${split} row for ${k}`);
+  return r;
+};
+const rcmp = (res, split, a, b, metric = "hit@10") => {
+  const c = res.comparisons.find((x) => x.split === split && x.a === a && x.b === b && x.metric === metric);
+  if (!c) throw new Error(`${res.file} has no ${split} comparison ${a} vs ${b} (${metric})`);
+  return c;
+};
+
+export function rerank() {
+  const RER = "+rerank";
+  const base = rrow(R, "test", HYBRID), one = rrow(R, "test", HYBRID + RER), three = rrow(RW, "test", HYBRID + RER);
+  const devBase = rrow(R, "dev", HYBRID), devOne = rrow(R, "dev", HYBRID + RER);
+  const c1 = rcmp(R, "test", HYBRID + RER, HYBRID), cDev = rcmp(R, "dev", HYBRID + RER, HYBRID);
+  const c3 = rcmp(RW, "test", HYBRID + RER, HYBRID), cMrr = rcmp(R, "test", HYBRID + RER, HYBRID, "mrr@10");
+  const cBm = rcmp(R, "test", BM + RER, BM), cAll = rcmp(R, "test", NONE + RER, NONE);
+  claim(R.windows === 1 && RW.windows === 3 && R.top === 30 && RW.top === 30, "the reranker runs were one window and three windows over the top 30");
+  claim(R.model === "BAAI/bge-reranker-base", "the reranker is bge-reranker-base");
+  claim(c1.ci95[1] < 0 && cDev.ci95[1] < 0 && cMrr.ci95[1] < 0, "the reranker made the headline system worse on both splits");
+  claim(cBm.ci95[1] < 0 && Math.abs(cAll.diff) <= 0.02 && cAll.a_better === 0 && cAll.b_better <= 1, "it hurt BM25 with the filter and moved all-pages BM25 by at most one question");
+  claim(c3.ci95[1] < 0 && three["hit@10"] < one["hit@10"], "three windows didn't fix it");
+  const row = (res, k, label, alt) => ({ label, value: rrow(res, "test", k)["hit@10"], lo: rrow(res, "test", k)["hit@10_ci95"][0], hi: rrow(res, "test", k)["hit@10_ci95"][1], cls: alt ? "s0" : "s1", alt });
+  const rows = [
+    row(R, HYBRID, "Full pipeline"),
+    row(R, HYBRID + RER, "+ reranker, one window", true),
+    row(RW, HYBRID + RER, "+ reranker, three windows", true),
+    { split: true },
+    row(R, BM, "BM25 with filter and routing"),
+    row(R, BM + RER, "+ reranker", true),
+    { split: true },
+    row(R, NONE, "BM25 over all pages"),
+    row(R, NONE + RER, "+ reranker", true),
+  ];
+  const tbl = F.table({
+    caption: `${base.n} held-out questions, top ${R.top} re-sorted.`, numeric: [1, 2, 3], head: ["System", "Hit@10", "MRR@10", "Hit@10 against no reranker"],
+    rows: [
+      ["Full pipeline", f2(base["hit@10"]), f3(base["mrr@10"]), ""],
+      ["+ reranker, one window", f2(one["hit@10"]), f3(one["mrr@10"]), interval(c1)],
+      ["+ reranker, three windows", f2(three["hit@10"]), f3(three["mrr@10"]), interval(c3)],
+      ["BM25 with filter and routing + reranker", f2(rrow(R, "test", BM + RER)["hit@10"]), f3(rrow(R, "test", BM + RER)["mrr@10"]), interval(cBm)],
+      ["BM25 over all pages + reranker", f2(rrow(R, "test", NONE + RER)["hit@10"]), f3(rrow(R, "test", NONE + RER)["mrr@10"]), interval(cAll)],
+    ],
+  });
+  const fig = F.figure({
+    id: "fig-rerank",
+    body: F.dotRows({
+      rows, domain: [0, 1], ticks: [0, 0.25, 0.5, 0.75, 1], fmt: f2, name: "Hit@10",
+      aria: `Hit@10 on ${base.n} held-out questions with and without a reranker: full pipeline ${f2(base["hit@10"])}, with the reranker ${f2(one["hit@10"])} (three windows ${f2(three["hit@10"])}); BM25 with filter and routing ${f2(rrow(R, "test", BM)["hit@10"])}, with it ${f2(rrow(R, "test", BM + RER)["hit@10"])}; BM25 over all pages ${f2(rrow(R, "test", NONE)["hit@10"])}, with it ${f2(rrow(R, "test", NONE + RER)["hit@10"])}.`,
+    }) + F.twin(tbl),
+    caption: `<b>Figure 5.</b> Hit@10 on the ${base.n} held-out questions. Blue rows are retrieval systems; gray rows re-sort each one's top ${R.top} with a cross-encoder. Lines are 95% bootstrap intervals.`,
+  });
+  const spp = R.seconds_per_pair, spp3 = RW.seconds_per_pair;
+  return `<p>A cross-encoder reads the question and a page together, which is the usual fix for the narrative-page misses above. I ran ${R.model} over the top ${R.top} pages of three retrieval systems and re-sorted them by its score. It made the two systems that work worse and left the all-pages baseline within one question of where it was.</p>
+${fig}
+<p>On the held-out questions the full pipeline's Hit@10 fell from ${f2(base["hit@10"])} to ${f2(one["hit@10"])} (${interval(c1)}; ${c1.a_better} questions better, ${c1.b_better} worse) and its MRR@10 from ${f3(base["mrr@10"])} to ${f3(one["mrr@10"])}. The ${devBase.n} dev questions agree: ${f2(devBase["hit@10"])} to ${f2(devOne["hit@10"])}.</p>
+<p>The model reads 512 tokens, so a long page is scored on its first part. I reran the full pipeline with up to three windows per page, scored as the best window. Hit@10 was ${f2(three["hit@10"])}, lower than one window (${f2(one["hit@10"])}) and ${interval(c3)} against no reranker, so truncation doesn't explain it.</p>
+<p>Scoring took ${ms(spp * 1000)} ms a page with one window and ${ms(spp3 * 1000)} ms with three on a laptop CPU, so re-sorting 30 pages would add about ${(30 * spp).toFixed(0)} s to a query. The reported system stays without a reranker. This is one off-the-shelf model, not fine-tuned and not tuned on this data; I haven't tried others.</p>`;
+}
+
+export function generation() {
+  const st = G.summary.settings, gold = st.gold, ret = st.retrieved, naive = st.naive, closed = st.closed_book;
+  const gc = (a, b) => {
+    const c = G.summary.comparisons.find((x) => x.a === a && x.b === b);
+    if (!c) throw new Error(`generation.json has no comparison ${a} vs ${b}`);
+    return c;
+  };
+  const cGold = gc("gold", "retrieved"), cRet = gc("retrieved", "closed_book"), jc = G.judge_check;
+  claim(G.split === "test" && [gold, ret, naive, closed].every((x) => x.n === 100), "the generation study ran on the 100 test questions in four settings");
+  claim(gold.accuracy > ret.accuracy && ret.accuracy > closed.accuracy && closed.accuracy > naive.accuracy, "accuracy orders gold, retrieved, no pages, naive");
+  claim(cGold.ci95[0] > 0 && cRet.ci95[0] > 0, "gold beats retrieved and retrieved beats no pages");
+  claim(G.retrieval === HYBRID && G.naive_retrieval === NONE, "the retrieved settings are the headline and all-pages BM25");
+  claim(jc.labeled === 60 && jc.questions === 51 && jc.agree === 59, "the judge check is 59 of 60 labels over 51 questions");
+  claim(G.recorded_spend_usd < G.cap_usd, "the run stayed under its cap");
+  claim(ret.gold_in_pages.n + ret.gold_not_in_pages.n === 100, "the split by gold page covers every question");
+  const row = (label, x, cls) => ({ label, value: x.accuracy, lo: x.accuracy_ci95[0], hi: x.accuracy_ci95[1], cls });
+  const rows = [
+    row("Gold pages", gold, "s1"), row("Reported system's top 5", ret, "s1"),
+    { split: true }, row("No pages", closed, "s0"), row("BM25 over all pages, top 5", naive, "s0"),
+  ].map((r, i) => (r.split ? r : { ...r, alt: i > 2 }));
+  const tbl = F.table({
+    caption: `${gold.n} held-out questions. A declined answer counts as incorrect.`, numeric: [1, 2, 3, 4],
+    head: ["Pages given", "Correct", "95% interval", "Declined", "Incorrect"],
+    rows: [["Gold pages", gold], ["Reported system's top 5", ret], ["No pages", closed], ["BM25 over all pages, top 5", naive]]
+      .map(([n, x]) => [n, f2(x.accuracy), `${f2(x.accuracy_ci95[0])} to ${f2(x.accuracy_ci95[1])}`, x.declined, x.incorrect]),
+  });
+  const fig = F.figure({
+    id: "fig-generation",
+    body: F.dotRows({
+      rows, domain: [0, 1], ticks: [0, 0.25, 0.5, 0.75, 1], fmt: f2, name: "Judged correct",
+      aria: `Share of ${gold.n} held-out questions a model answered correctly: gold pages ${f2(gold.accuracy)}, the reported system's top 5 ${f2(ret.accuracy)}, no pages ${f2(closed.accuracy)}, BM25 over all pages ${f2(naive.accuracy)}.`,
+    }) + F.twin(tbl),
+    caption: `<b>Figure 6.</b> Share of the ${gold.n} held-out questions ${G.generator} answered correctly, as judged by ${G.judge}, with 95% bootstrap intervals. Blue rows get the pipeline's pages; gray rows are the baselines.`,
+  });
+  const cNone = G.summary.comparisons.find((x) => x.a === "retrieved" && x.b === "closed_book");
+  return `<p>Retrieval is a means. To see what it buys, ${G.generator} answered each held-out question from four page sets, and a stronger model, ${G.judge}, graded every answer against FinanceBench's reference. An answer of "not in these pages" counts as incorrect.</p>
+${fig}
+<p>With the gold pages it got ${Math.round(gold.accuracy * 100)} of ${gold.n} right. With the pipeline's top 5 it got ${Math.round(ret.accuracy * 100)}, a gap of ${f2(cGold.diff)} (95% interval ${f2(cGold.ci95[0])} to ${f2(cGold.ci95[1])}; ${cGold.a_better} questions better with gold pages, ${cGold.b_better} worse). The loss sits in the questions where retrieval missed: when a top-5 page was a gold page (${ret.gold_in_pages.n} questions) it scored ${f2(ret.gold_in_pages.accuracy)}, and when none was (${ret.gold_not_in_pages.n}) ${f2(ret.gold_not_in_pages.accuracy)}.</p>
+<p>The pages are worth ${signed(cNone.diff)} over no pages at all (95% interval ${signed(cNone.ci95[0])} to ${signed(cNone.ci95[1])}), not the whole ${f2(ret.accuracy)}, because the model already knows some figures for well-known companies and got ${Math.round(closed.accuracy * 100)} of ${closed.n} with none. Searching all pages with BM25 was worse than no pages: the model declined ${naive.declined} of ${naive.n} questions.</p>
+<p>A model grading a model needs a check, so I graded ${jc.labeled} of the judge's verdicts myself, from ${jc.questions} questions, against the same rubric and FinanceBench's references. I used AI tools to find the filings and check figures, so this grade is research-assisted, not blind to AI input. The judge agreed on ${jc.agree} of ${jc.labeled} (kappa ${f2(jc.cohens_kappa)}, 95% interval ${f2(jc.kappa_ci95[0])} to ${f2(jc.kappa_ci95[1])}). The one difference was a Corning working-capital answer I marked correct and the judge marked incorrect.</p>
+<p>The labels follow the references, which are debatable in places: one says Pfizer was still spinning off Upjohn in 2023, when it had finished in 2020, and another gives a JPMorgan per-share figure that is tangible book value. So accuracy here means agreement with FinanceBench. It's one run with one generator and one grader, and it cost $${G.recorded_spend_usd.toFixed(2)}.</p>`;
+}

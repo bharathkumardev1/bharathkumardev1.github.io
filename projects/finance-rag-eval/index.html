@@ -73,6 +73,8 @@
 <li><a href="#misses">Where it still misses</a></li>
 <li><a href="#service">As a service</a></li>
 <li><a href="#checks">Two more checks</a></li>
+<li><a href="#rerank">Does a reranker help?</a></li>
+<li><a href="#generation">What the model does with the pages</a></li>
 <li><a href="#run">Run it yourself</a></li>
 </ol>
 </nav>
@@ -360,7 +362,7 @@ deferred tax assets and liabilities. Deferred tax assets and liabilities are det
 <div class="lab">The filter dropped the filing with the answer</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:8.33%"></span><span class="tipval" style="left:8.33%">1</span></div><div class="val"></div>
 <div class="lab">Right kind of statement, but another statement page ranked first</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="bar" style="width:8.33%"></span><span class="tipval" style="left:8.33%">1</span></div><div class="val"></div>
 </div><div class="scale bars" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0</span><span style="left:25%">3</span><span style="left:50%">6</span><span style="left:75%">9</span><span style="left:100%">12</span></div><span></span><span class="name">Questions</span></div></div><figcaption><b>Figure 3.</b> The 27 held-out questions whose answer page missed the top 10, by the first stage of the pipeline that lost it.</figcaption></figure>
-<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. Routing's own failures are few: 2 questions needed a statement page without saying so, and 1 routed to the right kind of statement but ranked a different statement page first.</p>
+<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. I tried one, and it made retrieval worse (<a href="#rerank">below</a>). Routing's own failures are few: 2 questions needed a statement page without saying so, and 1 routed to the right kind of statement but ranked a different statement page first.</p>
 <!-- misses:end -->
 </section>
 
@@ -398,6 +400,60 @@ deferred tax assets and liabilities. Deferred tax assets and liabilities are det
 <!-- checks:end -->
 </section>
 
+<section id="rerank" aria-labelledby="rerank-h">
+<h2 id="rerank-h">Does a reranker help?</h2>
+<!-- rerank:start -->
+<p>A cross-encoder reads the question and a page together, which is the usual fix for the narrative-page misses above. I ran BAAI/bge-reranker-base over the top 30 pages of three retrieval systems and re-sorted them by its score. It made the two systems that work worse and left the all-pages baseline within one question of where it was.</p>
+<figure class="fig" id="fig-rerank"><div class="fig-frame"><div class="rows" role="img" aria-label="Hit@10 on 100 held-out questions with and without a reranker: full pipeline 0.73, with the reranker 0.63 (three windows 0.57); BM25 with filter and routing 0.75, with it 0.63; BM25 over all pages 0.14, with it 0.13.">
+<div class="lab">Full pipeline</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:64%;width:18%"></span><span class="dot" style="left:73%"></span></div><div class="val">0.73</div>
+<div class="lab alt">+ reranker, one window</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:53%;width:19%"></span><span class="dot" style="left:63%"></span></div><div class="val alt">0.63</div>
+<div class="lab alt">+ reranker, three windows</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:47%;width:20%"></span><span class="dot" style="left:57%"></span></div><div class="val alt">0.57</div>
+<div class="row-split"></div>
+<div class="lab">BM25 with filter and routing</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:66%;width:17%"></span><span class="dot" style="left:75%"></span></div><div class="val">0.75</div>
+<div class="lab alt">+ reranker</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:53%;width:19%"></span><span class="dot" style="left:63%"></span></div><div class="val alt">0.63</div>
+<div class="row-split"></div>
+<div class="lab">BM25 over all pages</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:8%;width:13%"></span><span class="dot" style="left:14%"></span></div><div class="val">0.14</div>
+<div class="lab alt">+ reranker</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:7%;width:13%"></span><span class="dot" style="left:13%"></span></div><div class="val alt">0.13</div>
+</div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0.00</span><span style="left:25%">0.25</span><span style="left:50%">0.50</span><span style="left:75%">0.75</span><span style="left:100%">1.00</span></div><span></span><span class="name">Hit@10</span></div><details class="twin"><summary>Show the numbers</summary><div class="table-wrap"><table><caption>100 held-out questions, top 30 re-sorted.</caption>
+<thead><tr><th>System</th><th class="n">Hit@10</th><th class="n">MRR@10</th><th class="n">Hit@10 against no reranker</th></tr></thead>
+<tbody>
+<tr><td>Full pipeline</td><td class="n">0.73</td><td class="n">0.542</td><td class="n"></td></tr>
+<tr><td>+ reranker, one window</td><td class="n">0.63</td><td class="n">0.336</td><td class="n">-0.10, 95% interval -0.20 to -0.01</td></tr>
+<tr><td>+ reranker, three windows</td><td class="n">0.57</td><td class="n">0.314</td><td class="n">-0.16, 95% interval -0.26 to -0.06</td></tr>
+<tr><td>BM25 with filter and routing + reranker</td><td class="n">0.63</td><td class="n">0.387</td><td class="n">-0.12, 95% interval -0.21 to -0.04</td></tr>
+<tr><td>BM25 over all pages + reranker</td><td class="n">0.13</td><td class="n">0.081</td><td class="n">-0.01, 95% interval -0.03 to +0.00</td></tr>
+</tbody></table></div></details></div><figcaption><b>Figure 5.</b> Hit@10 on the 100 held-out questions. Blue rows are retrieval systems; gray rows re-sort each one's top 30 with a cross-encoder. Lines are 95% bootstrap intervals.</figcaption></figure>
+<p>On the held-out questions the full pipeline's Hit@10 fell from 0.73 to 0.63 (-0.10, 95% interval -0.20 to -0.01; 7 questions better, 17 worse) and its MRR@10 from 0.542 to 0.336. The 50 dev questions agree: 0.78 to 0.62.</p>
+<p>The model reads 512 tokens, so a long page is scored on its first part. I reran the full pipeline with up to three windows per page, scored as the best window. Hit@10 was 0.57, lower than one window (0.63) and -0.16, 95% interval -0.26 to -0.06 against no reranker, so truncation doesn't explain it.</p>
+<p>Scoring took 367 ms a page with one window and 909 ms with three on a laptop CPU, so re-sorting 30 pages would add about 11 s to a query. The reported system stays without a reranker. This is one off-the-shelf model, not fine-tuned and not tuned on this data; I haven't tried others.</p>
+<!-- rerank:end -->
+</section>
+
+<section id="generation" aria-labelledby="generation-h">
+<h2 id="generation-h">What the model does with the pages</h2>
+<!-- generation:start -->
+<p>Retrieval is a means. To see what it buys, gpt-6-luna answered each held-out question from four page sets, and a stronger model, gpt-6.1-sol, graded every answer against FinanceBench's reference. An answer of "not in these pages" counts as incorrect.</p>
+<figure class="fig" id="fig-generation"><div class="fig-frame"><div class="rows" role="img" aria-label="Share of 100 held-out questions a model answered correctly: gold pages 0.83, the reported system's top 5 0.66, no pages 0.37, BM25 over all pages 0.14.">
+<div class="lab">Gold pages</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:75%;width:15%"></span><span class="dot" style="left:83%"></span></div><div class="val">0.83</div>
+<div class="lab">Reported system's top 5</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:57%;width:18%"></span><span class="dot" style="left:66%"></span></div><div class="val">0.66</div>
+<div class="row-split"></div>
+<div class="lab alt">No pages</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:27%;width:20%"></span><span class="dot" style="left:37%"></span></div><div class="val alt">0.37</div>
+<div class="lab alt">BM25 over all pages, top 5</div><div class="lane s0"><span class="g" style="left:0%"></span><span class="g" style="left:25%"></span><span class="g" style="left:50%"></span><span class="g" style="left:75%"></span><span class="g" style="left:100%"></span><span class="ci" style="left:8%;width:13%"></span><span class="dot" style="left:14%"></span></div><div class="val alt">0.14</div>
+</div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0.00</span><span style="left:25%">0.25</span><span style="left:50%">0.50</span><span style="left:75%">0.75</span><span style="left:100%">1.00</span></div><span></span><span class="name">Judged correct</span></div><details class="twin"><summary>Show the numbers</summary><div class="table-wrap"><table><caption>100 held-out questions. A declined answer counts as incorrect.</caption>
+<thead><tr><th>Pages given</th><th class="n">Correct</th><th class="n">95% interval</th><th class="n">Declined</th><th class="n">Incorrect</th></tr></thead>
+<tbody>
+<tr><td>Gold pages</td><td class="n">0.83</td><td class="n">0.75 to 0.90</td><td class="n">4</td><td class="n">13</td></tr>
+<tr><td>Reported system's top 5</td><td class="n">0.66</td><td class="n">0.57 to 0.75</td><td class="n">21</td><td class="n">13</td></tr>
+<tr><td>No pages</td><td class="n">0.37</td><td class="n">0.27 to 0.47</td><td class="n">23</td><td class="n">40</td></tr>
+<tr><td>BM25 over all pages, top 5</td><td class="n">0.14</td><td class="n">0.08 to 0.21</td><td class="n">79</td><td class="n">7</td></tr>
+</tbody></table></div></details></div><figcaption><b>Figure 6.</b> Share of the 100 held-out questions gpt-6-luna answered correctly, as judged by gpt-6.1-sol, with 95% bootstrap intervals. Blue rows get the pipeline's pages; gray rows are the baselines.</figcaption></figure>
+<p>With the gold pages it got 83 of 100 right. With the pipeline's top 5 it got 66, a gap of 0.17 (95% interval 0.09 to 0.25; 18 questions better with gold pages, 1 worse). The loss sits in the questions where retrieval missed: when a top-5 page was a gold page (66 questions) it scored 0.83, and when none was (34) 0.32.</p>
+<p>The pages are worth +0.29 over no pages at all (95% interval +0.16 to +0.41), not the whole 0.66, because the model already knows some figures for well-known companies and got 37 of 100 with none. Searching all pages with BM25 was worse than no pages: the model declined 79 of 100 questions.</p>
+<p>A model grading a model needs a check, so I graded 60 of the judge's verdicts myself, from 51 questions, against the same rubric and FinanceBench's references. I used AI tools to find the filings and check figures, so this grade is research-assisted, not blind to AI input. The judge agreed on 59 of 60 (kappa 0.95, 95% interval 0.83 to 1.00). The one difference was a Corning working-capital answer I marked correct and the judge marked incorrect.</p>
+<p>The labels follow the references, which are debatable in places: one says Pfizer was still spinning off Upjohn in 2023, when it had finished in 2020, and another gives a JPMorgan per-share figure that is tangible book value. So accuracy here means agreement with FinanceBench. It's one run with one generator and one grader, and it cost $0.46.</p>
+<!-- generation:end -->
+</section>
+
 <section id="run" aria-labelledby="run-h">
 <h2 id="run-h">Run it yourself</h2>
 <p>FinanceBench is pinned to a commit and every PDF is checked against its SHA-256, so a rerun scores the same pages.</p>
@@ -409,7 +465,7 @@ make studies   # the incremental-index check and the chunk-size study
 make loadtest</code></pre>
 <p>CI runs the tests on Python 3.11 and 3.13, a regression gate that fails if Hit@10 on the dev questions drops by more than one question, a smoke test of the Docker image, a secret scan, and the browser port's parity test.</p>
 <!-- sources:start -->
-<p class="sources">Numbers from the code at commit <a href="https://github.com/bharathkumardev1/finance-rag-eval/commit/95d3fe9"><code>95d3fe9</code></a>, run on 2026-10-21. Every results file and the command that wrote it: <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>
+<p class="sources">Retrieval numbers from the code at commit <a href="https://github.com/bharathkumardev1/finance-rag-eval/commit/95d3fe9"><code>95d3fe9</code></a>, run on 2026-10-21. The reranker and generation runs are from 2026-10-28 and 2026-10-28, on commit <code>cf57ef1</code> with the study code applied but not yet committed; that code is in commit <a href="https://github.com/bharathkumardev1/finance-rag-eval/commit/34c4145"><code>34c4145</code></a> and the results in <a href="https://github.com/bharathkumardev1/finance-rag-eval/commit/3ea5084"><code>3ea5084</code></a>. Every results file and the command that wrote it: <a href="https://github.com/bharathkumardev1/finance-rag-eval/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>
 <!-- sources:end -->
 </section>
 </div>
