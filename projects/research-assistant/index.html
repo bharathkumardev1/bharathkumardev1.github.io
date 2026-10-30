@@ -108,7 +108,7 @@
 <li>150 dev questions for reading errors; 150 test questions, run once after the last change.</li>
 <li>Same retrieval and models for both systems: gpt-6-luna answers and reviews, gpt-6.1-sol judges. The loop's first round replays the single pass's request, so any difference comes from the review.</li>
 <li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. The judge is checked against 40 labels, which are an AI-assisted draft and not independent human annotation; an independent grade is pending.</li>
-<li>Paired differences with 95% bootstrap intervals, the first failed stage for every wrong answer, and a $25 cap that refuses any call that could cross it.</li>
+<li>Paired differences with 95% bootstrap intervals, the first failed stage for every wrong answer, and a spending cap, $25 by default and $5 for these runs, that refuses any call that could cross it.</li>
 </ul>
 <p>Both runs used seed 0 at commit <code>daac2a1</code> on 2026-10-28, and the whole recording cost $0.39 of a $5 cap. <code>make check-replay</code> reproduces every row with no key.</p>
 <div class="table-wrap"><table><caption>150 questions per split. Judged correct is the share the judge marked correct.</caption>
@@ -142,6 +142,7 @@
 <li>The judge is a model. The 40 labels that check it are an AI-assisted draft and say little about how far to trust it.</li>
 <li>One seed, one sample of 150 questions per split, one model pair and one embedding model.</li>
 </ul>
+<p>What I'd do next: have the 40 judge-check labels graded independently. They are an AI-assisted draft today, and every judged-accuracy number here depends on how far the judge can be trusted. I'd also compare the two systems on matched passages, because the loop retrieves extra evidence on later rounds, and as it stands I can't separate what the review contributes from what the added retrieval contributes. A larger independent sample would then show whether the small gain is real. None of this has been run. Re-checking the recorded runs costs nothing (<code>make check-replay</code>), but new questions would need new API calls.</p>
 </section>
 
 <section id="run" aria-labelledby="run-h">

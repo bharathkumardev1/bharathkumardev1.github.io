@@ -265,7 +265,8 @@ export function misses() {
   });
   return `<p>Each held-out question the hybrid pipeline missed is filed under the first stage that lost it. The rules run on every evaluation, so the counts follow the code.</p>
 ${fig}
-<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. I tried one, and it made retrieval worse (<a href="#rerank">below</a>). Routing's own failures are few: ${tax.counts.statement_not_detected} questions needed a statement page without saying so, and ${tax.counts.statement_outranked} routed to the right kind of statement but ranked a different statement page first.</p>`;
+<p>The biggest group, narrative pages that share almost no words with the question, is the case a cross-encoder reranker is meant for. I tried one, and it made retrieval worse (<a href="#rerank">below</a>). Routing's own failures are few: ${tax.counts.statement_not_detected} questions needed a statement page without saying so, and ${tax.counts.statement_outranked} routed to the right kind of statement but ranked a different statement page first.</p>
+<p>What I'd do next: go through the ${tax.counts.vocabulary_gap} misses where a narrative answer page shares at most two words with the question, one at a time, before testing another reranker or a query rewrite. They are the largest group, but the one cross-encoder I tried made retrieval worse, so I don't know yet whether the fix lies in the model or in the query. Tuning against these ${tax.counts.vocabulary_gap} would use them up as test questions, and all 150 FinanceBench questions are already spent (50 on tuning, 100 here), so I'd need new questions before trusting any claimed improvement.</p>`;
 }
 
 export function service() {
@@ -336,7 +337,7 @@ export function checks() {
 export const sources = () => {
   const G = S.generation, R = S.rerank;
   claim(G.git_sha.startsWith("cf57ef1") && G.git_dirty === true && R.git_dirty === true, "the study runs came from cf57ef1 with the study code not yet committed");
-  return `<p class="sources">Retrieval numbers from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. The reranker and generation runs are from ${R.date} and ${G.date}, on commit <code>${G.git_sha.slice(0, 7)}</code> with the study code applied but not yet committed; that code is in commit <a href="${repo("finance-rag-eval")}/commit/34c4145"><code>34c4145</code></a> and the results in <a href="${repo("finance-rag-eval")}/commit/3ea5084"><code>3ea5084</code></a>. Every results file and the command that wrote it: <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
+  return `<p class="sources">Retrieval numbers from the code at commit <a href="${repo("finance-rag-eval")}/commit/${sha}"><code>${sha}</code></a>, run on ${E.date}. The reranker and generation runs are from ${R.date === G.date ? R.date : `${R.date} and ${G.date}`}, on commit <code>${G.git_sha.slice(0, 7)}</code> with the study code applied but not yet committed; that code is in commit <a href="${repo("finance-rag-eval")}/commit/34c4145"><code>34c4145</code></a> and the results in <a href="${repo("finance-rag-eval")}/commit/3ea5084"><code>3ea5084</code></a>. Every results file and the command that wrote it: <a href="${repo("finance-rag-eval")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
 };
 
 // The reranker and the generation study --------------------------------------------------------

@@ -46,7 +46,7 @@
 <header class="cs-head">
 <p class="crumb"><a href="../../#projects">Projects</a></p>
 <h1>Who to call after a hospital discharge</h1>
-<p class="lede">A care team that can call one discharged patient in ten needs the right tenth. At Cigna I judged readmission models by how many high-need patients a fixed outreach capacity would reach, not by AUC alone. This is the same problem on public data.</p>
+<p class="lede">A care team that can call one discharged patient in ten needs the right tenth, so this project judges readmission models by how many readmissions a fixed call capacity reaches, not by AUC alone. It is the same problem I worked on at Cigna, here on public data.</p>
 <dl class="facts">
 <!-- facts:start -->
 <div><dt>Data</dt><dd><b>101,766</b> diabetic inpatient encounters from 130 US hospitals (UCI, 1999 to 2008)</dd></div>
@@ -200,6 +200,7 @@
 <div class="lab">No visit in the prior year (943 readmissions)</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:33.33%"></span><span class="g" style="left:66.67%"></span><span class="g" style="left:100%"></span><span class="bar part" style="width:7.33%"></span><span class="bar track" style="left:calc(7.33% + 2px);width:calc(55.54% - 2px)"></span></div><div class="val">12%</div>
 <div class="lab">At least one visit (1,336 readmissions)</div><div class="lane s1"><span class="g" style="left:0%"></span><span class="g" style="left:33.33%"></span><span class="g" style="left:66.67%"></span><span class="g" style="left:100%"></span><span class="bar part" style="width:30.6%"></span><span class="bar track" style="left:calc(30.6% + 2px);width:calc(58.47% - 2px)"></span></div><div class="val">34%</div>
 </div><div class="scale" aria-hidden="true"><span class="lab-pad"></span><div class="ticks"><span style="left:0%">0</span><span style="left:33.33%">500</span><span style="left:66.67%">1,000</span><span style="left:100%">1,500</span></div><span></span><span class="name">Readmissions</span></div></div><figcaption><b>Figure 4.</b> The 2,279 held-out readmissions, by whether the patient had an inpatient, emergency or outpatient visit in the year before.</figcaption></figure>
+<p>What I'd do next: evaluate the 943 readmissions among patients with no visit in the prior year as a group of their own, and check how well the features the model still has for them (diagnoses, length of stay, labs, medications, discharge disposition, age) separate those who come back from those who don't. If they separate them poorly, I'd look for data the extract doesn't have, such as admission dates or notes, before assuming a more complex model would help. I haven't run this subgroup study.</p>
 <!-- trust:end -->
 </section>
 

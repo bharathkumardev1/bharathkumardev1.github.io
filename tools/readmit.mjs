@@ -231,7 +231,8 @@ export function trust() {
 <p>The probabilities said the list would hold ${mi.expected_on_list.toFixed(0)} readmissions, and it held ${mi.caught}. Every tenth of predicted risk is within ${(Math.max(...gaps) * 100).toFixed(1)} points of what happened.</p>
 ${calib}
 <p>The list has a blind spot: ${pct(none / mi.readmissions, 0)} of readmissions were patients with no visit in the year before, and they're ${int(mi.missed_with_no_prior_visits)} of its ${int(mi.missed)} misses. ${pct(share.on_list, 0)} of the list had a prior inpatient stay, against ${pct(share.all, 0)} of all discharges. The model finds people with a history; it misses people the record says little about.</p>
-${blind}`;
+${blind}
+<p>What I'd do next: evaluate the ${int(none)} readmissions among patients with no visit in the prior year as a group of their own, and check how well the features the model still has for them (diagnoses, length of stay, labs, medications, discharge disposition, age) separate those who come back from those who don't. If they separate them poorly, I'd look for data the extract doesn't have, such as admission dates or notes, before assuming a more complex model would help. I haven't run this subgroup study.</p>`;
 }
 
 const SHIFT = {
