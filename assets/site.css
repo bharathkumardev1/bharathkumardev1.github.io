@@ -186,6 +186,7 @@ button.text:hover { text-decoration-thickness: 2px; background: none; }
 .section { padding-top: clamp(3rem, 7vw, 5rem); }
 .section-head { margin-bottom: 1.5rem; }
 .section-head h2 { margin: 0; }
+.section-head .section-note { margin: 0.6rem 0 0; max-width: 42rem; color: var(--ink-2); }
 .eyebrow { font-size: 0.85rem; font-weight: 600; color: var(--ink-3); margin: 0 0 0.3rem; }
 
 /* A project: its heading across the top, then the thing to try or look at (the search, a

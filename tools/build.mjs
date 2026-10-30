@@ -57,8 +57,8 @@ function header(p) {
   return `<header class="site-header"><div class="wrap">
 <a class="brand" href="${p || "./"}"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
-<a class="hide-sm" href="${p}#experience">Experience</a>
 <a href="${p}#projects">Projects</a>
+<a class="hide-sm" href="${p}#experience">Experience</a>
 <a class="hide-sm" href="${p}#skills">Skills</a>
 <a class="hide-sm" href="${p}#contact">Contact</a>
 <a href="${p}Bharath_Mandha_Resume.pdf">Résumé</a>
