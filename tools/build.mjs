@@ -61,7 +61,7 @@ function header(p) {
 <a class="hide-sm" href="${p}#experience">Experience</a>
 <a class="hide-sm" href="${p}#skills">Skills</a>
 <a class="hide-sm" href="${p}#contact">Contact</a>
-<a href="${p}Bharath_Mandha_Resume.pdf">Résumé</a>
+<a href="${p}Bharath-Mandha-Resume.pdf">Résumé</a>
 <button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme">${THEME_ICON}</button>
 </nav>
 </div></header>`;
@@ -123,7 +123,7 @@ function profileLinks(where) {
   const link = (href, name, text) => `<li><a href="${href}">${icon(name)}${text}</a></li>`;
   const items = where === "contact"
     ? [link(`mailto:${EMAIL}`, "email", EMAIL), link(LINKEDIN, "linkedin", "LinkedIn"), link(GITHUB, "github", "GitHub")]
-    : [link(GITHUB, "github", "GitHub"), link(LINKEDIN, "linkedin", "LinkedIn"), link("Bharath_Mandha_Resume.pdf", "resume", "Résumé"), link(`mailto:${EMAIL}`, "email", "Email")];
+    : [link(GITHUB, "github", "GitHub"), link(LINKEDIN, "linkedin", "LinkedIn"), link("Bharath-Mandha-Resume.pdf", "resume", "Résumé"), link(`mailto:${EMAIL}`, "email", "Email")];
   return `<ul class="links">\n${items.join("\n")}\n</ul>`;
 }
 
