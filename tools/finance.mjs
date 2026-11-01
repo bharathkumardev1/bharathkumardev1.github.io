@@ -98,18 +98,20 @@ export async function search() {
 }
 
 export function stat() {
-  return `<li><b>${f2(t(NONE)["hit@10"])} to ${f2(t(BM)["hit@10"])}</b> Hit@10 on held-out FinanceBench questions <span class="src">(finance-rag-eval)</span></li>`;
+  return `<li><b>${f2(t(NONE)["hit@10"])} to ${f2(t(ROUTE)["hit@10"])}</b> Hit@10 on held-out FinanceBench questions from a company filter and statement routing <span class="src">(finance-rag-eval)</span></li>`;
 }
 
 export function metrics() {
-  const none = t(NONE), bm = t(BM), b = bm1();
-  const cFilter = cmp(FILTER, NONE), cRoute = cmp(ROUTE, FILTER);
+  const none = t(NONE), bm = t(BM), rt = t(ROUTE), b = bm1();
+  const cFilter = cmp(FILTER, NONE), cRoute = cmp(ROUTE, FILTER), cDrop = cmp(BM, ROUTE);
+  claim(spansZero(cDrop), "dropping the company name is within noise, as the home table says");
   return F.table({
     caption: "Held-out results", numeric: [1], head: ["Measure", "Value"], cls: "metrics",
     rows: [
-      [`Hit@10, ${none.n} questions`, `${f2(none["hit@10"])} to ${f2(bm["hit@10"])}`],
+      [`Hit@10, ${none.n} questions`, `${f2(none["hit@10"])} to ${f2(rt["hit@10"])}`],
       ["Company and period filter", signed(cFilter.diff)],
       ["Statement routing", signed(cRoute.diff)],
+      [`Company name left out of the query (${f2(bm["hit@10"])})`, `${signed(cDrop.diff)}, within noise`],
       ["BM25 on one core", `${b.throughput_rps.toFixed(0)} req/s, ${ms(b.p95_ms)} ms p95`],
     ],
   });
@@ -122,7 +124,7 @@ export function caseFacts() {
   return facts([
     ["Benchmark", `<b>FinanceBench</b>: ${QUESTIONS.length} analyst questions over ${META.filings.length} SEC filings, ${int(META.n_pages)} pages`],
     ["Held out", `<b>${none.n}</b> questions kept out of all tuning, which used the other ${need(DEV, NONE).n}`],
-    ["Result", `Hit@10 from <b>${f2(none["hit@10"])}</b> to <b>${f2(bm["hit@10"])}</b> on the held-out questions`],
+    ["Result", `Hit@10 from <b>${f2(none["hit@10"])}</b> to <b>${f2(t(ROUTE)["hit@10"])}</b> on the held-out questions with a company and period filter and statement routing, and <b>${f2(bm["hit@10"])}</b> with the company name left out of the query (within noise)`],
     ["Serving", `BM25 on one core: <b>${b.throughput_rps.toFixed(0)}</b> queries a second at ${ms(b.p95_ms)} ms p95`],
   ]);
 }
