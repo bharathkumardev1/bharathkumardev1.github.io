@@ -138,7 +138,6 @@ function person() {
     worksFor: { "@type": "Organization", name: "Goldman Sachs" },
     alumniOf: { "@type": "CollegeOrUniversity", name: "University of North Texas" },
     address: { "@type": "PostalAddress", addressLocality: "Dallas", addressRegion: "TX", addressCountry: "US" },
-    email: EMAIL,
     sameAs: [GITHUB, LINKEDIN],
   };
   return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;

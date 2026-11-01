@@ -133,7 +133,7 @@ test("search engines get a sitemap of every page and structured data that matche
   assert.equal(person["@type"], "Person");
   assert.equal(person.name, "Bharath Mandha");
   assert.equal(person.url, HOME.match(/<link rel="canonical" href="([^"]+)">/)[1]);
-  assert.ok(HOME.includes(`href="mailto:${person.email}"`), person.email);
+  assert.equal(person.email, undefined, "no address in structured data");
   for (const url of person.sameAs) assert.ok(HOME.includes(`href="${url}"`), url);
 });
 

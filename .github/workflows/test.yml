@@ -15,7 +15,7 @@ jobs:
       - run: npm test
 
   lighthouse:
-    # Lighthouse's phone profile on the committed page, three runs; fails under 90 in any category.
+    # Lighthouse's phone profile on the committed page, three runs; fails under 95 in any category.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
