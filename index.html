@@ -60,7 +60,7 @@
 </ul>
 <!-- links:end -->
 <ul class="stats" aria-label="Results">
-<li><b>~40%</b> less average credit-memo preparation time <span class="src">(Goldman Sachs)</span></li>
+<li><b>~40%</b> lower average credit-memo preparation time, a reported project-level estimate <span class="src">(Goldman Sachs)</span></li>
 <li><b>3M+</b> documents in a RAG platform used weekly by 70+ analysts <span class="src">(Goldman Sachs)</span></li>
 <li><b>25.0%</b> of 30-day readmissions reached by a 10% call list, against 20.5% for the prior-stays rule <span class="src">(readmission-capacity, public data)</span></li>
 <!-- stat-finance:start --><li><b>0.14 to 0.71</b> Hit@10 on held-out FinanceBench questions from a company filter and statement routing <span class="src">(finance-rag-eval)</span></li><!-- stat-finance:end -->
@@ -239,11 +239,11 @@
 <div><h3>Goldman Sachs</h3><p class="title">AI/ML Engineer</p><p class="when">June 2025 to now</p></div>
 <div class="job-body">
 <ul>
-<li>Designed and optimized the retrieval layer (metadata filtering, reranking) and the LangGraph orchestration layer, and built their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks) used weekly by 70+ credit and risk analysts, working with platform, risk and compliance teams.</li>
+<li>Co-designed and optimized the retrieval layer (metadata filtering, reranking) and the LangGraph orchestration layer, and built their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks) used weekly by 70+ credit and risk analysts, working with platform, risk and compliance teams.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>Cut average credit-memo preparation time by about 40%, comparing historical memos with platform-assisted ones, by automating evidence discovery, document analysis and validation while analysts kept their review.</li>
+<li>The platform's automated evidence discovery, document analysis and validation, with analysts keeping their review, is reported to have cut average credit-memo preparation time by about 40%. This is an approximate project-level estimate, not a time study I ran.</li>
 <li>Built a 500+ query RAG evaluation benchmark of factual retrieval, financial comparison and evidence-based reasoning questions. It scored retrieval with Hit Rate and MRR and generation with RAGAS faithfulness, groundedness and answer relevance, apart from the 10 to 20 second end-to-end workflow, and compared chunk size, overlap, top-k and embedding choices experiment by experiment, alongside metadata-filtering and index-performance work. Groundedness came out above 90%.</li>
 <li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
 <li>Implemented document preprocessing, recursive and semantic chunking, metadata enrichment, embedding generation and incremental FAISS index updates in the team's PySpark and AWS S3 ingestion pipeline, so new or modified documents reached the index without a full rebuild for routine updates.</li>
@@ -254,7 +254,7 @@
 </div>
 
 <div class="job">
-<div><h3>Cigna</h3><p class="title">Machine Learning Engineer</p><p class="when">March 2022 to August 2023</p></div>
+<div><h3>Cigna Healthcare</h3><p class="title">Machine Learning Engineer</p><p class="when">March 2022 to August 2023</p></div>
 <div class="job-body">
 <ul>
 <li>Built 30-day hospital readmission-risk prediction with XGBoost and LightGBM over 1.5M+ encounters, and reached 0.91 ROC-AUC on a held-out cohort of 200K+ encounters from 70K+ patients, with time-aware validation and patient-level separation. This is a reported professional result on private data and is not reproduced here. The readmission-capacity project above is a separate analysis of public data, with its own methods and results.</li>
