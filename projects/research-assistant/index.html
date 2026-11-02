@@ -50,8 +50,8 @@
 <dl class="facts">
 <div><dt>Benchmark</dt><dd><b>QASPER</b>: 5,049 questions about 1,585 NLP papers, with the annotators' answers and evidence paragraphs</dd></div>
 <div><dt>Sample</dt><dd><b>150</b> dev questions to read errors on, <b>150</b> test questions run once after the last change</dd></div>
-<div><dt>Compared</dt><dd>The loop against a single pass, same retrieval and models, paired by question</dd></div>
-<div><dt>Result</dt><dd>The loop scores a little higher on every measure and the difference is within noise at 150 questions</dd></div>
+<div><dt>Compared</dt><dd>The loop against a single pass over the first search's top 5 passages, and against one that reads 10 or 15, same models, paired by question</dd></div>
+<div><dt>Result</dt><dd>A tie with a single pass over the first top 5 passages. A single pass over 10 or 15 passages beats the loop on both splits (test, judged correct: <b>68.0%</b> against <b>58.7%</b>)</dd></div>
 </dl>
 <ul class="actions">
 <li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Code on GitHub</a></li>
@@ -106,22 +106,28 @@
 <ul>
 <li>Each question is asked against its own paper, split into the dataset's paragraphs, so a citation matches the annotators' evidence exactly.</li>
 <li>150 dev questions for reading errors; 150 test questions, run once after the last change.</li>
-<li>Same retrieval and models for both systems: gpt-6-luna answers and reviews, gpt-6.1-sol judges. The loop's first round replays the single pass's request, so any difference comes from the review.</li>
-<li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. The judge is checked against 40 labels, which are an AI-assisted draft and not independent human annotation; an independent grade is pending.</li>
+<li>Same retrieval and models for both systems: gpt-6-luna answers and reviews, gpt-6.1-sol judges. The loop's first round replays the single pass's request, so any difference from the 5-passage single pass comes from the review rounds and their extra searches.</li>
+<li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. The judge is checked against 40 answers I graded myself, blind to its verdicts.</li>
 <li>Paired differences with 95% bootstrap intervals, the first failed stage for every wrong answer, and a spending cap, $25 by default and $5 for these runs, that refuses any call that could cross it.</li>
 </ul>
-<p>Both runs used seed 0 at commit <code>daac2a1</code> on 2026-10-28, and the whole recording cost $0.39 of a $5 cap. <code>make check-replay</code> reproduces every row with no key.</p>
+<p>Seed 0 throughout. The single pass and the loop ran at commit <code>daac2a1</code> on 2026-10-28. The two wider single passes ran on 2026-11-02 at <code>aac699e</code>, and the loop and single-pass rows replayed from the recording. Counting every recorded call, original and matched runs, the recording comes to $0.89 of a $5 cap across 1,986 calls. The spend line in the results files is a running total, so the dev file's $0.65 is the total when its matched run finished, not what dev cost. <code>make check-replay</code> reproduces every row with no key.</p>
 <div class="table-wrap"><table><caption>150 questions per split. Judged correct is the share the judge marked correct.</caption>
-<thead><tr><th>Split and system</th><th class="n">Answer F1</th><th class="n">Evidence F1</th><th class="n">Judged correct</th><th class="n">Calls per question</th><th class="n">p95 seconds</th></tr></thead>
+<thead><tr><th>Split and system</th><th class="n">Answer F1</th><th class="n">Evidence F1</th><th class="n">Judged correct</th><th class="n">Calls per question</th><th class="n">Passages per question</th><th class="n">p95 seconds</th></tr></thead>
 <tbody>
-<tr><td>Dev, single pass</td><td class="n">0.337</td><td class="n">0.447</td><td class="n">49.3%</td><td class="n">1.0</td><td class="n">2.9</td></tr>
-<tr><td>Dev, loop</td><td class="n">0.349</td><td class="n">0.455</td><td class="n">50.7%</td><td class="n">2.5</td><td class="n">10.8</td></tr>
-<tr><td>Test, single pass</td><td class="n">0.435</td><td class="n">0.563</td><td class="n">56.0%</td><td class="n">1.0</td><td class="n">2.2</td></tr>
-<tr><td>Test, loop</td><td class="n">0.441</td><td class="n">0.587</td><td class="n">58.7%</td><td class="n">2.5</td><td class="n">11.0</td></tr>
+<tr><td>Dev, single pass</td><td class="n">0.337</td><td class="n">0.447</td><td class="n">49.3%</td><td class="n">1.0</td><td class="n">5.0</td><td class="n">2.9</td></tr>
+<tr><td>Dev, loop</td><td class="n">0.349</td><td class="n">0.455</td><td class="n">50.7%</td><td class="n">2.5</td><td class="n">5.6</td><td class="n">10.8</td></tr>
+<tr><td>Dev, single pass, top 10</td><td class="n">0.414</td><td class="n">0.518</td><td class="n">58.0%</td><td class="n">1.0</td><td class="n">10.0</td><td class="n">2.2</td></tr>
+<tr><td>Dev, single pass, top 15</td><td class="n">0.419</td><td class="n">0.559</td><td class="n">64.0%</td><td class="n">1.0</td><td class="n">14.9</td><td class="n">2.1</td></tr>
+<tr><td>Test, single pass</td><td class="n">0.435</td><td class="n">0.563</td><td class="n">56.0%</td><td class="n">1.0</td><td class="n">5.0</td><td class="n">2.2</td></tr>
+<tr><td>Test, loop</td><td class="n">0.441</td><td class="n">0.587</td><td class="n">58.7%</td><td class="n">2.5</td><td class="n">5.6</td><td class="n">11.0</td></tr>
+<tr><td>Test, single pass, top 10</td><td class="n">0.473</td><td class="n">0.590</td><td class="n">68.0%</td><td class="n">1.0</td><td class="n">10.0</td><td class="n">2.2</td></tr>
+<tr><td>Test, single pass, top 15</td><td class="n">0.475</td><td class="n">0.582</td><td class="n">68.0%</td><td class="n">1.0</td><td class="n">15.0</td><td class="n">2.3</td></tr>
 </tbody></table></div>
 <p>Paired by question, the 95% interval on the answer F1 difference is -0.011 to +0.037 on dev and -0.015 to +0.029 on test. On test, evidence F1 is +0.024 (-0.003 to +0.051) and judged accuracy is +2.7 points (0.000 to +0.060), which is 5 questions the loop got right and the single pass got wrong against 1 the other way. With six comparisons I don't read any of that as a finding.</p>
 <p>The loop made 2.5 calls per question against 1. Answering cost about three times as much per question ($0.00028 against $0.00009 on test), the slowest 5% of questions took about 11 seconds against 2 to 3, and with judging included the bill differs by about 20%, because the judge is most of the spend. On this sample I can't say the loop is worth its extra calls.</p>
-<p>The judge agreed with 35 of the 40 labels (87.5%, Cohen's kappa 0.74). Those labels are an AI-assisted draft, not independent human annotation, so this is not a human-versus-judge result. They cover 36 distinct questions, and several apply a stricter standard than the judge's rubric.</p>
+<p>Against a single pass that stops at the first search's top 5 passages, the loop is a tie; it starts from that same retrieval but can search again, and averages 5.6 passages a question. Against one that reads 10 or 15 in a single call, it loses. Judged correct, loop minus baseline, paired by question: -7.3 points against the top 10 and -13.3 against the top 15 on dev (the loop right and the baseline wrong on 5 and 3 questions, the other way on 16 and 23), and -9.3 points against both on test (9 and 10 against 23 and 24). The 95% intervals exclude zero in all four, and the exact sign-test p is 0.027, below 0.001, 0.020 and 0.024. Answer F1 points the same way. The wider single pass costs about the same per question, judging included, and its 95th-percentile latency is 2.2 seconds against 11.0.</p>
+<p>These baselines are matched to the most the loop can read, not to what it reads on average: the loop averages 5.6 passages a question, so the baselines read more than it does. They show that this loop's retrieval budget is better spent on a wider first search, not that a review loop can't help. They were added after I had seen the original test results, so the test comparison is post hoc, and the dev comparison, run once with the same code, agrees with it. The failure table fits a retrieval problem: on test the loop never retrieved the evidence on 20 of 150 questions, against 11 for the top 10 and 8 for the top 15. I haven't tested that explanation.</p>
+<p>The judge agreed with my grades on 35 of the 40 answers (87.5%, Cohen's kappa 0.75): more lenient than me on 2 and stricter on 3. I graded them by hand on 2 November 2026 without seeing its verdicts, one grader in one pass over 37 distinct questions. An earlier draft of the labels, which was not an independent grade, is kept in the repo and is not scored.</p>
 </section>
 
 <section id="replay" aria-labelledby="replay-h">
@@ -139,10 +145,10 @@
 <li>QASPER papers are all NLP, and each question searches only its own paper.</li>
 <li>Figures and tables aren't indexed.</li>
 <li>With 150 test questions the interval on judged accuracy is 8 points either side, so small differences will show up as ties, and they did.</li>
-<li>The judge is a model. The 40 labels that check it are an AI-assisted draft and say little about how far to trust it.</li>
+<li>The judge is a model. My 40 grades show it is broadly in line with me; one grader and 37 distinct questions don't settle how far to trust a difference of a few points.</li>
 <li>One seed, one sample of 150 questions per split, one model pair and one embedding model.</li>
 </ul>
-<p>What I'd do next: have the 40 judge-check labels graded independently. They are an AI-assisted draft today, and every judged-accuracy number here depends on how far the judge can be trusted. I'd also compare the two systems on matched passages, because the loop retrieves extra evidence on later rounds, and as it stands I can't separate what the review contributes from what the added retrieval contributes. A larger independent sample would then show whether the small gain is real. None of this has been run. Re-checking the recorded runs costs nothing (<code>make check-replay</code>), but new questions would need new API calls.</p>
+<p>What I'd do next: give the loop a stronger first retrieval and see whether review adds anything on top of it, since the failure table says retrieval, not review, is where this loop loses. A larger independent sample would also tighten the dev and test comparisons, and a second grader would give the judge check an inter-rater number. None of this has been run. Re-checking the recorded runs costs nothing (<code>make check-replay</code>), but new questions would need new API calls.</p>
 </section>
 
 <section id="run" aria-labelledby="run-h">
