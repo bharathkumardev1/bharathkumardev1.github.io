@@ -239,7 +239,7 @@
 <div><h3>Goldman Sachs</h3><p class="title">AI/ML Engineer</p><p class="when">June 2025 to now</p></div>
 <div class="job-body">
 <ul>
-<li>Co-designed and optimized the retrieval layer (metadata filtering, reranking) and the LangGraph orchestration layer, and built their FastAPI integration, for a RAG platform over 3M+ internal financial documents (tens of millions of chunks) used weekly by 70+ credit and risk analysts, working with platform, risk and compliance teams.</li>
+<li>Co-designed and optimized the retrieval layer (metadata filtering, reranking) and the LangGraph orchestration layer of a LangChain, LangGraph and FAISS RAG platform over 3M+ internal financial documents (tens of millions of chunks) used weekly by 70+ credit and risk analysts, and built its FastAPI integration, working with platform, risk and compliance teams.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
@@ -247,7 +247,7 @@
 <li>Built a 500+ query RAG evaluation benchmark of factual retrieval, financial comparison and evidence-based reasoning questions. It scored retrieval with Hit Rate and MRR and generation with RAGAS faithfulness, groundedness and answer relevance, apart from the 10 to 20 second end-to-end workflow, and compared chunk size, overlap, top-k and embedding choices experiment by experiment, alongside metadata-filtering and index-performance work. Groundedness came out above 90%.</li>
 <li>Built LangGraph agents for retrieval, analysis, validation and delegation that took over repetitive reasoning steps in credit analysis, with analysts reviewing sensitive decisions.</li>
 <li>Implemented document preprocessing, recursive and semantic chunking, metadata enrichment, embedding generation and incremental FAISS index updates in the team's PySpark and AWS S3 ingestion pipeline, so new or modified documents reached the index without a full rebuild for routine updates.</li>
-<li>Evaluated quantization and LoRA/QLoRA approaches for open-source models to assess GPU-memory requirements, inference latency, model quality and serving cost, and concluded that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
+<li>Evaluated quantization and LoRA/QLoRA approaches for open-source models with Hugging Face Transformers and PEFT, weighing GPU-memory requirements, inference latency, model quality and serving cost, and concluded that infrastructure savings alone didn't justify moving complex credit reasoning to smaller models.</li>
 </ul>
 </details>
 </div>
@@ -262,7 +262,7 @@
 <details class="more"><summary>Show all bullets</summary>
 <ul>
 <li>Engineered 150+ candidate features from labs, demographics, encounter history and clinical notes, and kept about 100 in production based on predictive value and stability. I handled class imbalance and tuned the decision threshold.</li>
-<li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize several thousand high-risk patients a month.</li>
+<li>Productionized training, batch inference, registration and retraining with MLflow and Airflow on SageMaker and EKS through CI/CD, using Terraform for infrastructure as code, with PSI drift monitoring and SHAP explanations that let clinical reviewers prioritize several thousand high-risk patients a month.</li>
 </ul>
 </details>
 </div>
