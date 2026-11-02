@@ -86,7 +86,7 @@ export function card() {
   claim(spansZero(c), "the hybrid ties BM25 on test");
   const times = TIMES[Math.round(hy.p50_ms / bm.p50_ms)];
   claim(Boolean(times), "the hybrid's latency is a small multiple of BM25's");
-  return `<p>Page-level retrieval over ${META.filings.length} SEC filings, scored on FinanceBench's ${QUESTIONS.length} analyst questions. A company and period filter and statement routing do most of the work; an embedding hybrid tied BM25 at about ${times} the latency, so BM25 ships.</p>`;
+  return `<p>Page-level retrieval over ${META.filings.length} SEC filings, scored on FinanceBench's ${QUESTIONS.length} public questions. A company and period filter and statement routing do most of the work; an embedding hybrid tied BM25 at about ${times} the latency, so BM25 ships.</p>`;
 }
 
 // The search in the project's card starts on the example the pipeline figure follows, already
@@ -122,7 +122,7 @@ export function metrics() {
 export function caseFacts() {
   const none = t(NONE), bm = t(BM), b = bm1();
   return facts([
-    ["Benchmark", `<b>FinanceBench</b>: ${QUESTIONS.length} analyst questions over ${META.filings.length} SEC filings, ${int(META.n_pages)} pages`],
+    ["Benchmark", `<b>FinanceBench</b>: ${QUESTIONS.length} public questions over ${META.filings.length} SEC filings, ${int(META.n_pages)} pages`],
     ["Held out", `<b>${none.n}</b> questions kept out of all tuning, which used the other ${need(DEV, NONE).n}`],
     ["Result", `Hit@10 from <b>${f2(none["hit@10"])}</b> to <b>${f2(t(ROUTE)["hit@10"])}</b> on the held-out questions with a company and period filter and statement routing, and <b>${f2(bm["hit@10"])}</b> with the company name left out of the query (within noise)`],
     ["Serving", `BM25 on one core: <b>${b.throughput_rps.toFixed(0)}</b> queries a second at ${ms(b.p95_ms)} ms p95`],

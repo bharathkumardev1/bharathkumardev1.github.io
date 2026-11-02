@@ -49,7 +49,7 @@
 <p class="lede">An answer about a filing is only as good as the pages retrieval puts in front of the model. FinanceBench labels the answer page for every question, so I measured retrieval on its own, one step at a time, on questions I never tuned on.</p>
 <dl class="facts">
 <!-- facts:start -->
-<div><dt>Benchmark</dt><dd><b>FinanceBench</b>: 150 analyst questions over 360 SEC filings, 53,399 pages</dd></div>
+<div><dt>Benchmark</dt><dd><b>FinanceBench</b>: 150 public questions over 360 SEC filings, 53,399 pages</dd></div>
 <div><dt>Held out</dt><dd><b>100</b> questions kept out of all tuning, which used the other 50</dd></div>
 <div><dt>Result</dt><dd>Hit@10 from <b>0.14</b> to <b>0.71</b> on the held-out questions with a company and period filter and statement routing, and <b>0.75</b> with the company name left out of the query (within noise)</dd></div>
 <div><dt>Serving</dt><dd>BM25 on one core: <b>126</b> queries a second at 12 ms p95</dd></div>
