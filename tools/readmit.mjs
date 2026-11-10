@@ -12,7 +12,7 @@ const LIST = json("data/readmit/call_list.json");
 const MODEL = json("data/readmit/model.json");
 export const VIEW = capacityView(CAP);
 const curve = (name) => VIEW.curves[name];
-const sha = M.meta.git_sha.slice(0, 7);
+const tree = M.meta.git_tree.slice(0, 7);
 // Alert thresholds from the repo's src/readmit/shift.py (PSI_ALERT, MISSING_ALERT).
 const PSI_ALERT = 0.2;
 
@@ -335,4 +335,4 @@ export function service() {
 ${F.twin(table, "Show every load level")}`;
 }
 
-export const sources = () => `<p class="sources">Numbers on this page are from the code at commit <a href="${repo("readmission-capacity")}/commit/${sha}"><code>${sha}</code></a>, run on ${M.meta.date} with LightGBM ${M.meta.lightgbm} and XGBoost ${M.meta.xgboost}. Every table <code>readmit run</code> writes is in <a href="${repo("readmission-capacity")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;
+export const sources = () => `<p class="sources">Numbers on this page are from <code>readmit run</code> on the readmission-capacity source tree <code>${tree}</code> (<a href="${repo("readmission-capacity")}/commits/main">its history</a> shows the commit that holds it), run on ${M.meta.date} with LightGBM ${M.meta.lightgbm} and XGBoost ${M.meta.xgboost}. Every table <code>readmit run</code> writes is in <a href="${repo("readmission-capacity")}/blob/main/results/RESULTS.md">RESULTS.md</a>.</p>`;

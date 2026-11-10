@@ -15,7 +15,7 @@ const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 export function capacityView(cap) {
-  const curves = Object.fromEntries(RANKINGS.map(([name]) => [name, capacityCurve(cap.ranked_labels[name], cap.n)]));
+  const curves = Object.fromEntries(RANKINGS.map(([name]) => [name, capacityCurve(cap.ranked_labels[name], cap.n, cap.ties[name])]));
   const calls = (share) => Math.max(1, roundHalfEven(share * cap.n));
   const perThousand = (x) => Math.round((x / cap.n) * 1000);
   return {
