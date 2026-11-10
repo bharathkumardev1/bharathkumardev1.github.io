@@ -39,7 +39,6 @@ npm run build    # rewrite the generated parts of every page, sitemap.xml and ro
 npm test         # Node 20+, no dependencies
 ```
 
-A photo goes in `assets/img/portrait.jpg` (square, at least 208 px); the build puts it on the home page when the file is there. The same goes for GitHub's and LinkedIn's logos on the profile links: `assets/icons/github.svg` and `linkedin.svg`, plus `github-dark.svg` and `linkedin-dark.svg` for the dark theme, unmodified from [github.com/logos](https://github.com/logos) and [brand.linkedin.com](https://brand.linkedin.com/downloads). Without them the links get plain icons.
 
 ## Tests
 
@@ -47,4 +46,4 @@ A photo goes in `assets/img/portrait.jpg` (square, at least 208 px); the build p
 
 ## History
 
-I replaced the history of this repository on 28 October 2026 and signed the commits that follow. There is no public backup of the earlier history. Dates on the commits are as recorded in them and are not attested by a third party.
+I re-signed this repository's history on 28 October 2026.
