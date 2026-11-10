@@ -52,7 +52,7 @@
 <div><dt>Benchmark</dt><dd><b>FinanceBench</b>: 150 public questions over 360 SEC filings, 53,399 pages</dd></div>
 <div><dt>Held out</dt><dd><b>100</b> questions kept out of all tuning, which used the other 50</dd></div>
 <div><dt>Result</dt><dd>Hit@10 from <b>0.14</b> to <b>0.71</b> on the held-out questions with a company and period filter and statement routing, and <b>0.75</b> with the company name left out of the query (within noise)</dd></div>
-<div><dt>Serving</dt><dd>BM25 on one core: <b>126</b> queries a second at 12 ms p95</dd></div>
+<div><dt>Serving</dt><dd>BM25 on one core: <b>126</b> queries a second at 11.6 ms p95</dd></div>
 <!-- facts:end -->
 </dl>
 <ul class="actions">
@@ -370,7 +370,7 @@ deferred tax assets and liabilities. Deferred tax assets and liabilities are det
 <section id="service" aria-labelledby="service-h">
 <h2 id="service-h">As a service</h2>
 <!-- service:start -->
-<p>With one FastAPI worker pinned to one core and the load generator on the other, BM25 serves 126 requests a second to one client (p95 12 ms) and up to 162 with more clients; the hybrid tops out at 55. No request failed.</p>
+<p>With one FastAPI worker pinned to one core and the load generator on the other, BM25 serves 126 requests a second to one client (p95 11.6 ms) and up to 162 with more clients; the hybrid tops out at 55. No request failed.</p>
 <figure class="fig" id="fig-service"><div class="fig-frame"><ul class="legend"><li><i class="key s1" aria-hidden="true"></i>BM25</li><li><i class="key s2" aria-hidden="true"></i>Hybrid: BM25 and MiniLM fused</li></ul><div class="multiples"><div><p class="fig-title">Requests a second</p><div class="chart short live"><div class="area">
 <div class="plot" role="img" aria-label="Requests a second by concurrent clients. BM25 from 126 to 162, the hybrid from 49 to 55."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="50" y2="50" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><polyline class="line s1" vector-effect="non-scaling-stroke" points="0,37.1 25,30.2 50,28.2 75,22.8 100,18.8"/><polyline class="line s2" vector-effect="non-scaling-stroke" points="0,75.3 25,74.4 50,73 75,72.45 100,74.1"/></svg>
 <span class="tick y" style="top:100%">0</span><span class="tick y" style="top:50%">100</span><span class="tick y" style="top:0%">200</span><span class="tick x" style="left:0%">1</span><span class="tick x" style="left:25%">2</span><span class="tick x" style="left:50%">4</span><span class="tick x" style="left:75%">8</span><span class="tick x" style="left:100%">16</span><span class="axis-title x">concurrent clients</span><span class="end-label left above" style="left:100%;top:18.8%">BM25</span><span class="end-label left above" style="left:100%;top:74.1%">Hybrid</span></div><div class="hover" tabindex="0" role="slider" aria-label="Values along the chart" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-valuetext="1 client: BM25 126/s, Hybrid 49/s"></div><span class="cross" aria-hidden="true"></span><div class="tip" aria-hidden="true"></div></div><script type="application/json" class="chart-data">{"x":[1,2,4,8,16],"at":[0,25,50,75,100],"xfmt":"clients","yfmt":"rps","top":200,"bottom":0,"series":[{"name":"BM25","cls":"s1","y":[125.8,139.6,143.6,154.4,162.4]},{"name":"Hybrid","cls":"s2","y":[49.4,51.2,54,55.1,51.8]}]}</script></div></div><div><p class="fig-title">p95 latency, ms</p><div class="chart short live"><div class="area">
@@ -378,16 +378,16 @@ deferred tax assets and liabilities. Deferred tax assets and liabilities are det
 <span class="tick y" style="top:100%">0</span><span class="tick y" style="top:50%">300</span><span class="tick y" style="top:0%">600</span><span class="tick x" style="left:0%">1</span><span class="tick x" style="left:25%">2</span><span class="tick x" style="left:50%">4</span><span class="tick x" style="left:75%">8</span><span class="tick x" style="left:100%">16</span><span class="axis-title x">concurrent clients</span><span class="end-label left above" style="left:100%;top:73.94%">BM25</span><span class="end-label left above" style="left:100%;top:19.58%">Hybrid</span></div><div class="hover" tabindex="0" role="slider" aria-label="Values along the chart" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-valuetext="1 client: BM25 12 ms, Hybrid 35 ms"></div><span class="cross" aria-hidden="true"></span><div class="tip" aria-hidden="true"></div></div><script type="application/json" class="chart-data">{"x":[1,2,4,8,16],"at":[0,25,50,75,100],"xfmt":"clients","yfmt":"ms","top":600,"bottom":0,"series":[{"name":"BM25","cls":"s1","y":[11.57,20.82,44.83,85.39,156.38]},{"name":"Hybrid","cls":"s2","y":[35.17,69.02,129.03,246.73,482.51]}]}</script></div></div></div><details class="twin"><summary>Show the numbers</summary><div class="table-wrap"><table>
 <thead><tr><th>Retriever</th><th class="n">Clients</th><th class="n">Requests/s</th><th class="n">p50</th><th class="n">p95</th></tr></thead>
 <tbody>
-<tr><td>BM25</td><td class="n">1</td><td class="n">126</td><td class="n">7.6 ms</td><td class="n">12 ms</td></tr>
-<tr><td>BM25</td><td class="n">2</td><td class="n">140</td><td class="n">14 ms</td><td class="n">21 ms</td></tr>
-<tr><td>BM25</td><td class="n">4</td><td class="n">144</td><td class="n">27 ms</td><td class="n">45 ms</td></tr>
-<tr><td>BM25</td><td class="n">8</td><td class="n">154</td><td class="n">49 ms</td><td class="n">85 ms</td></tr>
-<tr><td>BM25</td><td class="n">16</td><td class="n">162</td><td class="n">95 ms</td><td class="n">156 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">1</td><td class="n">49</td><td class="n">18 ms</td><td class="n">35 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">2</td><td class="n">51</td><td class="n">35 ms</td><td class="n">69 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">4</td><td class="n">54</td><td class="n">68 ms</td><td class="n">129 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">8</td><td class="n">55</td><td class="n">135 ms</td><td class="n">247 ms</td></tr>
-<tr><td>Hybrid</td><td class="n">16</td><td class="n">52</td><td class="n">299 ms</td><td class="n">483 ms</td></tr>
+<tr><td>BM25</td><td class="n">1</td><td class="n">126</td><td class="n">7.6 ms</td><td class="n">11.6 ms</td></tr>
+<tr><td>BM25</td><td class="n">2</td><td class="n">140</td><td class="n">14 ms</td><td class="n">20.8 ms</td></tr>
+<tr><td>BM25</td><td class="n">4</td><td class="n">144</td><td class="n">27 ms</td><td class="n">44.8 ms</td></tr>
+<tr><td>BM25</td><td class="n">8</td><td class="n">154</td><td class="n">49 ms</td><td class="n">85.4 ms</td></tr>
+<tr><td>BM25</td><td class="n">16</td><td class="n">162</td><td class="n">95 ms</td><td class="n">156.4 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">1</td><td class="n">49</td><td class="n">18 ms</td><td class="n">35.2 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">2</td><td class="n">51</td><td class="n">35 ms</td><td class="n">69.0 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">4</td><td class="n">54</td><td class="n">68 ms</td><td class="n">129.0 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">8</td><td class="n">55</td><td class="n">135 ms</td><td class="n">246.7 ms</td></tr>
+<tr><td>Hybrid</td><td class="n">16</td><td class="n">52</td><td class="n">299 ms</td><td class="n">482.5 ms</td></tr>
 </tbody></table></div></details></div><figcaption><b>Figure 4.</b> The FastAPI service with one worker pinned to one CPU core and the load generator on the other, 30 seconds per level.</figcaption></figure>
 <p>At half an AWS c7i.large's on-demand price, one vCPU, that's $0.10 per million BM25 queries and $0.25 for the hybrid, if the throughput carries over to that machine, which I haven't measured.</p>
 <!-- service:end -->

@@ -232,6 +232,8 @@ table.metrics td.n { font-weight: 600; color: var(--ink); }
 .job h3 { margin: 0 0 0.15rem; font-size: 1.2rem; }
 .job .title { margin: 0; color: var(--ink); }
 .job .when { margin: 0.15rem 0 0; color: var(--ink-3); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.job .where { margin: 0.15rem 0 0; color: var(--ink-3); font-size: 0.95rem; }
+.job .ctx { margin: 0 0 0.4rem; color: var(--ink-2, var(--ink-3)); }
 .job-body { min-width: 0; }
 .job-body ul { margin: 0; padding-left: 1.1rem; color: var(--ink-2); }
 .job-body li { margin-bottom: 0.55rem; padding-left: 0.2rem; }

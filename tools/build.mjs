@@ -134,7 +134,7 @@ function person() {
     "@type": "Person",
     name: "Bharath Mandha",
     url: SITE,
-    jobTitle: "AI/ML Engineer",
+    jobTitle: "AI Engineer",
     worksFor: { "@type": "Organization", name: "Goldman Sachs" },
     alumniOf: { "@type": "CollegeOrUniversity", name: "University of North Texas" },
     address: { "@type": "PostalAddress", addressLocality: "Dallas", addressRegion: "TX", addressCountry: "US" },

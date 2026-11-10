@@ -112,7 +112,7 @@ export function metrics() {
       ["Company and period filter", signed(cFilter.diff)],
       ["Statement routing", signed(cRoute.diff)],
       [`Company name left out of the query (${f2(bm["hit@10"])})`, `${signed(cDrop.diff)}, within noise`],
-      ["BM25 on one core", `${b.throughput_rps.toFixed(0)} req/s, ${ms(b.p95_ms)} ms p95`],
+      ["BM25 on one core", `${b.throughput_rps.toFixed(0)} req/s, ${b.p95_ms.toFixed(1)} ms p95`],
     ],
   });
 }
@@ -125,7 +125,7 @@ export function caseFacts() {
     ["Benchmark", `<b>FinanceBench</b>: ${QUESTIONS.length} public questions over ${META.filings.length} SEC filings, ${int(META.n_pages)} pages`],
     ["Held out", `<b>${none.n}</b> questions kept out of all tuning, which used the other ${need(DEV, NONE).n}`],
     ["Result", `Hit@10 from <b>${f2(none["hit@10"])}</b> to <b>${f2(t(ROUTE)["hit@10"])}</b> on the held-out questions with a company and period filter and statement routing, and <b>${f2(bm["hit@10"])}</b> with the company name left out of the query (within noise)`],
-    ["Serving", `BM25 on one core: <b>${b.throughput_rps.toFixed(0)}</b> queries a second at ${ms(b.p95_ms)} ms p95`],
+    ["Serving", `BM25 on one core: <b>${b.throughput_rps.toFixed(0)}</b> queries a second at ${b.p95_ms.toFixed(1)} ms p95`],
   ]);
 }
 
@@ -305,7 +305,7 @@ export function service() {
   });
   const table = F.table({
     head: ["Retriever", "Clients", "Requests/s", "p50", "p95"], numeric: [1, 2, 3, 4],
-    rows: [...bm, ...hy].map((x) => [x.method === "bm25" ? "BM25" : "Hybrid", x.concurrency, x.throughput_rps.toFixed(0), `${ms(x.p50_ms)} ms`, `${ms(x.p95_ms)} ms`]),
+    rows: [...bm, ...hy].map((x) => [x.method === "bm25" ? "BM25" : "Hybrid", x.concurrency, x.throughput_rps.toFixed(0), `${ms(x.p50_ms)} ms`, `${x.p95_ms.toFixed(1)} ms`]),
   });
   const fig = F.figure({
     id: "fig-service",
@@ -313,7 +313,7 @@ export function service() {
       `<div class="multiples"><div><p class="fig-title">Requests a second</p>${rps}</div><div><p class="fig-title">p95 latency, ms</p>${lat}</div></div>` + F.twin(table),
     caption: `<b>Figure 4.</b> The FastAPI service with one worker pinned to one CPU core and the load generator on the other, 30 seconds per level.`,
   });
-  return `<p>With one FastAPI worker pinned to one core and the load generator on the other, BM25 serves ${b1.throughput_rps.toFixed(0)} requests a second to one client (p95 ${ms(b1.p95_ms)} ms) and up to ${peak(bm).toFixed(0)} with more clients; the hybrid tops out at ${peak(hy).toFixed(0)}. No request failed.</p>
+  return `<p>With one FastAPI worker pinned to one core and the load generator on the other, BM25 serves ${b1.throughput_rps.toFixed(0)} requests a second to one client (p95 ${b1.p95_ms.toFixed(1)} ms) and up to ${peak(bm).toFixed(0)} with more clients; the hybrid tops out at ${peak(hy).toFixed(0)}. No request failed.</p>
 ${fig}
 <p>At half an AWS c7i.large's on-demand price, one vCPU, that's $${b1.usd_per_million.toFixed(2)} per million BM25 queries and $${h1.usd_per_million.toFixed(2)} for the hybrid, if the throughput carries over to that machine, which I haven't measured.</p>`;
 }
