@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A research assistant that reviews its own answers, Bharath Mandha</title>
+<meta name="description" content="A LangGraph loop that answers questions about research papers with cited passages and reviews its own answers, measured against a single pass on QASPER, with every model reply recorded so CI reruns the evaluation without an API key.">
+<link rel="canonical" href="https://bharathkumardev1.github.io/projects/research-assistant/">
+<!-- head:start -->
+<link rel="preload" href="../../assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="../../assets/icon-180.png">
+<meta name="author" content="Bharath Mandha">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bharath Mandha">
+<meta property="og:title" content="A research assistant that reviews its own answers, Bharath Mandha">
+<meta property="og:description" content="A LangGraph loop that answers questions about research papers with cited passages and reviews its own answers, measured against a single pass on QASPER, with every model reply recorded so CI reruns the evaluation without an API key.">
+<meta property="og:url" content="https://bharathkumardev1.github.io/projects/research-assistant/">
+<meta property="og:image" content="https://bharathkumardev1.github.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- head:end -->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<!-- header:start -->
+<header class="site-header"><div class="wrap">
+<a class="brand" href="../../"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<nav class="site-nav" aria-label="Site">
+<a href="../../#projects">Projects</a>
+<a class="hide-sm" href="../../#experience">Experience</a>
+<a class="hide-sm" href="../../#skills">Skills</a>
+<a class="hide-sm" href="../../#contact">Contact</a>
+<a href="../../Bharath-Mandha-Resume.pdf">Résumé</a>
+<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
+</nav>
+</div></header>
+<!-- header:end -->
+<main id="main">
+<div class="wrap">
+<header class="cs-head">
+<p class="crumb"><a href="../../#projects">Projects</a></p>
+<h1>A research assistant that reviews its own answers</h1>
+<p class="lede">It answers questions about research papers and cites its passages. A second model call reviews each answer and, when something is missing, writes a new search query and goes around again. Every round costs calls and seconds, so the question is whether the review earns them.</p>
+<dl class="facts">
+<div><dt>Benchmark</dt><dd><b>QASPER</b>: 5,049 questions about 1,585 NLP papers, with the annotators' answers and evidence paragraphs</dd></div>
+<div><dt>Sample</dt><dd><b>150</b> dev questions to read errors on, <b>150</b> test questions run once after the last change</dd></div>
+<div><dt>Compared</dt><dd>The loop against a single pass over the first search's top 5 passages, and against one that reads 10 or 15, same models, paired by question</dd></div>
+<div><dt>Result</dt><dd>A tie with a single pass over the first top 5 passages. A single pass over 10 or 15 passages beats the loop on both splits (test, judged correct: <b>68.0%</b> against <b>58.7%</b>)</dd></div>
+</dl>
+<ul class="actions">
+<li><a href="https://github.com/bharathkumardev1/Agentic-Research-Assistant">Code on GitHub</a></li>
+</ul>
+</header>
+
+<div class="cs">
+<nav class="toc" aria-label="On this page">
+<p>On this page</p>
+<ol>
+<li><a href="#loop">How a question is answered</a></li>
+<li><a href="#stops">How a run ends</a></li>
+<li><a href="#measure">How it's measured</a></li>
+<li><a href="#replay">Rerunning without a key</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#run">Run it yourself</a></li>
+</ol>
+</nav>
+
+<div class="prose">
+<section id="loop" aria-labelledby="loop-h">
+<h2 id="loop-h">How a question is answered</h2>
+<!-- loop:start -->
+<figure class="fig" id="fig-loop"><div class="fig-frame"><svg class="diagram diagram-wide" viewBox="0 0 760 300" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="16" y="96" width="108" height="56" rx="10"/><text class="title" x="70" y="129" text-anchor="middle">Question</text></g><g class="node "><rect x="176" y="96" width="128" height="56" rx="10"/><text class="title" x="240" y="121.5" text-anchor="middle">Retrieve</text><text class="sub" x="240" y="138.5" text-anchor="middle">top 5 passages</text></g><g class="node "><rect x="356" y="96" width="128" height="56" rx="10"/><text class="title" x="420" y="121.5" text-anchor="middle">Answer</text><text class="sub" x="420" y="138.5" text-anchor="middle">cites [1] to [5]</text></g><g class="node strong"><rect x="536" y="96" width="128" height="56" rx="10"/><text class="title" x="600" y="121.5" text-anchor="middle">Review</text><text class="sub" x="600" y="138.5" text-anchor="middle">second model call</text></g><g class="node ends"><rect x="560" y="4" width="184" height="50" rx="10"/><text class="title" x="652" y="26.5" text-anchor="middle">Result</text><text class="sub" x="652" y="43.5" text-anchor="middle">answer and cited passages</text></g><path class="wire" d="M124,124 L174,124"/><polygon class="head" points="174,124 167.7,120.96 167.7,127.04"/><path class="wire" d="M304,124 L354,124"/><polygon class="head" points="354,124 347.7,120.96 347.7,127.04"/><path class="wire" d="M484,124 L534,124"/><polygon class="head" points="534,124 527.7,120.96 527.7,127.04"/><path class="wire" d="M600,96 L600,70 L652,70 L652,56"/><polygon class="head" points="652,56 648.96,62.3 655.04,62.3"/><text class="edge" x="594" y="82" text-anchor="end">supported and complete</text><path class="wire loop" d="M600,152 L600,200 L240,200 L240,154"/><polygon class="head loop" points="240,154 236.96,160.3 243.04,160.3"/><text class="edge" x="420" y="222" text-anchor="middle">refined query, up to three rounds</text><path class="wire" d="M420,96 L420,30 L558,30"/><polygon class="head" points="558,30 551.7,26.96 551.7,33.04"/><text class="edge" x="428" y="22" text-anchor="start">single pass</text><text class="edge" x="16" y="262">Stops early at a 120 s deadline, at the spending cap,</text><text class="edge" x="16" y="280">or when a refined query finds no passage the last answer didn't have.</text></svg><svg class="diagram diagram-tall" viewBox="0 0 360 560" role="img" aria-label="The loop: a question goes to retrieve, then answer, then review. Review either accepts the answer, which returns with its cited passages, or writes a refined query that goes back to retrieve, up to three rounds. A single pass skips the review."><g class="node "><rect x="110" y="8" width="140" height="48" rx="10"/><text class="title" x="180" y="37" text-anchor="middle">Question</text></g><g class="node "><rect x="110" y="96" width="140" height="56" rx="10"/><text class="title" x="180" y="121.5" text-anchor="middle">Retrieve</text><text class="sub" x="180" y="138.5" text-anchor="middle">top 5 passages</text></g><g class="node "><rect x="110" y="192" width="140" height="56" rx="10"/><text class="title" x="180" y="217.5" text-anchor="middle">Answer</text><text class="sub" x="180" y="234.5" text-anchor="middle">cites [1] to [5]</text></g><g class="node strong"><rect x="110" y="288" width="140" height="56" rx="10"/><text class="title" x="180" y="313.5" text-anchor="middle">Review</text><text class="sub" x="180" y="330.5" text-anchor="middle">second model call</text></g><g class="node ends"><rect x="90" y="400" width="180" height="54" rx="10"/><text class="title" x="180" y="424.5" text-anchor="middle">Result</text><text class="sub" x="180" y="441.5" text-anchor="middle">answer and cited passages</text></g><path class="wire" d="M180,56 L180,94"/><polygon class="head" points="180,94 183.04,87.7 176.96,87.7"/><path class="wire" d="M180,152 L180,190"/><polygon class="head" points="180,190 183.04,183.7 176.96,183.7"/><path class="wire" d="M180,248 L180,286"/><polygon class="head" points="180,286 183.04,279.7 176.96,279.7"/><path class="wire" d="M180,344 L180,398"/><polygon class="head" points="180,398 183.04,391.7 176.96,391.7"/><text class="edge" x="188" y="376" text-anchor="start">supported and complete</text><path class="wire loop" d="M250,316 L320,316 L320,124 L252,124"/><polygon class="head loop" points="252,124 258.3,127.04 258.3,120.96"/><text class="edge" x="313" y="176" text-anchor="end">refined query</text><path class="wire" d="M110,220 L40,220 L40,427 L88,427"/><polygon class="head" points="88,427 81.7,423.96 81.7,430.04"/><text class="edge" x="46" y="268" text-anchor="start">single pass</text><text class="edge" x="16" y="490">Up to three rounds. Stops early at a 120 s</text><text class="edge" x="16" y="508">deadline, at the spending cap, or when a</text><text class="edge" x="16" y="526">refined query finds nothing new.</text></svg></div><figcaption><b>Figure 1.</b> The loop. The single pass it's measured against is the same graph with the review switched off: retrieve once, answer once.</figcaption></figure>
+<!-- loop:end -->
+<ol>
+<li><b>Retrieve.</b> MiniLM embeddings through ONNX Runtime, with the weights checked by SHA-256, and an exact cosine search for the top 5 passages. A paper is a few hundred passages, so exact search costs milliseconds and an approximate index would only cost recall.</li>
+<li><b>Answer.</b> The model sees the passages numbered [1] to [5] and replies in a JSON schema: a short answer, the passages that support it, and a flag for "the passages don't answer this". Made-up passage numbers are dropped.</li>
+<li><b>Review.</b> A second call reads the question, the answer and the full text of what it cites, marks each part supported or not, and if something is missing writes one search query to find it.</li>
+<li><b>Again.</b> New passages are merged with the old ones and the answer is redone from all of them.</li>
+</ol>
+<p>Model calls go through one small interface, <code>LLMClient</code>, with retries in my code rather than the SDK, so every retry shows up in the trace and the tests can count them.</p>
+</section>
+
+<section id="stops" aria-labelledby="stops-h">
+<h2 id="stops-h">How a run ends</h2>
+<p>One of five ways, and the result says which. The deadline and the budget are checked before every call.</p>
+<div class="table-wrap narrow"><table>
+<thead><tr><th>Status</th><th>When</th></tr></thead>
+<tbody>
+<tr><td>answered</td><td>The review accepted the answer, or found it lacking with no query to try. A single pass always ends here.</td></tr>
+<tr><td>round cap</td><td>Three rounds done.</td></tr>
+<tr><td>no new passages</td><td>The refined query found only passages the last answer already had.</td></tr>
+<tr><td>deadline</td><td>120 seconds passed.</td></tr>
+<tr><td>budget</td><td>The next call could take spending past the cap.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="measure" aria-labelledby="measure-h">
+<h2 id="measure-h">How it's measured</h2>
+<p>In QASPER (<a href="https://aclanthology.org/2021.naacl-main.365">Dasigi et al., NAACL 2021</a>), annotators answered each question after reading the whole paper and marked the paragraphs their answer rests on, so a system is scored on what it cites as well as what it says.</p>
+<ul>
+<li>Each question is asked against its own paper, split into the dataset's paragraphs, so a citation matches the annotators' evidence exactly.</li>
+<li>150 dev questions for reading errors; 150 test questions, run once after the last change.</li>
+<li>Same retrieval and models for both systems: gpt-6-luna answers and reviews, gpt-6.1-sol judges. The loop's first round replays the single pass's request, so any difference from the 5-passage single pass comes from the review rounds and their extra searches.</li>
+<li>Official answer and evidence F1, ported from <a href="https://github.com/allenai/qasper-led-baseline">allenai/qasper-led-baseline</a>, plus judged accuracy. The judge is checked against 40 answers I graded myself, blind to its verdicts.</li>
+<li>Paired differences with 95% bootstrap intervals, the first failed stage for every wrong answer, and a spending cap, $25 by default and $5 for these runs, that refuses any call that could cross it.</li>
+</ul>
+<p>Seed 0 throughout. The single pass and the loop ran at commit <code>daac2a1</code> on 2026-10-28. The two wider single passes ran on 2026-11-02 at <code>aac699e</code>, and the loop and single-pass rows replayed from the recording. Counting every recorded call, original and matched runs, the recording comes to $0.89 of a $5 cap across 1,986 calls. The spend line in the results files is a running total, so the dev file's $0.65 is the total when its matched run finished, not what dev cost. <code>make check-replay</code> reproduces every row with no key.</p>
+<div class="table-wrap"><table><caption>150 questions per split. Judged correct is the share the judge marked correct.</caption>
+<thead><tr><th>Split and system</th><th class="n">Answer F1</th><th class="n">Evidence F1</th><th class="n">Judged correct</th><th class="n">Calls per question</th><th class="n">Passages per question</th><th class="n">p95 seconds</th></tr></thead>
+<tbody>
+<tr><td>Dev, single pass</td><td class="n">0.337</td><td class="n">0.447</td><td class="n">49.3%</td><td class="n">1.0</td><td class="n">5.0</td><td class="n">2.9</td></tr>
+<tr><td>Dev, loop</td><td class="n">0.349</td><td class="n">0.455</td><td class="n">50.7%</td><td class="n">2.5</td><td class="n">5.6</td><td class="n">10.8</td></tr>
+<tr><td>Dev, single pass, top 10</td><td class="n">0.414</td><td class="n">0.518</td><td class="n">58.0%</td><td class="n">1.0</td><td class="n">10.0</td><td class="n">2.2</td></tr>
+<tr><td>Dev, single pass, top 15</td><td class="n">0.419</td><td class="n">0.559</td><td class="n">64.0%</td><td class="n">1.0</td><td class="n">14.9</td><td class="n">2.1</td></tr>
+<tr><td>Test, single pass</td><td class="n">0.435</td><td class="n">0.563</td><td class="n">56.0%</td><td class="n">1.0</td><td class="n">5.0</td><td class="n">2.2</td></tr>
+<tr><td>Test, loop</td><td class="n">0.441</td><td class="n">0.587</td><td class="n">58.7%</td><td class="n">2.5</td><td class="n">5.6</td><td class="n">11.0</td></tr>
+<tr><td>Test, single pass, top 10</td><td class="n">0.473</td><td class="n">0.590</td><td class="n">68.0%</td><td class="n">1.0</td><td class="n">10.0</td><td class="n">2.2</td></tr>
+<tr><td>Test, single pass, top 15</td><td class="n">0.475</td><td class="n">0.582</td><td class="n">68.0%</td><td class="n">1.0</td><td class="n">15.0</td><td class="n">2.3</td></tr>
+</tbody></table></div>
+<p>Paired by question, the 95% interval on the answer F1 difference is -0.011 to +0.037 on dev and -0.015 to +0.029 on test. On test, evidence F1 is +0.024 (-0.003 to +0.051) and judged accuracy is +2.7 points (0.000 to +0.060), which is 5 questions the loop got right and the single pass got wrong against 1 the other way. With six comparisons I don't read any of that as a finding.</p>
+<p>The loop made 2.5 calls per question against 1. Answering cost about three times as much per question ($0.00028 against $0.00009 on test), the slowest 5% of questions took about 11 seconds against 2 to 3, and with judging included the bill differs by about 20%, because the judge is most of the spend. On this sample I can't say the loop is worth its extra calls.</p>
+<p>Against a single pass that stops at the first search's top 5 passages, the loop is a tie; it starts from that same retrieval but can search again, and averages 5.6 passages a question. Against one that reads 10 or 15 in a single call, it loses. Judged correct, loop minus baseline, paired by question: -7.3 points against the top 10 and -13.3 against the top 15 on dev (the loop right and the baseline wrong on 5 and 3 questions, the other way on 16 and 23), and -9.3 points against both on test (9 and 10 against 23 and 24). The 95% intervals exclude zero in all four, and the exact sign-test p is 0.027, below 0.001, 0.020 and 0.024. Answer F1 points the same way. The wider single pass costs about the same per question, judging included, and its 95th-percentile latency is 2.2 seconds against 11.0.</p>
+<p>These baselines are matched to the most the loop can read, not to what it reads on average: the loop averages 5.6 passages a question, so the baselines read more than it does. They show that this loop's retrieval budget is better spent on a wider first search, not that a review loop can't help. They were added after I had seen the original test results, so the test comparison is post hoc, and the dev comparison, run once with the same code, agrees with it. The failure table fits a retrieval problem: on test the loop never retrieved the evidence on 20 of 150 questions, against 11 for the top 10 and 8 for the top 15. I haven't tested that explanation.</p>
+<p>The judge agreed with my grades on 35 of the 40 answers (87.5%, Cohen's kappa 0.75): more lenient than me on 2 and stricter on 3. I graded them by hand on 2 November 2026 without seeing its verdicts, one grader in one pass over 37 distinct questions, and the grader also ran the experiments, so this is not external validation. An earlier draft of the labels, which was not an independent grade, is kept in the repo and is not scored.</p>
+</section>
+
+<section id="replay" aria-labelledby="replay-h">
+<h2 id="replay-h">Rerunning without a key</h2>
+<!-- replay:start -->
+<figure class="fig" id="fig-replay"><div class="fig-frame"><svg class="diagram diagram-wide" viewBox="0 0 760 316" role="img" aria-label="Recording a run sends model calls to the OpenAI API and writes each reply to calls.jsonl, and writes every search with its scores to runs.jsonl. In CI the same evaluation reads replies from calls.jsonl by request hash, with no key, and recomputes each search, comparing its scores with runs.jsonl."><rect class="lane" x="0" y="0" width="760" height="150" rx="12"/><text class="lane-title" x="16" y="24">Recording a run, with an API key</text><g class="node "><rect x="16" y="42" width="120" height="92" rx="10"/><text class="title" x="76" y="78" text-anchor="middle">Evaluation</text><text class="sub" x="76" y="95" text-anchor="middle">QASPER</text><text class="sub" x="76" y="110" text-anchor="middle">questions</text></g><g class="node "><rect x="186" y="42" width="132" height="40" rx="10"/><text class="title" x="252" y="67" text-anchor="middle">LLMClient</text></g><g class="node "><rect x="186" y="94" width="132" height="40" rx="10"/><text class="title" x="252" y="119" text-anchor="middle">Retriever</text></g><g class="node "><rect x="372" y="42" width="172" height="40" rx="10"/><text class="title" x="458" y="67" text-anchor="middle">OpenAI Responses API</text></g><g class="node "><rect x="372" y="94" width="172" height="40" rx="10"/><text class="title" x="458" y="119" text-anchor="middle">MiniLM, exact search</text></g><g class="node soft"><rect x="596" y="42" width="148" height="40" rx="10"/><text class="title" x="670" y="67" text-anchor="middle">calls.jsonl</text></g><g class="node soft"><rect x="596" y="94" width="148" height="40" rx="10"/><text class="title" x="670" y="119" text-anchor="middle">runs.jsonl</text></g><path class="wire" d="M136,62 L184,62"/><polygon class="head" points="184,62 177.7,58.96 177.7,65.04"/><path class="wire" d="M136,114 L184,114"/><polygon class="head" points="184,114 177.7,110.96 177.7,117.04"/><path class="wire" d="M318,62 L370,62"/><polygon class="head" points="370,62 363.7,58.96 363.7,65.04"/><path class="wire" d="M318,114 L370,114"/><polygon class="head" points="370,114 363.7,110.96 363.7,117.04"/><path class="wire" d="M544,62 L594,62"/><polygon class="head" points="594,62 587.7,58.96 587.7,65.04"/><text class="edge" x="569" y="56" text-anchor="middle">reply</text><path class="wire" d="M544,114 L594,114"/><polygon class="head" points="594,114 587.7,110.96 587.7,117.04"/><text class="edge" x="569" y="108" text-anchor="middle">scores</text><rect class="lane" x="0" y="166" width="760" height="150" rx="12"/><text class="lane-title" x="16" y="190">Replay in CI, no key</text><g class="node "><rect x="16" y="208" width="120" height="92" rx="10"/><text class="title" x="76" y="244" text-anchor="middle">Evaluation</text><text class="sub" x="76" y="261" text-anchor="middle">same</text><text class="sub" x="76" y="276" text-anchor="middle">questions</text></g><g class="node "><rect x="186" y="208" width="132" height="40" rx="10"/><text class="title" x="252" y="233" text-anchor="middle">LLMClient</text></g><g class="node "><rect x="186" y="260" width="132" height="40" rx="10"/><text class="title" x="252" y="285" text-anchor="middle">Retriever</text></g><g class="swap"><rect x="368" y="204" width="180" height="48" rx="13"/></g><g class="node "><rect x="372" y="208" width="172" height="40" rx="10"/><text class="title" x="458" y="233" text-anchor="middle">calls.jsonl</text></g><g class="node "><rect x="372" y="260" width="172" height="40" rx="10"/><text class="title" x="458" y="285" text-anchor="middle">MiniLM, exact search</text></g><g class="node soft"><rect x="596" y="260" width="148" height="40" rx="10"/><text class="title" x="670" y="277.5" text-anchor="middle">runs.jsonl</text><text class="sub" x="670" y="294.5" text-anchor="middle">within 1e-4?</text></g><path class="wire" d="M136,228 L184,228"/><polygon class="head" points="184,228 177.7,224.96 177.7,231.04"/><path class="wire" d="M136,280 L184,280"/><polygon class="head" points="184,280 177.7,276.96 177.7,283.04"/><path class="wire" d="M318,228 L366,228"/><polygon class="head" points="366,228 359.7,224.96 359.7,231.04"/><text class="edge" x="342" y="222" text-anchor="middle">by hash</text><path class="wire" d="M318,280 L370,280"/><polygon class="head" points="370,280 363.7,276.96 363.7,283.04"/><path class="wire" d="M544,280 L594,280"/><polygon class="head" points="594,280 587.7,276.96 587.7,283.04"/><text class="edge" x="569" y="274" text-anchor="middle">compare</text><text class="edge" x="560" y="224">same reply, or the</text><text class="edge" x="560" y="240">replay lists the difference</text></svg><svg class="diagram diagram-tall" viewBox="0 0 360 600" role="img" aria-label="Recording a run sends model calls to the OpenAI API and writes each reply to calls.jsonl, and writes every search with its scores to runs.jsonl. In CI the same evaluation reads replies from calls.jsonl by request hash, with no key, and recomputes each search, comparing its scores with runs.jsonl."><rect class="lane" x="0" y="0" width="360" height="282" rx="12"/><text class="lane-title" x="14" y="24">Recording, with an API key</text><g class="node "><rect x="14" y="40" width="332" height="40" rx="10"/><text class="title" x="180" y="65" text-anchor="middle">Evaluation over QASPER questions</text></g><g class="node "><rect x="14" y="104" width="160" height="40" rx="10"/><text class="title" x="94" y="129" text-anchor="middle">LLMClient</text></g><g class="node "><rect x="186" y="104" width="160" height="40" rx="10"/><text class="title" x="266" y="129" text-anchor="middle">Retriever</text></g><g class="node "><rect x="14" y="166" width="160" height="40" rx="10"/><text class="title" x="94" y="191" text-anchor="middle">OpenAI API</text></g><g class="node "><rect x="186" y="166" width="160" height="40" rx="10"/><text class="title" x="266" y="191" text-anchor="middle">MiniLM search</text></g><g class="node soft"><rect x="14" y="228" width="160" height="40" rx="10"/><text class="title" x="94" y="253" text-anchor="middle">calls.jsonl</text></g><g class="node soft"><rect x="186" y="228" width="160" height="40" rx="10"/><text class="title" x="266" y="253" text-anchor="middle">runs.jsonl</text></g><path class="wire" d="M94,80 L94,102"/><polygon class="head" points="94,102 97.04,95.7 90.96,95.7"/><path class="wire" d="M266,80 L266,102"/><polygon class="head" points="266,102 269.04,95.7 262.96,95.7"/><path class="wire" d="M94,144 L94,164"/><polygon class="head" points="94,164 97.04,157.7 90.96,157.7"/><path class="wire" d="M266,144 L266,164"/><polygon class="head" points="266,164 269.04,157.7 262.96,157.7"/><path class="wire" d="M94,206 L94,226"/><polygon class="head" points="94,226 97.04,219.7 90.96,219.7"/><path class="wire" d="M266,206 L266,226"/><polygon class="head" points="266,226 269.04,219.7 262.96,219.7"/><rect class="lane" x="0" y="300" width="360" height="296" rx="12"/><text class="lane-title" x="14" y="324">Replay in CI, no key</text><g class="node "><rect x="14" y="340" width="332" height="40" rx="10"/><text class="title" x="180" y="365" text-anchor="middle">Evaluation, same questions</text></g><g class="node "><rect x="14" y="404" width="160" height="40" rx="10"/><text class="title" x="94" y="429" text-anchor="middle">LLMClient</text></g><g class="node "><rect x="186" y="404" width="160" height="40" rx="10"/><text class="title" x="266" y="429" text-anchor="middle">Retriever</text></g><g class="swap"><rect x="10" y="466" width="168" height="48" rx="13"/></g><g class="node "><rect x="14" y="470" width="160" height="40" rx="10"/><text class="title" x="94" y="495" text-anchor="middle">calls.jsonl</text></g><g class="node "><rect x="186" y="466" width="160" height="40" rx="10"/><text class="title" x="266" y="491" text-anchor="middle">MiniLM search</text></g><g class="node soft"><rect x="186" y="528" width="160" height="48" rx="10"/><text class="title" x="266" y="549.5" text-anchor="middle">runs.jsonl</text><text class="sub" x="266" y="566.5" text-anchor="middle">within 1e-4?</text></g><path class="wire" d="M94,380 L94,402"/><polygon class="head" points="94,402 97.04,395.7 90.96,395.7"/><path class="wire" d="M266,380 L266,402"/><polygon class="head" points="266,402 269.04,395.7 262.96,395.7"/><path class="wire" d="M94,444 L94,464"/><polygon class="head" points="94,464 97.04,457.7 90.96,457.7"/><path class="wire" d="M266,444 L266,464"/><polygon class="head" points="266,464 269.04,457.7 262.96,457.7"/><path class="wire" d="M266,506 L266,526"/><polygon class="head" points="266,526 269.04,519.7 262.96,519.7"/><text class="edge" x="14" y="540">looked up by</text><text class="edge" x="14" y="556">request hash</text></svg></div><figcaption><b>Figure 2.</b> What changes between recording a run and replaying it. Only the source of model replies is swapped; retrieval runs again and has to agree with the log.</figcaption></figure>
+<!-- replay:end -->
+<p>Every model reply is recorded under a hash of its request, and every search goes to a run log with its scores. <code>research-assistant check-replay</code> reruns the evaluation from those files with no API key and lists any answer, citation or score that changes, so changing a prompt or the chunking fails the replay.</p>
+<p>MiniLM runs in float32, so on another CPU a similarity can move in the sixth decimal and swap two near-tied paragraphs. A replay keeps the logged ranking when every score agrees to 1e-4 and fails when retrieval really changed. A reply the API cut off is billed, recorded as incomplete and never replayed as an answer.</p>
+</section>
+
+<section id="limits" aria-labelledby="limits-h">
+<h2 id="limits-h">Limits</h2>
+<ul>
+<li>QASPER papers are all NLP, and each question searches only its own paper.</li>
+<li>Figures and tables aren't indexed.</li>
+<li>With 150 test questions the interval on judged accuracy is 8 points either side, so small differences will show up as ties, and they did.</li>
+<li>The judge is a model. My 40 grades show it is broadly in line with me; one grader and 37 distinct questions don't settle how far to trust a difference of a few points.</li>
+<li>One seed, one sample of 150 questions per split, one model pair and one embedding model.</li>
+</ul>
+<p>What I'd do next: give the loop a stronger first retrieval and see whether review adds anything on top of it, since the failure table says retrieval, not review, is where this loop loses. A larger independent sample would also tighten the dev and test comparisons, and a second grader would give the judge check an inter-rater number. None of this has been run. Re-checking the recorded runs costs nothing (<code>make check-replay</code>), but new questions would need new API calls.</p>
+</section>
+
+<section id="run" aria-labelledby="run-h">
+<h2 id="run-h">Run it yourself</h2>
+<pre><code>make install   # the hashed lock, then the package and the test tools
+make demo      # three sample papers, offline stub model, no key
+
+research-assistant ingest path/to/papers/
+research-assistant research "Which datasets do these papers evaluate on?"
+research-assistant research "..." --max-rounds 1    # single pass
+
+make qasper         # dev and test sets, with the release tarballs' SHA-256 recorded
+make eval-dev       # 150 dev questions through both systems
+make eval-test      # 150 test questions, once
+make check-replay</code></pre>
+<p>The sample papers are short synthetic ones I wrote so the demo runs offline. The HTTP API adds key auth, per-caller rate limits and Prometheus metrics, and the Docker image is pinned by digest.</p>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- footer:start -->
+<footer class="site-footer"><div class="wrap">
+<p>© 2026 Bharath Mandha</p>
+</div></footer>
+<!-- footer:end -->
+<script type="module" src="../../assets/site.js"></script>
+</body>
+</html>
