@@ -118,7 +118,7 @@ export function hits(res, gold, names, { compact = false } = {}) {
     const isGold = gold.has(`${h.doc}#${h.page}`);
     const at = oneFiling ? `Page ${h.page + 1}` : `${esc(names.get(h.doc) || h.doc)}, page ${h.page + 1}`;
     const tags = h.kinds.map((k) => `<span class="tag">${TAG[k]}</span>`).join("") + (isGold ? `<span class="tag answer">Labeled answer</span>` : "");
-    const head = `<div class="hit-head"><span class="rank">${i + 1}</span><span class="at">${at}</span>${tags}${compact ? "" : `<span class="score">BM25 ${h.score.toFixed(2)}</span>`}</div>`;
+    const head = `<div class="hit-head"><span class="rank">${i + 1}</span><span class="at">${at}</span>${tags}${compact ? "" : `<span class="score">BM25 ${h.score.toFixed(2)}${h.score === 0 ? ", placed by routing" : ""}</span>`}</div>`;
     if (compact) return `<li${i ? ' class="brief"' : ""}>\n${head}\n<p class="excerpt">${excerpt(h.text, res.tokens)}</p>\n</li>`;
     return `<li>
 ${head}
