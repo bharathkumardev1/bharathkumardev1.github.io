@@ -60,8 +60,8 @@
 </ul>
 <!-- links:end -->
 <ul class="stats" aria-label="Results">
-<li><b>~40%</b> lower credit-memo preparation time, 2.9 hours against 4.8 (observational, 112 against 106 memos) <span class="src">(Goldman Sachs)</span></li>
-<li><b>3M+</b> documents in a RAG platform used weekly by about 73 analysts <span class="src">(Goldman Sachs)</span></li>
+<li><b>0.402</b> nDCG@10 on the full 2.68M-passage BEIR Natural Questions corpus, against 0.290 for BM25 <span class="src">(wiki-retrieval)</span></li>
+<li><b>0.2415</b> WAPE for 15-minute NYC taxi demand, against 0.3104 for the best simple baseline <span class="src">(tlc-demand)</span></li>
 <li><b>25.0%</b> of 30-day readmissions reached by a 10% call list, against 20.6% for the prior-stays rule <span class="src">(readmission-capacity, public data)</span></li>
 <!-- stat-finance:start --><li><b>0.14 to 0.71</b> Hit@10 on held-out FinanceBench questions from a company filter and statement routing <span class="src">(finance-rag-eval)</span></li><!-- stat-finance:end -->
 </ul>
@@ -272,16 +272,16 @@
 <div class="job">
 <div><h3>Goldman Sachs</h3><p class="title">AI Engineer</p><p class="where">Dallas, TX</p><p class="when">June 2025 to now</p></div>
 <div class="job-body">
-<p class="ctx">RAG platform over 3M+ internal financial documents (10M+ chunks), used weekly by about 73 credit and risk analysts. One of 3 ML engineers on a 7-person team.</p>
+<p class="ctx">RAG platform over internal financial documents, used by credit and risk analysts.</p>
 <ul>
 <li>Owned the retrieval layer, LangGraph orchestration, FastAPI integration, evaluation harness and ingestion of the platform.</li>
-<li>Average credit-memo preparation took 2.9 hours of analyst effort on the platform against 4.8 hours for historical memos, about 40% lower (112 against 106 memos). The comparison is observational, not randomized, and analyst review stays in the loop.</li>
+<li>Measured analyst effort on credit-memo preparation with the platform against historical memos. The comparison is observational, not randomized, and analyst review stays in the loop.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>Scored every retrieval change on one 520-query benchmark kept apart from generation, with tuning on a separate dev set. Recall@10 rose from 84.6% to 91.7% over the dense FAISS baseline in four stages (metadata filtering +1.5 points, chunking and indexing +1.9, hybrid retrieval +2.2, a BGE cross-encoder over the top 30 +1.5), MRR from 0.73 to 0.84, and p95 retrieval latency fell from 1.42 s to 860 ms. RAGAS groundedness stayed above 90%. The stages are sequential differences, not isolated effects: no leave-one-out ablation was run.</li>
-<li>Built the LangGraph agents that completed 492 of 784 targeted workflow steps (62.8%) across the 112 platform-assisted memos, from retrieval through citation assembly and draft sections. Each completed step was validated and usable without rework; this is the share of steps automated, not time saved. Final credit judgments stay with analysts.</li>
-<li>Wrote the design for the evaluation framework and incremental indexing (versioned benchmarks, regression thresholds, index-consistency checks), presented it in design reviews and helped two engineers adopt it. It became the shared way to compare retrieval, reranking and orchestration changes.</li>
+<li>Scored every retrieval change on one benchmark kept apart from generation, with tuning on a separate dev set, and tracked recall, MRR, p95 latency and RAGAS groundedness. Gains over the dense FAISS baseline came in four stages: metadata filtering, chunking and indexing, hybrid retrieval, and a BGE cross-encoder over the top results. The stages are sequential differences, not isolated effects: no leave-one-out ablation was run.</li>
+<li>Built the LangGraph agents that automated targeted workflow steps across platform-assisted memos, from retrieval through citation assembly and draft sections. Each completed step was validated and usable without rework; this is the share of steps automated, not time saved. Final credit judgments stay with analysts.</li>
+<li>Wrote the design for the evaluation framework and incremental indexing (versioned benchmarks, regression thresholds, index-consistency checks), presented it in design reviews and helped other engineers adopt it. It became the shared way to compare retrieval, reranking and orchestration changes.</li>
 <li>Replaced full index rebuilds with incremental PySpark and S3 ingestion that detects document changes, deduplicates and validates the index.</li>
 <li>Tested quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and recommended keeping the existing model because the gains did not justify the move.</li>
 </ul>
@@ -337,10 +337,12 @@
 <li>Agentic systems</li>
 <li>Retrieval evaluation</li>
 <li>LoRA / QLoRA</li>
+<li>PyTorch</li>
 <li>Hugging Face</li>
 <li>LangGraph</li>
 <li>LangChain</li>
 <li>FAISS</li>
+<li>ONNX</li>
 <li>RAGAS</li>
 <li>XGBoost</li>
 <li>LightGBM</li>
@@ -354,6 +356,8 @@
 <ul class="chips">
 <li>Python</li>
 <li>SQL</li>
+<li>Java</li>
+<li>Go</li>
 <li>PySpark</li>
 <li>BigQuery</li>
 <li>FastAPI</li>
@@ -364,6 +368,7 @@
 <h3>Infrastructure and deployment</h3>
 <ul class="chips">
 <li>AWS (SageMaker, S3, EKS)</li>
+<li>GCP</li>
 <li>Docker</li>
 <li>Kubernetes</li>
 <li>Terraform</li>
