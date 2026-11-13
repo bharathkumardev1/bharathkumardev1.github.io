@@ -30,7 +30,10 @@ function head(p, html) {
   const title = attr(html, /<title>([^<]+)<\/title>/);
   const description = attr(html, /<meta name="description" content="([^"]+)">/);
   const url = attr(html, /<link rel="canonical" href="([^"]+)">/);
-  const og = existsSync(new URL("assets/og.png", root));
+  // A project page gets its own preview image when assets/og/<name>.png exists (tools/og.mjs draws them).
+  const slug = (url || "").match(/\/projects\/([^/]+)\/$/)?.[1];
+  const ogFile = slug && existsSync(new URL(`assets/og/${slug}.png`, root)) ? `assets/og/${slug}.png` : "assets/og.png";
+  const og = existsSync(new URL(ogFile, root));
   const icon = existsSync(new URL("assets/icon-180.png", root));
   // Link previews for every page with an address of its own; the 404 page has none.
   const preview = url ? [
@@ -39,7 +42,7 @@ function head(p, html) {
     `<meta property="og:title" content="${title}">`,
     `<meta property="og:description" content="${description}">`,
     `<meta property="og:url" content="${url}">`,
-    og ? `<meta property="og:image" content="${SITE}assets/og.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : "",
+    og ? `<meta property="og:image" content="${SITE}${ogFile}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : "",
   ] : [];
   return [
     `<link rel="preload" href="${p}assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>`,
