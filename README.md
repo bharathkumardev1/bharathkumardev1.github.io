@@ -2,7 +2,7 @@
 
 My site, at https://bharathkumardev1.github.io: a home page and a case study for each project. Plain HTML, one stylesheet, a few small ES modules and one font, with no framework and no tracking.
 
-- [`index.html`](index.html): who I am; the three projects, with a filing search you can try, the call-capacity chart and the review loop; my work history, skills and education.
+- [`index.html`](index.html): who I am; five projects (three with case studies), with a filing search you can try, the call-capacity chart and the review loop; my work history, skills and education.
 - [`projects/finance-rag-eval/`](projects/finance-rag-eval/index.html): retrieval over SEC filings, step by step on FinanceBench, with the search demo and its switches, a reranker test, and how often a model answers correctly from the pages it finds.
 - [`projects/readmission-capacity/`](projects/readmission-capacity/index.html): the readmission call list, with the capacity planner, the reasons behind each call and a patient scorer.
 - [`projects/research-assistant/`](projects/research-assistant/index.html): the review loop and how its evaluation is recorded and replayed.
