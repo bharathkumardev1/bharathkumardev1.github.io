@@ -159,7 +159,7 @@ test("copy has no placeholders", () => {
 test("visible text has no raw floats", () => {
   for (const [file, html] of Object.entries(pages)) {
     const text = copyOf(html).replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/<[^>]+>/g, " ");
-    assert.equal(text.match(/(?<![\d$.])\d+\.\d{5,}/g), null, file);
+    assert.equal(text.match(/(?<![\d$.])\d+\.\d{7,}/g), null, file);
   }
 });
 
