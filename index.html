@@ -72,7 +72,7 @@
 <div class="wrap">
 <div class="section-head">
 <h2 id="projects-h">Projects</h2>
-<p class="section-note">Three independent projects I built on public datasets, with the code, evaluations and measured results in each repository.</p>
+<p class="section-note">Five independent projects I built on public datasets, with the code, evaluations and measured results in each repository.</p>
 </div>
 
 <article class="project">
@@ -202,6 +202,38 @@
 
 <article class="project">
 <div class="project-head">
+<h3><a href="https://github.com/bharathkumardev1/wiki-retrieval">Retrieval over 2.68M Wikipedia passages</a></h3>
+<p>A LoRA-tuned MiniLM scores nDCG@10 0.402 on the full BEIR Natural Questions corpus, 0.014 above the untuned encoder (paired permutation p 0.0001) and 0.112 above my own BM25 (0.290). On a 104K-passage dev slice an INT8 ONNX cross-encoder over the top 20 adds 0.0941 nDCG@10 at 794 ms p50 on 2 vCPU. The hybrid and reranker were not run on the full corpus, and the README says so.</p>
+</div>
+<div class="project-side">
+<ul class="tags" aria-label="Built with">
+<li>Python</li><li>FAISS</li><li>ONNX Runtime</li><li>LangGraph</li><li>FastAPI</li><li>Go</li><li>Docker</li>
+</ul>
+<ul class="actions">
+<li><a href="https://www.youtube.com/watch?v=5vtW4iaUe3A">Demo video</a></li>
+<li><a href="https://github.com/bharathkumardev1/wiki-retrieval">GitHub</a></li>
+</ul>
+</div>
+</article>
+
+<article class="project">
+<div class="project-head">
+<h3><a href="https://github.com/bharathkumardev1/tlc-demand">Forecasting taxi demand 45 minutes past the data</a></h3>
+<p>A LightGBM Poisson forecast of 15-minute pickups in 262 NYC zones: WAPE 0.2415 against 0.3104 for the best simple baseline. It loses in the two quietest zone quartiles. A Java Spring Boot gateway with a circuit breaker serves a static fallback (40 of 40 requests with the model killed), and a PSI drift monitor raised 36 false alarms in 1,776 clean-data checks.</p>
+</div>
+<div class="project-side">
+<ul class="tags" aria-label="Built with">
+<li>Python</li><li>LightGBM</li><li>ONNX</li><li>Java</li><li>Spring Boot</li><li>FastAPI</li>
+</ul>
+<ul class="actions">
+<li><a href="https://youtu.be/Hd28gbz9jy0">Demo video</a></li>
+<li><a href="https://github.com/bharathkumardev1/tlc-demand">GitHub</a></li>
+</ul>
+</div>
+</article>
+
+<article class="project">
+<div class="project-head">
 <h3><a href="projects/research-assistant/">A research assistant that reviews its own answers</a></h3>
 <p>A LangGraph loop that answers questions about research papers with cited passages. A second model call reviews each answer and asks for another search when it falls short, and every model reply is recorded so CI can replay the QASPER evaluation without an API key.</p>
 </div>
@@ -238,18 +270,18 @@
 <div class="job">
 <div><h3>Goldman Sachs</h3><p class="title">AI Engineer</p><p class="where">Dallas, TX</p><p class="when">June 2025 to now</p></div>
 <div class="job-body">
-<p class="ctx">RAG platform over 3M+ internal financial documents, used weekly by 70+ credit and risk analysts.</p>
+<p class="ctx">RAG platform over 3M+ internal financial documents (10M+ chunks), used weekly by about 73 credit and risk analysts. One of 3 ML engineers on a 7-person team.</p>
 <ul>
-<li>Co-designed the retrieval and LangGraph orchestration layers; team-estimated ~40% reduction in credit-memo preparation time.</li>
+<li>Owned the retrieval layer, LangGraph orchestration, FastAPI integration, evaluation harness and ingestion of the platform.</li>
+<li>Average credit-memo preparation took 2.9 hours on the platform against 4.8 hours for historical memos, about 40% lower (112 against 106 memos). The comparison is observational, not randomized, and analyst review stays in the loop.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>Built the 500+ query evaluation benchmark, measuring retrieval with Hit Rate and MRR and answer quality with RAGAS, used to compare chunking, top-k and embedding choices; supported production releases maintaining 90%+ benchmark groundedness.</li>
-<li>Implemented chunking, metadata filtering, reranking and semantic caching, and tuned FAISS for recall, latency and memory.</li>
-<li>Built LangGraph workflows for retrieval, analysis, validation and delegation, with analysts reviewing sensitive decisions.</li>
-<li>Added incremental FAISS updates to the team&#x27;s PySpark and S3 ingestion pipeline, so routine changes skip a full rebuild.</li>
-<li>Wrote the FastAPI integration with PII redaction, prompt-injection tests, role-based access and audit traces.</li>
-<li>Evaluated quantized and LoRA/QLoRA open models (Hugging Face, PEFT) on quality and cost; the savings didn&#x27;t justify moving complex credit reasoning off the larger model.</li>
+<li>Scored every retrieval change on one 520-query benchmark kept apart from generation, with tuning on a separate dev set. Recall@10 rose from 84.6% to 91.7% over the dense FAISS baseline in four stages (metadata filtering +1.5 points, chunking and indexing +1.9, hybrid retrieval +2.2, a BGE cross-encoder over the top 30 +1.5), MRR from 0.73 to 0.84, and p95 retrieval latency fell from 1.42 s to 860 ms. RAGAS groundedness stayed above 90%. The stages are sequential differences, not isolated effects: no leave-one-out ablation was run.</li>
+<li>Built the LangGraph agents that completed 492 of 784 eligible workflow steps (62.8%) across the 112 platform-assisted memos, from retrieval through citation assembly and draft sections. Final credit judgments stay with analysts.</li>
+<li>Wrote the design for the evaluation framework and incremental indexing (versioned benchmarks, regression thresholds, index-consistency checks), presented it in design reviews and helped two engineers adopt it. It became the shared way to compare retrieval, reranking and orchestration changes.</li>
+<li>Replaced full index rebuilds with incremental PySpark and S3 ingestion that detects document changes, deduplicates and validates the index.</li>
+<li>Tested quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and recommended keeping the existing model because the gains did not justify the move.</li>
 </ul>
 </details>
 </div>
@@ -260,12 +292,13 @@
 <div class="job-body">
 <p class="ctx">30-day hospital readmission risk over 1.5M+ HIPAA-regulated encounters.</p>
 <ul>
-<li>Built XGBoost and LightGBM readmission models that reached 0.91 ROC-AUC on a held-out cohort of 200K+ encounters (private data), validated with time-aware, patient-level splits. This is a professional result on private data and is not reproduced here. The readmission-capacity project above is a separate analysis of public data, with its own methods and results.</li>
+<li>Raised ROC-AUC from 0.846 (regularized logistic regression) to 0.912 with XGBoost and LightGBM on a held-out cohort of about 218K encounters from about 72K patients (private data), with time-aware, patient-level splits. This is a professional result on private data and is not reproduced here. The readmission-capacity project above is a separate analysis of public data.</li>
+<li>At a fixed outreach capacity of 1,000 patients a month, set by care-management operations, the model identified 245 high-need patients against 213 under the baseline approach, a 15% gain.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>Engineered 150+ candidate features from labs, demographics, encounter history and clinical notes, about 100 of them kept in production; handled class imbalance and tuned the decision threshold.</li>
-<li>Put training, registration, batch inference and retraining into production (MLflow, Airflow, SageMaker, EKS, Terraform) with PSI drift monitoring and SHAP explanations that helped clinical reviewers prioritize high-risk patients.</li>
+<li>Built 150+ candidate features from labs, demographics, encounter history and clinical notes, about 100 kept in production.</li>
+<li>Owned MLflow tracking, PSI drift checks and retraining criteria, and deployed on SageMaker and EKS with platform engineers; SHAP explanations supported clinical review.</li>
 </ul>
 </details>
 </div>
@@ -275,12 +308,12 @@
 <div><h3>Deloitte</h3><p class="title">Associate Data Scientist</p><p class="where">Hyderabad, India</p><p class="when">June 2020 to February 2022</p></div>
 <div class="job-body">
 <ul>
-<li>Cut weighted MAPE of SKU- and store-level demand forecasts by ~14% (relative) with gradient-boosted models, benchmarked against time-series baselines on time-based holdouts.</li>
+<li>Cut weighted MAPE of SKU- and store-level demand forecasts for a retail client from 24.8% to 21.3%, a 14% relative reduction, with gradient-boosted models and rolling-origin backtests against the established baseline.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
-<li>Built PySpark, SQL and BigQuery pipelines over 50M+ transactions.</li>
-<li>Raised response on comparable campaigns by ~12% with six customer segments from clustering and cohort analysis.</li>
+<li>Built the PySpark, SQL and BigQuery pipelines behind it, over 50M+ transactions.</li>
+<li>Raised targeted campaign response from 4.9% to 5.5%, a 12% relative lift on comparable campaigns, with six customer segments from clustering and cohort analysis.</li>
 </ul>
 </details>
 </div>
