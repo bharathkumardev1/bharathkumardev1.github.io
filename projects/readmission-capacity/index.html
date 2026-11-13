@@ -177,7 +177,7 @@
 <section id="trust" aria-labelledby="trust-h">
 <h2 id="trust-h">How far to trust it</h2>
 <!-- trust:start -->
-<p>Against the prior-stays rule the list reaches 4.4 points more of the readmissions (95% interval +2.9 to +5.9), 100.57221458046769 more patients who came back. XGBoost ties LightGBM (24.8% against 25.0%); LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
+<p>Against the prior-stays rule the list reaches 4.4 points more of the readmissions (95% interval +2.9 to +5.9), about 101 more patients who came back, counting tied scores at their expected value. XGBoost ties LightGBM (24.8% against 25.0%); LightGBM ships because it led on validation; the held-out split played no part in choosing it.</p>
 <p>The probabilities said the list would hold 539 readmissions, and it held 569. Every tenth of predicted risk is within 1.6 points of what happened.</p>
 <figure class="fig" id="fig-calibration"><div class="fig-frame"><div class="pair"><div><div class="chart square points"><div class="area">
 <div class="plot" role="img" aria-label="Predicted against observed readmission rate for each tenth of the held-out encounters by risk. All ten points sit within 1.6 points of the diagonal."><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><g class="grid"><line x1="0" x2="100" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/><line x1="0" x2="100" y1="0" y2="0" vector-effect="non-scaling-stroke"/></g><line class="base" x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke"/><line class="ref" x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke"/></svg>
