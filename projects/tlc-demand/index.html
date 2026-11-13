@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecasting taxi demand, and where the model loses, Bharath Mandha</title>
+<meta name="description" content="A Poisson LightGBM forecast of 15-minute taxi pickups in 262 NYC zones, scored in a rolling-origin backtest against three simple baselines, served as ONNX behind a Java gateway with a circuit breaker and a stored fallback, with a drift monitor that still false-alarms.">
+<link rel="canonical" href="https://bharathkumardev1.github.io/projects/tlc-demand/">
+<!-- head:start -->
+<link rel="preload" href="../../assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="../../assets/icon-180.png">
+<meta name="author" content="Bharath Mandha">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bharath Mandha">
+<meta property="og:title" content="Forecasting taxi demand, and where the model loses, Bharath Mandha">
+<meta property="og:description" content="A Poisson LightGBM forecast of 15-minute taxi pickups in 262 NYC zones, scored in a rolling-origin backtest against three simple baselines, served as ONNX behind a Java gateway with a circuit breaker and a stored fallback, with a drift monitor that still false-alarms.">
+<meta property="og:url" content="https://bharathkumardev1.github.io/projects/tlc-demand/">
+<meta property="og:image" content="https://bharathkumardev1.github.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- head:end -->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<!-- header:start -->
+<header class="site-header"><div class="wrap">
+<a class="brand" href="../../"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<nav class="site-nav" aria-label="Site">
+<a href="../../#projects">Projects</a>
+<a class="hide-sm" href="../../#experience">Experience</a>
+<a class="hide-sm" href="../../#skills">Skills</a>
+<a class="hide-sm" href="../../#contact">Contact</a>
+<a href="../../Bharath-Mandha-Resume.pdf">Résumé</a>
+<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
+</nav>
+</div></header>
+<!-- header:end -->
+<main id="main">
+<div class="wrap">
+<header class="cs-head">
+<p class="crumb"><a href="../../#projects">Projects</a></p>
+<h1>Forecasting taxi demand, and where the model loses</h1>
+<p class="lede">For each of NYC's 262 taxi zones, forecast pickups in the 15-minute slot that starts an hour after the last slot seen. Fitting a model is the easy part. What I wanted to know, with leakage ruled out and against baselines I hadn't weakened, was where the model is better and where it isn't, and what the service does when the model is down.</p>
+<dl class="facts">
+<div><dt>Data</dt><dd>Yellow-taxi trips, January to June 2023, as a dense zone-by-slot panel with explicit zeros</dd></div>
+<div><dt>Test</dt><dd>Rolling-origin backtest over <b>three June weeks</b>, each trained only on earlier data with a one-horizon gap</dd></div>
+<div><dt>Result</dt><dd>WAPE <b>0.2415</b> against <b>0.3104</b> for the best of three baselines, 22% lower. It loses in the two quietest zone quartiles</dd></div>
+<div><dt>Serving</dt><dd>With the model killed, <b>40 of 40</b> gateway requests came back from the fallback; after restart, 20 of 20 from the model</dd></div>
+</dl>
+<ul class="actions">
+<li><a href="https://github.com/bharathkumardev1/tlc-demand">Code on GitHub</a></li>
+<li><a href="https://youtu.be/Hd28gbz9jy0">Demo video, about 2 minutes</a></li>
+</ul>
+</header>
+
+<div class="cs">
+<nav class="toc" aria-label="On this page">
+<p>On this page</p>
+<ol>
+<li><a href="#design">How it's built</a></li>
+<li><a href="#backtest">Against the baselines</a></li>
+<li><a href="#quiet">Where it loses</a></li>
+<li><a href="#features">Which features matter</a></li>
+<li><a href="#serving">Serving and the fallback</a></li>
+<li><a href="#drift">The drift monitor</a></li>
+<li><a href="#mistakes">Mistakes along the way</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#run">Run it yourself</a></li>
+</ol>
+</nav>
+
+<div class="prose">
+<section id="design" aria-labelledby="design-h">
+<h2 id="design-h">How it's built</h2>
+<pre><code>TLC parquet -> schema check -> dense zone x 15-min panel (explicit zeros)
+            -> origin-relative features -> rolling-origin backtest / LightGBM (Poisson) -> ONNX
+
+client -> Spring Boot gateway (Java 17, resilience4j)
+            |  150 ms timeout, circuit breaker (20 calls, 50% failures, 10 s open)
+            |-> FastAPI service: features from a history snapshot -> ONNX -> /v1/forecast, /metrics
+            '-> on timeout or open breaker: stored per-zone value</code></pre>
+<p>The panel holds explicit zeros because a zone with no pickups in a quarter hour is a real observation, and lag features over a sparse panel would silently read the wrong row. Features are computed relative to each forecast origin: seven lags, three rolling means, the same slot a day and a week earlier, and calendar fields. A test checks that changing any value after the origin never changes the features, and that the online feature path matches the batch path.</p>
+<p>The target is the slot that starts 60 minutes after the origin, so observed data ends 45 minutes before it starts. The baselines use the same timing, and all four forecasts are scored on the same rows.</p>
+</section>
+
+<section id="backtest" aria-labelledby="backtest-h">
+<h2 id="backtest-h">Against the baselines</h2>
+<div class="table-wrap"><table><caption>WAPE is the sum of absolute errors over the sum of actual trips, so busy zones dominate it.</caption>
+<thead><tr><th>Test week starting</th><th class="n">Model</th><th class="n">Same slot last week</th><th class="n">Last count</th><th class="n">Same slot yesterday</th></tr></thead>
+<tbody>
+<tr><td>2023-06-10</td><td class="n">0.2336</td><td class="n">0.2843</td><td class="n">0.3466</td><td class="n">0.3726</td></tr>
+<tr><td>2023-06-17</td><td class="n">0.2397</td><td class="n">0.3182</td><td class="n">0.3469</td><td class="n">0.3600</td></tr>
+<tr><td>2023-06-24</td><td class="n">0.2510</td><td class="n">0.3287</td><td class="n">0.3494</td><td class="n">0.3823</td></tr>
+<tr><td>Mean of folds</td><td class="n">0.2415</td><td class="n">0.3104</td><td class="n">0.3476</td><td class="n">0.3716</td></tr>
+</tbody></table></div>
+<p>The same slot last week is the best baseline in every fold, so the 22% I quote is against the strongest of the three. I didn't try anything stronger, such as a seasonal model fitted per zone. Hyperparameters are fixed (learning rate 0.05, 31 leaves, 300 rounds, no tuning, no early stopping), so every comparison here uses the same settings.</p>
+</section>
+
+<section id="quiet" aria-labelledby="quiet-h">
+<h2 id="quiet-h">Where it loses</h2>
+<div class="table-wrap"><table><caption>Zones split into quartiles by volume.</caption>
+<thead><tr><th>Volume quartile</th><th class="n">Share of trips</th><th class="n">Model</th><th class="n">Best baseline</th><th>Lowest WAPE</th></tr></thead>
+<tbody>
+<tr><td>Lowest</td><td class="n">0.05%</td><td class="n">2.489</td><td class="n">1.924</td><td>a baseline</td></tr>
+<tr><td>Second</td><td class="n">0.23%</td><td class="n">1.960</td><td class="n">1.846</td><td>a baseline</td></tr>
+<tr><td>Third</td><td class="n">1.24%</td><td class="n">1.385</td><td class="n">1.442</td><td>model</td></tr>
+<tr><td>Highest</td><td class="n">98.47%</td><td class="n">0.222</td><td class="n">0.291</td><td>model</td></tr>
+</tbody></table></div>
+<p>In the two quietest quartiles, 0.28% of trips, the model is worse than every baseline. These quartiles rank zones by their trips in the test weeks, which sorts by the outcome. Ranking by trips before the first test week instead moves 26 of 262 zones and leaves the finding in place.</p>
+<p>I tried routing quiet zones to the seasonal baseline, with the threshold chosen on a separate validation week. Pooled WAPE moved from 0.2412 to 0.2406. That 0.0006 is the size of the seed differences I saw in single folds (up to 0.00073), so I report the weakness and leave the fix open. What I'd want is a shrinkage model for sparse series, and I haven't built it.</p>
+</section>
+
+<section id="features" aria-labelledby="features-h">
+<h2 id="features-h">Which features matter</h2>
+<p>Dropping one feature group at a time and retraining, same folds and settings:</p>
+<div class="table-wrap narrow"><table><caption>Full model WAPE 0.24144; the three-fold mean moves up to 0.0003 between seeds.</caption>
+<thead><tr><th>Dropped</th><th class="n">WAPE change</th></tr></thead>
+<tbody>
+<tr><td>Calendar</td><td class="n">+0.00931</td></tr>
+<tr><td>Same slot a day and a week earlier</td><td class="n">+0.00590</td></tr>
+<tr><td>Zone</td><td class="n">+0.00460</td></tr>
+<tr><td>Rolling means</td><td class="n">+0.00183</td></tr>
+<tr><td>Seven lags</td><td class="n">+0.00071</td></tr>
+</tbody></table></div>
+<p>Calendar and same-slot features carry the model. The lags cost 0.0007, more than the seed spread in the mean but about the size of single-fold seed differences, so I wouldn't call them useful or useless. If serving cost mattered, they'd go first. Each ablated run used one seed.</p>
+<p>I also trained separate zone, borough and city models and reconciled them so children sum to parents. Shrunk MinT lowered zone WAPE from 0.2412 to 0.2384 and raised city WAPE from 0.0593 to 0.0600, so I read it as coherence at no measurable cost. The more useful finding: summing zone forecasts is plainly worse than modelling the city directly, 0.0659 against 0.0593.</p>
+</section>
+
+<section id="serving" aria-labelledby="serving-h">
+<h2 id="serving-h">Serving and the fallback</h2>
+<p>The service runs the model as ONNX. The converter drops LightGBM's categorical splits and inputs become float32, so I checked parity on the held-out week: WAPE 0.25483 for LightGBM against 0.25484 for ONNX, median absolute difference 0.0 trips, p99 0.043. A few rows differ by more than 2 trips because a rounded feature lands on the other side of a split threshold, so the tests assert aggregate and 99th-percentile bounds, not elementwise equality.</p>
+<p>I ran the gateway against the real service, killed the service and recorded what came back. With the model up, gateway answers matched direct model answers exactly. With it killed, all 40 requests came from the fallback: 10 as model errors before the breaker opened, 30 with the breaker open. After restart and the 10-second open interval, 20 of 20 came from the model again.</p>
+<p>The fallback is one stored number per zone, the same slot a week before the snapshot's next target, and the gateway returns it unchanged until the file is regenerated. During a long outage it drifts away from the right time of day. On synthetic load from a 2 vCPU container, the forecast service answers one request at a time at p50 2.4 ms and p99 about 6 ms. I didn't measure the gateway under load.</p>
+</section>
+
+<section id="drift" aria-labelledby="drift-h">
+<h2 id="drift-h">The drift monitor</h2>
+<div class="table-wrap narrow"><table><caption>24-hour windows, threshold 0.135, shifts injected from 2023-06-15.</caption>
+<thead><tr><th>Injected</th><th class="n">First alert</th><th class="n">Max PSI</th></tr></thead>
+<tbody>
+<tr><td>Nothing (control)</td><td class="n">42 h</td><td class="n">0.136</td></tr>
+<tr><td>2x demand in 20 busy zones</td><td class="n">31 h</td><td class="n">0.167</td></tr>
+<tr><td>1.3x demand everywhere</td><td class="n">22 h</td><td class="n">0.263</td></tr>
+<tr><td>Clock shifted one hour</td><td class="n">never</td><td class="n">0.133</td></tr>
+</tbody></table></div>
+<p>The control run with nothing injected also alerts, at 42 hours, so I can't cleanly say how fast it detects the real shifts. It misses a one-hour clock shift by 0.002 PSI. On clean April to June data it false-alarms on 36 of 1,776 hourly checks, on 8 distinct days, 4 of them weekend days. On the real March 2020 collapse it alerted about three days after trips fell below 80% of normal. It belongs on a dashboard, not a pager.</p>
+</section>
+
+<section id="mistakes" aria-labelledby="mistakes-h">
+<h2 id="mistakes-h">Mistakes along the way</h2>
+<ul>
+<li>My first drift monitor compared raw counts to a reference period and false-alarmed constantly, because a window that happened to contain Midtown zones looks different from one that doesn't, whatever the demand is. I normalised each value by the zone's expected count for that weekday and hour and computed PSI within tiers of that expectation. The false alarms dropped. They didn't go away.</li>
+<li>My first ablation silently did nothing, because the column-dropping setting I passed to LightGBM has no effect on in-memory arrays. The script now slices the columns and asserts the feature names.</li>
+<li>An ADR of mine claimed the ONNX parity bounds were asserted in tests when they weren't. I corrected the ADR and added the assertions.</li>
+</ul>
+</section>
+
+<section id="limits" aria-labelledby="limits-h">
+<h2 id="limits-h">Limits</h2>
+<ul>
+<li>One horizon and one month of test data. Other horizons, seasons and holidays are untested.</li>
+<li>The same three June weeks scored the model, the baselines, the ablation, the hierarchy and the sparse-zone rule. Nothing was held back from all of them, so the headline is a backtest score and there's no untouched final test.</li>
+<li>No uncertainty on most comparisons: three folds, and seed spread measured only for the full model.</li>
+<li>The service forecasts from a snapshot loaded at startup. There's no ingestion path.</li>
+<li>The service reports 258 zones where the backtest scores 262, and I didn't trace which four or why.</li>
+<li>The gateway ran from the test classpath because a Maven plugin couldn't be downloaded in my container, so the packaged jar has never been run.</li>
+</ul>
+<p>What I'd do next: a shrinkage model for low-count zones instead of a routing rule, more horizons and a holiday period, a drift threshold recalibrated on a rolling clean window with weekends modelled separately, and a gateway fallback computed per request.</p>
+</section>
+
+<section id="run" aria-labelledby="run-h">
+<h2 id="run-h">Run it yourself</h2>
+<pre><code>pip install -e '.[dev]'
+ruff check . &amp;&amp; pytest -q                  # 33 tests on synthetic data
+mvn -B -f gateway/pom.xml test             # 6 gateway tests
+
+scripts/fetch_tlc.sh data/raw              # six 2023 files and the zone lookup, about 320 MB
+scripts/serve_local.sh data/raw            # trains, writes the snapshot, serves on :8000
+python scripts/run_backtest.py data/raw 2023 1 6 --horizon 4   # the table above, about 5 minutes</code></pre>
+<p>Every other table has its own script, with the exact command in its docstring. Training and export take a few minutes on 2 vCPU.</p>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- footer:start -->
+<footer class="site-footer"><div class="wrap">
+<p>© 2026 Bharath Mandha</p>
+</div></footer>
+<!-- footer:end -->
+<script type="module" src="../../assets/site.js"></script>
+</body>
+</html>

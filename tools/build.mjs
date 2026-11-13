@@ -222,6 +222,9 @@ export const PAGES = {
     }));
     return html;
   },
+  // Hand-written case studies: the numbers come from each repo's results files and README.
+  "projects/wiki-retrieval/index.html": async (html) => html,
+  "projects/tlc-demand/index.html": async (html) => html,
   // GitHub Pages serves this for any address without a page, from that address, so its links
   // start at the root.
   "404.html": async (html) => html,

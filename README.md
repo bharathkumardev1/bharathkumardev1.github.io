@@ -2,10 +2,12 @@
 
 My site, at https://bharathkumardev1.github.io: a home page and a case study for each project. Plain HTML, one stylesheet, a few small ES modules and one font, with no framework and no tracking.
 
-- [`index.html`](index.html): who I am; five projects (three with case studies), with a filing search you can try, the call-capacity chart and the review loop; my work history, skills and education.
+- [`index.html`](index.html): who I am; five projects, each with a case study, with a filing search you can try, the call-capacity chart and the review loop; my work history, skills and education.
 - [`projects/finance-rag-eval/`](projects/finance-rag-eval/index.html): retrieval over SEC filings, step by step on FinanceBench, with the search demo and its switches, a reranker test, and how often a model answers correctly from the pages it finds.
 - [`projects/readmission-capacity/`](projects/readmission-capacity/index.html): the readmission call list, with the capacity planner, the reasons behind each call and a patient scorer.
 - [`projects/research-assistant/`](projects/research-assistant/index.html): the review loop and how its evaluation is recorded and replayed.
+- [`projects/wiki-retrieval/`](projects/wiki-retrieval/index.html): passage search over 2.68M Wikipedia passages, each stage measured against the one before, including the ones that lost.
+- [`projects/tlc-demand/`](projects/tlc-demand/index.html): the taxi-demand forecast against its baselines, where it loses, the gateway fallback and the drift monitor.
 - [`404.html`](404.html): what GitHub Pages shows at an address with no page, with links to the projects.
 
 Two demos run in the browser on data exported from the project repos:
