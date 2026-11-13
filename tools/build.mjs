@@ -1,5 +1,6 @@
 // Writes the generated parts of every page from the projects' own results files, so no number
-// on the site is typed by hand:
+// in those parts is typed by hand (the work history, the wiki-retrieval and tlc-demand cards and the
+// research-assistant page are written by hand in the HTML):
 //
 //   data/finrag/summary.json   finance-rag-eval's results/*.json, via `finrag export-demo`
 //   data/readmit/metrics.json  readmission-capacity's results, via `readmit export`
