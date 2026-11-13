@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What each stage of a search stack buys, Bharath Mandha</title>
+<meta name="description" content="Passage search over 2,681,468 Wikipedia passages from BEIR Natural Questions: BM25, a LoRA-tuned MiniLM, compressed FAISS search with an exact re-score, an INT8 cross-encoder and a cite-or-refuse agent, each stage measured against the one before it, with the losses kept in.">
+<link rel="canonical" href="https://bharathkumardev1.github.io/projects/wiki-retrieval/">
+<!-- head:start -->
+<link rel="preload" href="../../assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="../../assets/icon-180.png">
+<meta name="author" content="Bharath Mandha">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bharath Mandha">
+<meta property="og:title" content="What each stage of a search stack buys, Bharath Mandha">
+<meta property="og:description" content="Passage search over 2,681,468 Wikipedia passages from BEIR Natural Questions: BM25, a LoRA-tuned MiniLM, compressed FAISS search with an exact re-score, an INT8 cross-encoder and a cite-or-refuse agent, each stage measured against the one before it, with the losses kept in.">
+<meta property="og:url" content="https://bharathkumardev1.github.io/projects/wiki-retrieval/">
+<meta property="og:image" content="https://bharathkumardev1.github.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- head:end -->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<!-- header:start -->
+<header class="site-header"><div class="wrap">
+<a class="brand" href="../../"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<nav class="site-nav" aria-label="Site">
+<a href="../../#projects">Projects</a>
+<a class="hide-sm" href="../../#experience">Experience</a>
+<a class="hide-sm" href="../../#skills">Skills</a>
+<a class="hide-sm" href="../../#contact">Contact</a>
+<a href="../../Bharath-Mandha-Resume.pdf">Résumé</a>
+<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg></button>
+</nav>
+</div></header>
+<!-- header:end -->
+<main id="main">
+<div class="wrap">
+<header class="cs-head">
+<p class="crumb"><a href="../../#projects">Projects</a></p>
+<h1>What each stage of a search stack buys</h1>
+<p class="lede">I wanted to know which stages of a passage search stack earn their cost, so I built one on a corpus large enough that approximate search is a real trade-off and measured every stage against the one before it. Some stages paid. Mined hard negatives didn't, my first answer judge was no better than a constant, and the refusal gate turned out far stricter inside the agent than on paper.</p>
+<dl class="facts">
+<div><dt>Corpus</dt><dd><b>2,681,468</b> passages and <b>3,452</b> queries from BEIR Natural Questions, plus a <b>104,201</b>-passage dev slice for iteration</dd></div>
+<div><dt>Headline</dt><dd>nDCG@10 <b>0.402</b> for the LoRA bi-encoder on the full corpus, against <b>0.290</b> for my BM25 with Lucene defaults</dd></div>
+<div><dt>Fine-tuning</dt><dd><b>+0.014</b> nDCG@10 [+0.007, +0.021] over the untuned encoder, paired, permutation p 0.00012. Small, and clearly not noise</dd></div>
+<div><dt>Reranker</dt><dd><b>+0.094</b> on the dev slice (0.783 to 0.877) at about <b>800 ms</b> per query on 2 vCPU. Not run on the full corpus</dd></div>
+</dl>
+<ul class="actions">
+<li><a href="https://github.com/bharathkumardev1/wiki-retrieval">Code on GitHub</a></li>
+<li><a href="https://www.youtube.com/watch?v=5vtW4iaUe3A">Demo video, about 3 minutes</a></li>
+</ul>
+</header>
+
+<div class="cs">
+<nav class="toc" aria-label="On this page">
+<p>On this page</p>
+<ol>
+<li><a href="#stack">The stack</a></li>
+<li><a href="#full">Full corpus</a></li>
+<li><a href="#compress">What compression costs</a></li>
+<li><a href="#slice">The serving stack on the dev slice</a></li>
+<li><a href="#negatives">Mined negatives lost</a></li>
+<li><a href="#gate">Cited answers and refusal</a></li>
+<li><a href="#mistakes">Errors I found in my own work</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#run">Run it yourself</a></li>
+</ol>
+</nav>
+
+<div class="prose">
+<section id="stack" aria-labelledby="stack-h">
+<h2 id="stack-h">The stack</h2>
+<pre><code>Wikipedia dump (.bz2) -> Go ingester: parse, clean, split, deterministic ids
+BEIR NQ corpus + queries + qrels -> LoRA on MiniLM (InfoNCE) -> fp16 embeddings
+
+query -> BM25 (numpy, Lucene idf) --------------------------\
+      -> encoder -> IVF-PQ candidates -> exact re-score ------> RRF -> [INT8 cross-encoder] -> results
+                                                         semantic cache, keyed by index version</code></pre>
+<ul>
+<li><b>BM25</b> is my own numpy implementation, because <code>bm25s</code> ran out of memory at about 120 million postings. With Lucene defaults it lands just below the published BEIR figures, so I call it the same ballpark and claim no reproduction.</li>
+<li><b>The encoder</b> is <code>msmarco-MiniLM-L6-cos-v5</code> with a LoRA adapter (rank 16, 8,000 training pairs, one epoch). I ruled out the better-scoring <code>all-MiniLM-L6-v2</code> because Natural Questions is in its training data, which would contaminate this evaluation. I measured it once and kept the file to show the gap.</li>
+<li><b>FAISS IVF-PQ</b> picks 1,000 dense candidates and exact float32 vectors re-score them. BM25 and dense results are fused by reciprocal rank.</li>
+<li><b>An INT8 ONNX cross-encoder</b> can rerank the head. A FastAPI service adds a semantic cache keyed by index version, and Prometheus metrics.</li>
+<li><b>A LangGraph agent</b> drafts a cited answer, verifies each cited sentence and refuses when verification fails. It runs from scripts only; the API doesn't call it.</li>
+</ul>
+<p>Every number on this page comes from a file in <code>results/</code>, and <code>docs/readme_tables.py --check</code> fails when the README drifts from those files. Each design choice has an ADR in <code>docs/adr/</code> with the alternatives I considered.</p>
+</section>
+
+<section id="full" aria-labelledby="full-h">
+<h2 id="full-h">Full corpus</h2>
+<p>This is the corpus comparable to published BEIR numbers. I encoded it on a Kaggle T4 and searched it exactly, dense only.</p>
+<div class="table-wrap"><table><caption>Full NQ corpus, 2,681,468 passages, 3,452 queries.</caption>
+<thead><tr><th>System</th><th class="n">nDCG@10 [95% CI]</th><th class="n">recall@100</th></tr></thead>
+<tbody>
+<tr><td>BM25, Lucene defaults</td><td class="n">0.290 [0.278, 0.302]</td><td class="n">0.748</td></tr>
+<tr><td>Bi-encoder, untuned, exact</td><td class="n">0.389 [0.376, 0.402]</td><td class="n">0.786</td></tr>
+<tr><td>Bi-encoder, LoRA, exact</td><td class="n">0.402 [0.390, 0.414]</td><td class="n">0.829</td></tr>
+<tr><td>Bi-encoder, LoRA, IVF-PQ 48 B, nprobe 64, no re-score</td><td class="n">0.333 [0.320, 0.344]</td><td class="n">0.729</td></tr>
+<tr><td>Bi-encoder, LoRA, IVF-PQ 96 B, nprobe 64, no re-score</td><td class="n">0.371 [0.358, 0.383]</td><td class="n">0.759</td></tr>
+</tbody></table></div>
+<p>Paired over the same 3,452 queries, LoRA beats the untuned encoder by +0.0137 nDCG@10 [+0.0066, +0.0208], permutation p 0.00012, with 783 queries better, 699 worse and 1,970 tied. Recall@100 gains more, +0.043. The tuned arm was picked from three trained on the same test queries, so that p-value isn't adjusted for the choice. Tuned BM25 (k1 0.9, b 0.4) scores 0.309 on the 2,952 queries not used for tuning, against 0.295 for the defaults on those same queries.</p>
+</section>
+
+<section id="compress" aria-labelledby="compress-h">
+<h2 id="compress-h">What compression costs</h2>
+<div class="table-wrap narrow"><table><caption>Full corpus, one query at a time, 4-CPU Kaggle host.</caption>
+<thead><tr><th>Search</th><th class="n">p50</th><th>Held in memory</th></tr></thead>
+<tbody>
+<tr><td>Exact float32, flat inner product</td><td class="n">321 ms</td><td>4.12 GB of vectors</td></tr>
+<tr><td>IVF-PQ 48 B per vector, nprobe 64</td><td class="n">2.63 ms</td><td>129 MB of codes</td></tr>
+<tr><td>IVF-PQ 96 B per vector, nprobe 64</td><td class="n">4.61 ms</td><td>257 MB of codes</td></tr>
+</tbody></table></div>
+<p>Compressed codes alone are about 70 times faster than exact search and give up 0.031 nDCG@10 at 96 bytes and 0.069 at 48. The exact re-score wins most of that back, but I only measured it on the dev slice, and it needs the float vectors in memory, so a served process holds the full matrix next to the codes. I report the speed-up and that memory cost together.</p>
+</section>
+
+<section id="slice" aria-labelledby="slice-h">
+<h2 id="slice-h">The serving stack on the dev slice</h2>
+<p>The dev slice is every judged passage plus 100,000 random distractors. It's much easier than the full corpus (tuned BM25 scores 0.68 there against 0.309), so these numbers are never compared with the table above.</p>
+<div class="table-wrap"><table><caption>Dev slice, 104,201 passages.</caption>
+<thead><tr><th>System</th><th class="n">nDCG@10 [95% CI]</th><th class="n">Paired difference</th></tr></thead>
+<tbody>
+<tr><td>Dense, exact</td><td class="n">0.769 [0.757, 0.780]</td><td class="n"></td></tr>
+<tr><td>Dense, IVF-PQ + exact re-score</td><td class="n">0.765 [0.753, 0.776]</td><td class="n">-0.0035 vs exact</td></tr>
+<tr><td>BM25 + dense, RRF, exact</td><td class="n">0.786 [0.775, 0.796]</td><td class="n"></td></tr>
+<tr><td>BM25 + dense, RRF, served path</td><td class="n">0.783 [0.772, 0.793]</td><td class="n">-0.0025 vs exact</td></tr>
+<tr><td>Served path + INT8 cross-encoder, top 20</td><td class="n">0.877 [0.869, 0.885]</td><td class="n">+0.0941 [+0.0860, +0.1017]</td></tr>
+</tbody></table></div>
+<p>The compressed path costs 0.0025 nDCG@10 against exact hybrid search, and the paired interval excludes zero, so I report it as a cost, not a tie. The reranker is the biggest gain in the stack and also the slowest stage: 794 ms p50 over all 3,452 queries on 2 vCPU, with a long tail (p95 1,848 ms) that I can't separate from host noise. BM25, dense search and fusion together take about 2 ms. Reranking the top 10 instead of 20 scores 0.859 against 0.877, which is the knob I'd turn first without a GPU.</p>
+</section>
+
+<section id="negatives" aria-labelledby="negatives-h">
+<h2 id="negatives-h">Mined negatives lost</h2>
+<p>Hard negatives are the standard advice for contrastive fine-tuning. Here they lost.</p>
+<div class="table-wrap"><table><caption>Dev slice, dense only, paired over queries.</caption>
+<thead><tr><th>Comparison</th><th class="n">nDCG@10 difference</th><th class="n">hit@10 difference</th></tr></thead>
+<tbody>
+<tr><td>LoRA, random negatives, minus untuned</td><td class="n">+0.0399 [+0.0328, +0.0468]</td><td class="n">+0.0371</td></tr>
+<tr><td>BM25-mined negatives, minus random</td><td class="n">-0.0035 [-0.0066, -0.0005]</td><td class="n">-0.0035</td></tr>
+<tr><td>Dense-mined negatives, minus random</td><td class="n">-0.0023 [-0.0056, +0.0010]</td><td class="n">-0.0067 [-0.0116, -0.0020]</td></tr>
+</tbody></table></div>
+<p>I kept random in-batch negatives. Training loss averaged 0.063 with random negatives, 0.128 with BM25-mined and 0.180 with dense-mined. I didn't test why the mined ones didn't help. Too few pairs, unlabelled positives among the mined passages, the sampling window and a single seed are all possible.</p>
+</section>
+
+<section id="gate" aria-labelledby="gate-h">
+<h2 id="gate-h">Cited answers and refusal</h2>
+<p>My first answer check was lexical overlap between a cited sentence and its passage. I labelled 300 answers by hand to test it. It called 194 of the 200 system answers supported, so its kappa against my labels, -0.006, is what a constant predictor scores. A cross-encoder scoring the question against the cited passage separated much better (AUC 0.87 for not supported against the rest), so I rebuilt that stage as a refusal gate.</p>
+<div class="table-wrap narrow"><table><caption>Gate on my labelled sheet, cross-fitted over 40 random splits.</caption>
+<thead><tr><th>Measure</th><th class="n">Value</th></tr></thead>
+<tbody>
+<tr><td>Labels: supported / partial / not supported</td><td class="n">48 / 76 / 76</td></tr>
+<tr><td>Not-supported answers refused</td><td class="n">75.3%</td></tr>
+<tr><td>Acceptable answers wrongly refused</td><td class="n">20.8%</td></tr>
+</tbody></table></div>
+<p>Wiring it into the agent showed a second problem. On 300 sampled questions the agent with the lexical check answers 251. With the gate it answers 58, and the share whose cited passage I'd labelled relevant goes from 69.7% to 94.8%. Most of that jump comes from answering 193 fewer questions, not from better answers. The sheet scored one cited passage per answer, while the agent requires every claim to clear the threshold, which explains a stricter result. I never counted claims per answer, and the threshold was fitted on the same questions, so that run is in-sample. A gate whose sheet says 21% false refusals and whose agent refuses 80% needs a per-claim threshold before anyone leans on it.</p>
+<p>The gate scores relevance, so a wrong sentence from a relevant passage gets through. The drafter copies sentences from the passages. I tried Qwen2.5-0.5B as a drafter on 5 questions and it refused all 5, so no real language-model drafter has been evaluated. 400 prompt-injection trials changed no answers.</p>
+</section>
+
+<section id="mistakes" aria-labelledby="mistakes-h">
+<h2 id="mistakes-h">Errors I found in my own work</h2>
+<ul>
+<li>An evaluation script scored the same ranking twice for one depth setting, and the reranker came out at nDCG@10 0.0003. That value couldn't be right. The fix is an assertion that every query has exactly one ranking, so a quieter version of the bug now fails loudly.</li>
+<li>I first wrote in an ADR that the dev slice came from the Simple English dump. It's a slice of BEIR NQ, and the ADR now says so.</li>
+<li>The full-corpus adapter gain first had no paired test, because the run didn't save per-query scores. The paired run does, and the shipped file holds the nDCG@10 arrays.</li>
+</ul>
+</section>
+
+<section id="limits" aria-labelledby="limits-h">
+<h2 id="limits-h">Limits</h2>
+<ul>
+<li>The re-score and the reranker are measured on the dev slice only, and the full-corpus hybrid has no number at all.</li>
+<li>The fine-tuning gain on the full corpus is small, 0.014 nDCG@10.</li>
+<li>Labels come from one person, and that person is me.</li>
+<li>Inference is CPU-only, so a 20-candidate rerank costs about 800 ms.</li>
+<li>Service load numbers are synthetic: a 2 vCPU container, one request at a time, with the load generator on the same CPUs. Retrieval alone answers at p50 16.5 to 18.4 ms; with the reranker, about 900 ms.</li>
+<li>The Kubernetes manifests have never been applied; Terraform ran against LocalStack only.</li>
+<li>Five test queries share their text with training questions, and I haven't rerun the evaluation without them.</li>
+</ul>
+<p>What I'd run next: the re-score and the reranker on the full corpus, since both claims rest on the slice; then a per-claim gate threshold and a second annotator; then a real language model as the drafter, with the gate measured against it.</p>
+</section>
+
+<section id="run" aria-labelledby="run-h">
+<h2 id="run-h">Run it yourself</h2>
+<pre><code>python -m venv .venv
+.venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+.venv/bin/pip install -e '.[serve,agent,dev]'
+.venv/bin/python -m pytest -q    # 82 tests, no data needed
+
+make dev-data       # BEIR NQ (about 765 MB), builds and encodes the dev slice
+make serve-untuned  # http://localhost:8000, POST /v1/search</code></pre>
+<p>Encoding the dev slice takes about half an hour on 2 vCPU. The full-corpus numbers need a GPU; the three Kaggle notebooks' source is in <code>kaggle/</code>. BEIR NQ's licence is contradictory, so I treat it as non-commercial and ship scripts, not data.</p>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- footer:start -->
+<footer class="site-footer"><div class="wrap">
+<p>© 2026 Bharath Mandha</p>
+</div></footer>
+<!-- footer:end -->
+<script type="module" src="../../assets/site.js"></script>
+</body>
+</html>
