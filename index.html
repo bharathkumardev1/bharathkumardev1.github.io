@@ -273,12 +273,12 @@
 <p class="ctx">RAG platform over 3M+ internal financial documents (10M+ chunks), used weekly by about 73 credit and risk analysts. One of 3 ML engineers on a 7-person team.</p>
 <ul>
 <li>Owned the retrieval layer, LangGraph orchestration, FastAPI integration, evaluation harness and ingestion of the platform.</li>
-<li>Average credit-memo preparation took 2.9 hours on the platform against 4.8 hours for historical memos, about 40% lower (112 against 106 memos). The comparison is observational, not randomized, and analyst review stays in the loop.</li>
+<li>Average credit-memo preparation took 2.9 hours of analyst effort on the platform against 4.8 hours for historical memos, about 40% lower (112 against 106 memos). The comparison is observational, not randomized, and analyst review stays in the loop.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
 <li>Scored every retrieval change on one 520-query benchmark kept apart from generation, with tuning on a separate dev set. Recall@10 rose from 84.6% to 91.7% over the dense FAISS baseline in four stages (metadata filtering +1.5 points, chunking and indexing +1.9, hybrid retrieval +2.2, a BGE cross-encoder over the top 30 +1.5), MRR from 0.73 to 0.84, and p95 retrieval latency fell from 1.42 s to 860 ms. RAGAS groundedness stayed above 90%. The stages are sequential differences, not isolated effects: no leave-one-out ablation was run.</li>
-<li>Built the LangGraph agents that completed 492 of 784 eligible workflow steps (62.8%) across the 112 platform-assisted memos, from retrieval through citation assembly and draft sections. Final credit judgments stay with analysts.</li>
+<li>Built the LangGraph agents that completed 492 of 784 targeted workflow steps (62.8%) across the 112 platform-assisted memos, from retrieval through citation assembly and draft sections. Each completed step was validated and usable without rework; this is the share of steps automated, not time saved. Final credit judgments stay with analysts.</li>
 <li>Wrote the design for the evaluation framework and incremental indexing (versioned benchmarks, regression thresholds, index-consistency checks), presented it in design reviews and helped two engineers adopt it. It became the shared way to compare retrieval, reranking and orchestration changes.</li>
 <li>Replaced full index rebuilds with incremental PySpark and S3 ingestion that detects document changes, deduplicates and validates the index.</li>
 <li>Tested quantization and LoRA/QLoRA on Hugging Face models for quality, latency, GPU memory and cost, and recommended keeping the existing model because the gains did not justify the move.</li>
@@ -293,7 +293,7 @@
 <p class="ctx">30-day hospital readmission risk over 1.5M+ HIPAA-regulated encounters.</p>
 <ul>
 <li>Raised ROC-AUC from 0.846 (regularized logistic regression) to 0.912 with XGBoost and LightGBM on a held-out cohort of about 218K encounters from about 72K patients (private data), with time-aware, patient-level splits. This is a professional result on private data and is not reproduced here. The readmission-capacity project above is a separate analysis of public data.</li>
-<li>At a fixed outreach capacity of 1,000 patients a month, set by care-management operations, the model identified 245 high-need patients against 213 under the baseline approach, a 15% gain.</li>
+<li>In an offline test on the held-out cohort with outreach capped at 1,000 patients, the model's top 1,000 held 245 actual readmissions against 213 under baseline prioritization, a 15% gain (precision 24.5% against 21.3%). It is not a count of readmissions prevented.</li>
 </ul>
 <details class="more"><summary>Show all bullets</summary>
 <ul>
