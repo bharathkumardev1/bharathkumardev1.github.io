@@ -107,7 +107,6 @@ h2.t{margin:0;font:800 clamp(1.7rem,3.6vw,2.2rem)/1.15 var(--sans);letter-spacin
 .climb .last .tk i{background:var(--blue)}
 .climb li p{margin:0;font-size:.93rem}
 @media (min-width:960px){.climb .stage{grid-template-columns:1fr 1fr;gap:72px;align-items:center}}
-@media (max-width:959px){
 /* project cards */
 .grid{display:grid;gap:24px}
 @media (min-width:900px){.grid{grid-template-columns:1fr 1fr;align-items:stretch}.grid .wide{grid-column:1/-1}}
@@ -197,3 +196,6 @@ table.m td:last-child{color:var(--ink-2);font-variant-numeric:tabular-nums}
 
 .skip{position:absolute;left:-999px;top:0}
 .skip:focus{left:1rem;top:1rem;background:#fff;padding:.5rem .75rem;z-index:50;border-radius:8px}
+.job details summary .less{display:none}
+.job details[open] summary .more{display:none}
+.job details[open] summary .less{display:inline}

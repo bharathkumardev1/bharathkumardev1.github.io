@@ -163,6 +163,13 @@ test("figures carry their text: captions, labels and the numbers behind the hove
   }
 });
 
+test("every stylesheet has balanced braces", () => {
+  for (const css of ["assets/site.css", "assets/home.css"]) {
+    const s = read(css).replace(/\/\*[\s\S]*?\*\//g, "");
+    assert.equal(s.split("{").length, s.split("}").length, `${css} has an unclosed block`);
+  }
+});
+
 test("copy has no placeholders", () => {
   const copy = [...Object.values(pages).map(copyOf), read("README.md")].join("\n");
   const placeholders = copy.match(/\b(TODO|TBD|lorem)\b/gi);
