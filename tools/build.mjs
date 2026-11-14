@@ -22,7 +22,6 @@ const EMAIL = "bharathmandha.200@gmail.com";
 const GITHUB = "https://github.com/bharathkumardev1";
 const LINKEDIN = "https://www.linkedin.com/in/bharathmandha";
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E";
-const THEME_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>`;
 
 const attr = (html, re) => (html.match(re) || [])[1];
 
@@ -50,23 +49,20 @@ function head(p, html) {
     `<link rel="icon" href="${FAVICON}">`,
     icon ? `<link rel="apple-touch-icon" href="${p}assets/icon-180.png">` : "",
     `<meta name="author" content="Bharath Mandha">`,
-    `<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">`,
-    `<meta name="theme-color" content="#0d1420" media="(prefers-color-scheme: dark)">`,
+    `<meta name="theme-color" content="#ffffff">`,
     ...preview,
-    `<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>`,
   ].filter(Boolean).join("\n");
 }
 
 function header(p) {
   return `<header class="site-header"><div class="wrap">
-<a class="brand" href="${p || "./"}"><span class="monogram" aria-hidden="true">BM</span><span class="brand-name">Bharath Mandha</span></a>
+<a class="brand" href="${p || "./"}"><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
 <a href="${p}#projects">Projects</a>
 <a class="hide-sm" href="${p}#experience">Experience</a>
 <a class="hide-sm" href="${p}#skills">Skills</a>
 <a class="hide-sm" href="${p}#contact">Contact</a>
 <a href="${p}Bharath-Mandha-Resume.pdf">Résumé</a>
-<button class="theme" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme">${THEME_ICON}</button>
 </nav>
 </div></header>`;
 }
