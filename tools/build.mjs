@@ -21,7 +21,7 @@ const SITE = "https://bharathkumardev1.github.io/";
 const EMAIL = "bharathmandha.200@gmail.com";
 const GITHUB = "https://github.com/bharathkumardev1";
 const LINKEDIN = "https://www.linkedin.com/in/bharathmandha";
-const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23ffe066'/%3E%3C/svg%3E";
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23cfe3ff'/%3E%3C/svg%3E";
 
 const attr = (html, re) => (html.match(re) || [])[1];
 
@@ -58,10 +58,10 @@ function header(p) {
   return `<header class="site-header"><div class="wrap">
 <a class="brand" href="${p || "./"}"><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
+<a href="${p}#experience">Experience</a>
 <a href="${p}#projects">Projects</a>
-<a class="hide-sm" href="${p}#experience">Experience</a>
-<a class="hide-sm" href="${p}#skills">Skills</a>
-<a class="hide-sm" href="${p}#contact">Contact</a>
+<a href="${p}#skills">Skills</a>
+<a href="${p}#contact">Contact</a>
 <a href="${p}Bharath-Mandha-Resume.pdf">Résumé</a>
 </nav>
 </div></header>`;
@@ -157,23 +157,7 @@ const REPLAY_ARIA = "Recording a run sends model calls to the OpenAI API and wri
 export const PAGES = {
   "index.html": async (html) => {
     html = fill(html, "person", person());
-    html = fill(html, "portrait", portrait(), true);
-    html = fill(html, "links", profileLinks("hero"));
-    html = fill(html, "contact", profileLinks("contact"));
-    html = fill(html, "stat-finance", finance.stat(), true);
-    const search = await finance.search();
-    html = fill(html, "card-finance", finance.card());
-    html = fill(html, "search-scope", search.scope, true);
-    html = fill(html, "search-trace", search.trace);
-    html = fill(html, "search-hits", search.hits);
-    html = fill(html, "metrics-finance", finance.metrics());
-    html = fill(html, "card-readmit", readmit.card());
-    html = fill(html, "chart-readmit", readmit.cardChart());
-    html = fill(html, "metrics-readmit", readmit.metrics());
-    html = fill(html, "loop-ara", F.figure({
-      title: "Review until the answer is supported", body: F.loopDiagram(LOOP_ARIA, { card: true }),
-      caption: "It stops early at a 120 s deadline, at the spending cap, or when a refined query finds nothing new. The single pass it's measured against skips the review.",
-    }));
+    html = fill(html, "chart-readmit", readmit.homeChart());
     return html;
   },
   "projects/finance-rag-eval/index.html": async (html) => {
@@ -248,6 +232,8 @@ Sitemap: ${SITE}sitemap.xml
 export async function build(file, before) {
   const p = file === "404.html" ? "/" : "../".repeat(file.split("/").length - 1);
   let html = await PAGES[file](before);
+  // The home page has its own stylesheet, header and footer, written in the page.
+  if (file === "index.html") return html;
   html = fill(html, "head", head(p, html));
   html = fill(html, "header", header(p));
   html = fill(html, "footer", footer());

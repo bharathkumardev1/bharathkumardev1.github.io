@@ -74,6 +74,26 @@ export function cardChart() {
   });
 }
 
+// The home page's chart: share of readmissions reached at each call-list size from 0 to 30%, for
+// the shipped model, two baselines and a random call list. assets/home.js moves the marker and
+// reads the legend values from the same series.
+export function homeChart() {
+  const lines = [["LightGBM", "LightGBM"], ["Most prior stays first", "prior inpatient stays"], ["LACE score", "LACE"]];
+  const steps = Array.from({ length: 31 }, (_, i) => i / 100);
+  const series = lines.map(([label, key]) => ({ label, v: steps.map((x) => curve(key)(x).caught / curve(key)(x).positives) }));
+  series.push({ label: "Calling at random", v: steps });
+  claim(series[0].v[10] > series[1].v[10] && series[1].v[10] > series[2].v[10], "at a 10% call list the model beats most prior stays, and that beats LACE");
+  const X = (i) => (44 + (540 * i) / 30).toFixed(1), Y = (v) => (224 - (208 * v) / 0.6).toFixed(1);
+  const grid = [0, 0.2, 0.4, 0.6].map((t) => `<line class="ax" x1="44" x2="584" y1="${Y(t)}" y2="${Y(t)}"/><text class="tick" x="38" y="${(224 - (208 * t) / 0.6 + 4).toFixed(1)}" text-anchor="end">${Math.round(t * 100)}%</text>`).join("")
+    + [0, 10, 20, 30].map((i) => `<text class="tick" x="${X(i)}" y="244" text-anchor="middle">${i}%</text>`).join("");
+  const cls = ["s0", "s1l", "s2l", "s3l"];
+  const polys = series.map((s, i) => `<polyline class="ln ${cls[i]}" points="${s.v.map((v, j) => `${X(j)},${Y(v)}`).join(" ")}"/>`).join("");
+  const dots = series.map((_, i) => `<circle class="dot d${i}" id="dot-${i}" r="5" cx="44" cy="224"/>`).join("");
+  const legend = series.map((s, i) => `<li${i === 0 ? ' class="g"' : ""}><span>${s.label}</span><b id="lv-${i}">${(s.v[10] * 100).toFixed(1)}%</b></li>`).join("");
+  const data = JSON.stringify(series.map((s) => s.v.map((v) => Number(v.toFixed(6)))));
+  return `<div class="chart" data-series='${data}'><svg viewBox="0 0 600 268" role="img" aria-label="Share of readmissions reached against share of discharges called, four rankings. LightGBM is highest at every size; a 10 percent call list reaches ${share10("LightGBM")}.">${grid}${polys}<line class="cur" id="cur" x1="224" x2="224" y1="16" y2="224" style="display:none"/>${dots}<text class="axt" x="314" y="264" text-anchor="middle">share of discharges called</text></svg><div class="slide"><label for="cap">Call list size: <b id="capv">10%</b> of discharges</label><input id="cap" type="range" min="0" max="30" step="1" value="10"></div><ul class="legend" aria-label="Share of readmissions reached at the chosen call list size">${legend}</ul></div>`;
+}
+
 // Case study ------------------------------------------------------------------------------------
 
 export function caseFacts() {

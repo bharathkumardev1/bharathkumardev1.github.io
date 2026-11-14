@@ -58,7 +58,7 @@ test("search demo matches the Python pipeline on every exported case", async () 
 
 test("example questions are benchmark questions, and the ones marked as misses miss", () => {
   const byText = new Map(json("data/finrag/questions.json").map((q) => [q.q, q]));
-  for (const html of [HOME, FINANCE]) {
+  for (const html of [FINANCE]) {
     const examples = [...html.matchAll(/data-example="([^"]+)"( data-misses)?/g)];
     assert.ok(examples.length >= 3);
     for (const [, text, misses] of examples) {
@@ -83,14 +83,27 @@ test("readmission scorer matches LightGBM on held-out rows", () => {
 
 test("pages read without JavaScript: results, tables and a scored patient are in the HTML", () => {
   const body = (html, id) => html.match(new RegExp(`<(?:tbody|ol) id="${id}"[^>]*>([\\s\\S]*?)</(?:tbody|ol)>`))[1];
-  assert.equal((HOME.match(/<ul class="stats"[^>]*>([\s\S]*?)<\/ul>/)[1].match(/<li>/g) || []).length, 4);
-  assert.equal((HOME.match(/<table class="metrics">/g) || []).length, 3);
-  assert.equal((body(HOME, "hits").match(/<li[ >]/g) || []).length, 3);
-  assert.equal((HOME.match(/<div class="chart [^"]*live/g) || []).length, 1);
+  assert.equal((HOME.match(/<li class="stat /g) || []).length, 4);
+  assert.equal((HOME.match(/<div class="chart"[^>]*data-series=/g) || []).length, 1);
+  assert.equal((HOME.match(/<b id="lv-\d">/g) || []).length, 4);
   assert.equal((body(FINANCE, "hits").match(/<li>/g) || []).length, 3);
   assert.equal((body(READMIT, "capacity-table").match(/<tr>/g) || []).length, 6);
   assert.equal((body(READMIT, "call-list").match(/<tr>/g) || []).length, 5);
   assert.match(READMIT, /<div id="risk-out"[^>]*>\s*<!-- risk:start -->\s*<p><strong>\d+\.\d%<\/strong> chance/);
+});
+
+test("the home page's headline numbers match the results files", () => {
+  const s = json("data/finrag/summary.json");
+  const held = s.eval.table.filter((r) => r.split === "test").map((r) => r["hit@10"].toFixed(2));
+  for (const v of ["0.14", "0.43", "0.71"]) {
+    assert.ok(held.includes(v), `${v} is a held-out Hit@10 in summary.json`);
+    assert.ok(HOME.includes(v), `home page shows ${v}`);
+  }
+  // The call-list shares quoted in the text are the legend's values, which build.mjs computes from capacity.json.
+  const legend = [...HOME.matchAll(/<b id="lv-\d">([^<]+)<\/b>/g)].map((m) => m[1]);
+  assert.deepEqual(legend.slice(0, 3), ["25.0%", "20.6%", "15.3%"]);
+  assert.ok(HOME.includes("reaches 25.0% of readmissions, against 20.6%"));
+  assert.ok(HOME.includes("reached by a 10% call list"));
 });
 
 test("links within and between pages resolve, and so do local files", () => {

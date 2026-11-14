@@ -670,3 +670,58 @@ body:has(.cs-head) main { padding-top: 0; }
 .hero-id { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.25rem); margin: 0 0 clamp(1.25rem, 3vw, 2rem); }
 .hero-id .portrait { flex: none; width: clamp(4.5rem, 12vw, 9.5rem); height: clamp(4.5rem, 12vw, 9.5rem); border-radius: 50%; margin: 0; }
 .hero-id .display { margin: 0; font-size: clamp(2.4rem, 8.5vw, 7rem); min-width: 0; }
+
+/* v4: the rounded-card look shared with the home page --------------------------------------- */
+html { scroll-padding-top: 5rem; }
+body { font-size: 1rem; padding-top: 64px; }
+body .site-header, body:has(.cs-head) .site-header, body:has(> main > .hero) .site-header {
+  position: fixed; inset: 0 0 auto 0; z-index: 40; background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px); backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--rule); --ink: #0f1d2e; --ink-2: #4b586b;
+}
+.site-header .wrap { min-height: 64px; }
+.brand { font-weight: 700; }
+.site-nav { gap: 0.15rem; }
+.site-nav a { font-size: 0.9rem; padding: 0.4rem 0.6rem; }
+.site-footer { margin-top: 4rem; }
+
+.cs-head { padding: clamp(2rem, 5vw, 3.25rem) 0 clamp(1.75rem, 3.5vw, 2.5rem); }
+body:has(.cs-head) main { padding-top: 0; }
+.cs-head h1 { font-size: clamp(1.8rem, 4.2vw, 2.7rem); line-height: 1.12; font-weight: 800; letter-spacing: -0.03em; max-width: 24ch; margin-bottom: 1rem; }
+.cs-head .lede { font-size: 1.05rem; max-width: 46rem; margin-bottom: 1.5rem; }
+.cs-head .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.875rem; border: 0; }
+.cs-head .facts div, .cs-head .facts div + div { padding: 1rem 1.1rem; border: 1px solid #d6e4fb; border-radius: 14px; background: #eef4ff; }
+.cs-head .facts div:nth-child(2) { background: #f6f0ff; border-color: #e7dafb; }
+.cs-head .facts div:nth-child(3) { background: #ecfdf5; border-color: #c9f0dd; }
+.cs-head .facts div:nth-child(4) { background: #fff4ec; border-color: #fadddc; border-color: #fadcc8; }
+.cs-head .facts dt { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.cs-head .facts dd { font-size: 0.92rem; color: var(--ink); }
+.cs-head .actions { gap: 0.6rem; margin-top: 1.25rem; }
+.cs-head .actions a, .actions a {
+  display: inline-flex; align-items: center; font-size: 0.9rem; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--rule-2); border-radius: 999px; padding: 0.6rem 1.05rem; background: #fff; color: var(--ink);
+}
+.cs-head .actions a:hover, .actions a:hover { border-color: var(--ink-3); }
+@media (max-width: 960px) { .cs-head .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .cs-head .facts { grid-template-columns: minmax(0, 1fr); }
+  .cs-head .facts div + div { border-left: 1px solid; padding-left: 1.1rem; border-top: 1px solid; }
+  .site-nav a { font-size: 0.8rem; padding: 0.35rem 0.4rem; }
+}
+
+.cs { gap: 3rem; }
+.toc { top: 5rem; }
+.prose > section { padding-top: 2.25rem; }
+.prose h2 { font-size: 1.4rem; letter-spacing: -0.02em; }
+.prose h3 { font-size: 1.05rem; }
+.table-wrap { border: 1px solid var(--rule); border-radius: 12px; }
+th, td { padding: 0.6rem 0.9rem; }
+td.n:last-child, th.n:last-child { padding-right: 0.9rem; }
+th { background: var(--paper-2); font-size: 0.78rem; letter-spacing: 0.02em; }
+tbody tr:last-child td { border-bottom: 0; }
+table.metrics td { padding: 0.6rem 0.9rem; }
+table caption { text-align: left; padding: 0.6rem 0.9rem 0; }
+.callout { border-left: 3px solid var(--link); background: #e8f1ff; border-radius: 0 12px 12px 0; padding: 0.75rem 1rem; color: var(--ink); }
+.fig-frame { border-radius: 16px; }
+.demo-block, .search { box-shadow: none; border-color: var(--rule); }
+pre { border-radius: 12px; }
