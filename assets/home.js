@@ -1,9 +1,8 @@
 (function(){
-  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.documentElement.classList.add('js');
   var top=document.getElementById('top');
   function sc(){top.classList.toggle('scrolled',window.scrollY>8);}
-  window.addEventListener('scroll',sc,{passive:true});sc();
+  window.addEventListener('scroll',sc,{passive:true});requestAnimationFrame(sc);
   var ch=document.querySelector('.chart[data-series]');
   if(ch){
     var data=JSON.parse(ch.getAttribute('data-series')),cap=document.getElementById('cap'),cur=document.getElementById('cur');

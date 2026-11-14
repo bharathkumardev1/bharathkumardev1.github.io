@@ -58,8 +58,8 @@ function header(p) {
   return `<header class="site-header"><div class="wrap">
 <a class="brand" href="${p || "./"}"><span class="brand-name">Bharath Mandha</span></a>
 <nav class="site-nav" aria-label="Site">
-<a href="${p}#experience">Experience</a>
 <a href="${p}#projects">Projects</a>
+<a href="${p}#experience">Experience</a>
 <a href="${p}#skills">Skills</a>
 <a href="${p}#contact">Contact</a>
 <a href="${p}Bharath-Mandha-Resume.pdf">Résumé</a>

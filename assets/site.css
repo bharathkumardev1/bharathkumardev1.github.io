@@ -619,58 +619,6 @@ body:has(.cs-head) main { padding-top: 0; }
   .cs-head .facts div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--panel-rule); }
 }
 
-/* The one moment of motion: each result rises into place as it enters the screen. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .stats li { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
-    @keyframes rise { from { opacity: 0; transform: translateY(2.25rem); } to { opacity: 1; transform: none; } }
-  }
-}
-@media print { .stats li { animation: none; } }
-
-
-/* Pinned scene: scrolling scrubs Hit@10 from 0.14 to 0.71. Static and complete without JS or with reduced motion. */
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.climb { margin-top: clamp(3rem, 8vw, 6rem); background: var(--paper-2); border-block: 1px solid var(--rule); }
-.climb-stage { display: grid; gap: 2rem; padding-block: clamp(3rem, 7vw, 5.5rem); }
-.climb-l { display: grid; gap: 1.1rem; align-content: center; }
-.climb h2 { margin: 0; max-width: 16ch; }
-.climb-num { margin: 0; font-size: clamp(4.5rem, min(16vw, 24svh), 9rem); line-height: 0.9; font-weight: 790; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; width: fit-content; background: linear-gradient(transparent 62%, var(--mark) 62%, var(--mark) 92%, transparent 92%); }
-.climb-note { margin: 0; color: var(--ink-2); max-width: 38ch; font-size: 0.95rem; }
-.climb-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
-.climb-steps li { display: grid; gap: 0.45rem; padding-top: 0.9rem; border-top: 2px solid var(--rule-2); color: var(--ink-2); }
-.climb-steps .r { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-.climb-steps b { font-size: 1.1rem; color: var(--ink); font-weight: 700; letter-spacing: -0.01em; }
-.climb-steps .r span { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
-.climb-steps p { margin: 0; font-size: 0.93rem; max-width: 46ch; }
-.tk { height: 0.7rem; border-radius: 99px; background: var(--track); overflow: hidden; }
-.tk i { display: block; height: 100%; width: var(--v); background: var(--context); border-radius: 99px; transform-origin: 0 50%; transform: scaleX(var(--k, 1)); }
-.climb-steps .last .tk i { background: var(--data-1); }
-@media (min-width: 60rem) { .climb-stage { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 4.5rem; align-items: center; } }
-.climb.on { height: 340svh; padding: 0; }
-.climb.on > .wrap { position: sticky; top: 0; height: 100svh; display: grid; align-content: center; }
-.climb.on .climb-stage { padding-block: 1.5rem; }
-.climb.on li.act { border-top-color: var(--data-1); }
-.climb.on li:not(.act) { color: var(--ink-3); }
-.climb.on li:not(.act) b { color: var(--ink-2); }
-@media (max-width: 59.99rem) { .climb.on li:not(.act) p { display: none; } .climb.on .climb-stage { gap: 1rem; } .climb.on .climb-note { display: none; } }
-@media print { .climb.on { height: auto; } .climb.on > .wrap { position: static; height: auto; } }
-
-/* 30-second snapshot, directly under the intro. */
-.snap { padding: clamp(2.5rem, 6vw, 4rem) 0 0; }
-.snap h2 { font-size: 1.25rem; line-height: 1.2; letter-spacing: -0.01em; font-weight: 700; margin: 0 0 1rem; }
-.snap dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0; border-top: 1px solid var(--rule-2); }
-.snap dl > div { padding: 1rem 1.25rem 0 0; }
-.snap dt { font-weight: 700; font-size: 0.95rem; color: var(--ink); margin: 0 0 0.3rem; }
-.snap dd { margin: 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.5; max-width: 30ch; }
-@media (max-width: 60rem) { .snap dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } .snap dl > div { padding-bottom: 1rem; } }
-@media (max-width: 36rem) { .snap dl { grid-template-columns: minmax(0, 1fr); } .snap dl > div { border-bottom: 1px solid var(--rule); } .snap dd { max-width: none; } }
-
-/* Intro: round photo with the name beside it. */
-.hero-id { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.25rem); margin: 0 0 clamp(1.25rem, 3vw, 2rem); }
-.hero-id .portrait { flex: none; width: clamp(4.5rem, 12vw, 9.5rem); height: clamp(4.5rem, 12vw, 9.5rem); border-radius: 50%; margin: 0; }
-.hero-id .display { margin: 0; font-size: clamp(2.4rem, 8.5vw, 7rem); min-width: 0; }
-
 /* v4: the rounded-card look shared with the home page --------------------------------------- */
 html { scroll-padding-top: 5rem; }
 body { font-size: 1rem; padding-top: 64px; }
