@@ -218,10 +218,10 @@ html{scroll-behavior:smooth}
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px -12px rgba(15,29,46,.35)}
 .btn{transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .2s}
 /* hero entrance, once per load */
-.mo .hl{opacity:0;transform:translate3d(0,22px,0);filter:blur(8px);animation:hin 1s var(--ease) forwards;animation-delay:calc(var(--i,0)*110ms + 100ms)}
-.mo .id img.hl{transform:scale(.8);filter:blur(10px)}
-@keyframes hin{to{opacity:1;transform:none;filter:none}}
-.cue svg{animation:bob 1.8s ease-in-out infinite}
+.mo .hl{opacity:0;transform:translate3d(0,24px,0);animation:hin .9s var(--ease) forwards;animation-delay:calc(var(--i,0)*100ms + 80ms)}
+.mo .id img.hl{transform:scale(.82)}
+@keyframes hin{to{opacity:1;transform:none}}
+.cue svg{animation:bob 1.8s ease-in-out 4}
 @keyframes bob{50%{transform:translateY(4px)}}
 /* the hero drifts up and fades as you scroll away (scroll-driven, no JS) */
 @supports (animation-timeline:view()){
@@ -234,13 +234,13 @@ html{scroll-behavior:smooth}
 @keyframes pg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 }
 /* reveals replay every time the element comes back into view. Only opacity and transform change. */
-.mo .rv{--dx:0px;--dy:30px;--sc:1;opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(var(--sc));transition:opacity .25s linear,transform .25s var(--ease)}
+.mo .rv{--dx:0px;--dy:30px;--sc:1;--d:calc(var(--i,0)*90ms);opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(var(--sc));transition:opacity .2s linear,transform .2s var(--ease),translate .35s var(--ease),box-shadow .4s var(--ease),border-color .2s}
 .mo .rv-l{--dx:-56px;--dy:0px}
 .mo .rv-r{--dx:56px;--dy:0px}
 .mo .rv-s{--sc:.92;--dy:40px}
-.mo .rv.in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .95s var(--ease),box-shadow .4s var(--ease),border-color .2s;transition-delay:calc(var(--i,0)*90ms)}
-.mo .rv.in.done{transition-delay:0s;transition-duration:.45s}
-.mo .rv.in.done:is(.card,.stat,.job,.skill):hover{transform:translateY(-4px);box-shadow:0 18px 36px -20px rgba(15,29,46,.32)}
+.mo .rv.in{opacity:1;transform:none;transition:opacity .8s var(--ease) var(--d),transform .95s var(--ease) var(--d),translate .35s var(--ease),box-shadow .4s var(--ease),border-color .2s}
+.mo .rv.in:is(.card,.stat,.job,.skill):hover{translate:0 -4px;box-shadow:0 18px 36px -20px rgba(15,29,46,.32)}
+.mo :is(.card,.stat,.job,.skill){contain:layout}
 .mo .skill .tags li{opacity:0;transform:translate3d(0,12px,0);transition:opacity .2s linear,transform .2s var(--ease)}
 .mo .skill.in .tags li{opacity:1;transform:none;transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:calc(var(--t,0)*35ms + 250ms)}
 .mo .job::before{transform:scale(0);transition:transform .25s var(--ease)}
