@@ -242,7 +242,7 @@ html{scroll-behavior:smooth}
 .mo .rv-r{--dx:56px;--dy:0px}
 .mo .rv-s{--sc:.92;--dy:40px}
 .mo .rv.in{opacity:1;transform:none;transition:opacity .8s var(--ease) var(--d),transform .95s var(--ease) var(--d),translate .35s var(--ease),box-shadow .4s var(--ease),border-color .2s}
-.mo .rv.in:is(.card,.stat,.job,.skill):hover{translate:0 -4px;box-shadow:0 18px 36px -20px rgba(15,29,46,.32)}
+.mo .rv.in:is(.card,.stat,.job):hover{translate:0 -4px;box-shadow:0 18px 36px -20px rgba(15,29,46,.32)}
 .mo :is(.card,.stat,.job,.skill){contain:layout}
 .mo .skill .tags li{opacity:0;transform:translate3d(0,12px,0);transition:opacity .2s linear,transform .2s var(--ease)}
 .mo .skill.in .tags li{opacity:1;transform:none;transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:calc(var(--t,0)*35ms + 250ms)}
