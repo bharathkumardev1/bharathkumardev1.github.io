@@ -45,6 +45,7 @@ section{scroll-margin-top:72px}
 /* hero */
 .hero{min-height:min(calc(100svh - 64px),760px);display:flex;align-items:center;padding-block:48px}
 .hero .narrow{width:100%}
+@media (max-width:600px){.hero{min-height:0;align-items:flex-start;padding-block:56px 40px}}
 .eyebrow{font:600 .8rem/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 14px}
 .id{display:flex;align-items:center;gap:clamp(14px,3vw,24px);margin:0 0 18px}
 .id img{width:clamp(72px,12vw,112px);height:clamp(72px,12vw,112px);border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)}
