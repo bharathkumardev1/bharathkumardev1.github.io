@@ -13,17 +13,19 @@
   }
 })();
 
-/* motion layer: reveals, count-ups, progress bar, active nav. Skipped entirely when html.mo is absent. */
+/* motion layer: replaying reveals, count-ups, progress line, active nav. Does nothing when html.mo is absent. */
 (function(){
   var root=document.documentElement;
   var bar=document.createElement('div');bar.className='prog';bar.setAttribute('aria-hidden','true');document.body.appendChild(bar);
-  var ticking=false;
-  function prog(){var h=root.scrollHeight-window.innerHeight;bar.style.setProperty('--p',h>0?Math.min(1,window.scrollY/h):0);ticking=false;}
-  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(prog);}},{passive:true});prog();
-
+  /* progress line: CSS scroll timeline where supported, one cheap rAF listener otherwise */
+  if(!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline:scroll()'))){
+    var ticking=false;
+    var prog=function(){var h=root.scrollHeight-window.innerHeight;bar.style.setProperty('--p',h>0?Math.min(1,window.scrollY/h):0);ticking=false;};
+    window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(prog);}},{passive:true});prog();
+  }
   if(!('IntersectionObserver' in window)) return;
 
-  /* active section in the nav */
+  /* underline the section you are in */
   var links={};[].forEach.call(document.querySelectorAll('.nav a[href^="#"]'),function(a){links[a.getAttribute('href').slice(1)]=a;});
   var navIO=new IntersectionObserver(function(es){es.forEach(function(e){
     var a=links[e.target.id];if(a&&e.isIntersecting){Object.keys(links).forEach(function(k){links[k].classList.toggle('on',links[k]===a);});}
@@ -32,46 +34,60 @@
 
   if(!root.classList.contains('mo')) return;
 
-  function mark(el,i,cls){el.classList.add('rv');if(cls)el.classList.add(cls);el.style.setProperty('--i',i);}
-  /* hero entrance */
   var hero=document.querySelector('.hero');
   if(hero){
     var hl=[hero.querySelector('.eyebrow'),hero.querySelector('.id img'),hero.querySelector('h1'),hero.querySelector('.role')]
-      .concat([].slice.call(hero.querySelectorAll('.links li')));
+      .concat([].slice.call(hero.querySelectorAll('.links li')),[hero.querySelector('.cue')]);
     hl.forEach(function(el,i){if(el){el.classList.add('hl');el.style.setProperty('--i',i);}});
   }
-  /* scroll reveals */
+
   var targets=[];
-  function add(sel,fn,cls){[].forEach.call(document.querySelectorAll(sel),function(el,i){mark(el,fn?fn(i,el):0,cls);targets.push(el);});}
-  add('.head');
+  function add(sel,idx,dir){[].forEach.call(document.querySelectorAll(sel),function(el,i){
+    el.classList.add('rv');
+    var d=typeof dir==='function'?dir(i):dir;if(d)el.classList.add(d);
+    el.style.setProperty('--i',idx?idx(i):0);targets.push(el);});}
+  add('.head',null,'rv-l');
   add('.about',function(i){return i;});
-  add('.stat',function(i){return i;});
-  add('.climb .l > :not(.sr)',function(i){return i;});
-  add('.climb ol li',function(i){return i+2;});
-  add('.card',function(i){return i%2;});
+  add('.stat',function(i){return i;},'rv-s');
+  add('.climb .l > :not(.sr)',function(i){return i;},'rv-l');
+  add('.climb ol li',function(i){return i+1;},'rv-r');
+  add('.card',function(i){return i%2;},function(i){return i%2?'rv-r':'rv-l';});
   add('.job',null,'rv-l');
   add('.skill',function(i){return i;});
   [].forEach.call(document.querySelectorAll('.skill .tags li'),function(li,i){li.style.setProperty('--t',i%12);});
-
-  function count(el){
-    var txt=el.textContent,m=txt.match(/^(\d*\.?\d+)(\D*)$/);if(!m)return;
-    var end=parseFloat(m[1]),dec=(m[1].split('.')[1]||'').length,suf=m[2],t0=null,dur=1400;
-    el.textContent=(0).toFixed(dec)+suf;
-    function step(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-p,4);
-      if(p<1){el.textContent=(end*e).toFixed(dec)+suf;requestAnimationFrame(step);}else{el.textContent=txt;}}
-    requestAnimationFrame(step);
-  }
   var climb=document.getElementById('climb');
   if(climb){climb.classList.add('arm');targets.push(climb);}
 
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){
-    if(!e.isIntersecting)return;
-    var el=e.target;io.unobserve(el);el.classList.add('in');
+  function count(el){
+    var txt=el.getAttribute('data-final')||el.textContent,m=txt.match(/^(\d*\.?\d+)(\D*)$/);if(!m)return;
+    el.setAttribute('data-final',txt);
+    var end=parseFloat(m[1]),dec=(m[1].split('.')[1]||'').length,suf=m[2],t0=null,dur=1300,id=++el._c;
+    el.textContent=(0).toFixed(dec)+suf;
+    function step(ts){if(id!==el._c)return;if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-p,4);
+      if(p<1){el.textContent=(end*e).toFixed(dec)+suf;requestAnimationFrame(step);}else{el.textContent=txt;}}
+    requestAnimationFrame(step);
+  }
+  [].forEach.call(document.querySelectorAll('.stat b,.climb .num'),function(b){b._c=0;});
+
+  function enter(el){
+    if(el.classList.contains('in'))return;
+    el.classList.add('in');
     if(el.classList.contains('stat')){var b=el.querySelector('b');if(b)count(b);}
     if(el===climb){var n=el.querySelector('.num');if(n)count(n);}
-    var d=(parseFloat(el.style.getPropertyValue('--i'))||0)*90+1000;
-    setTimeout(function(){el.classList.add('done');},d);
-  });},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    clearTimeout(el._t);
+    el._t=setTimeout(function(){el.classList.add('done');},1100+(parseFloat(el.style.getPropertyValue('--i'))||0)*90);
+  }
+  function leave(el){
+    if(!el.classList.contains('in'))return;
+    clearTimeout(el._t);el.classList.remove('in','done');
+    var b=el.classList.contains('stat')?el.querySelector('b'):(el===climb?el.querySelector('.num'):null);
+    if(b){b._c++;if(b.getAttribute('data-final'))b.textContent=b.getAttribute('data-final');}
+  }
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){
+    var el=e.target;
+    if(e.isIntersecting&&(e.intersectionRatio>=.15||e.intersectionRect.height>=window.innerHeight*.25))enter(el);
+    else if(!e.isIntersecting)leave(el);
+  });},{threshold:[0,.15],rootMargin:'0px 0px -6% 0px'});
   targets.forEach(function(el){io.observe(el);});
   window.addEventListener('beforeprint',function(){targets.forEach(function(el){el.classList.add('in','done');});});
 })();
