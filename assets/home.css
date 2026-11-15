@@ -179,9 +179,12 @@ table.m td:last-child{color:var(--ink-2);font-variant-numeric:tabular-nums}
 .edu{margin-top:28px;color:var(--ink-2)}.edu b{color:var(--ink)}
 
 /* skills */
-.skill{margin:0 0 24px}
-.skill h3{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;color:var(--ink-2)}
-.skill .tags li{font-size:.875rem;padding:5px 14px}
+.skill{margin:0 0 34px}
+.skill h3{font-size:.85rem;letter-spacing:.07em;text-transform:uppercase;margin:0 0 14px;color:var(--ink)}
+.skill .tags{gap:10px}
+.skill .tags li{font-size:.95rem;padding:7px 16px}
+.skill.sk2 .tags li{border-color:#D9C4FA;color:#5B21B6;background:#F3EBFF}
+.skill.sk3 .tags li{border-color:#B6E3CB;color:#047857;background:#E6F7EF}
 
 /* contact */
 .contact{text-align:left}
