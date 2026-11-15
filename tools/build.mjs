@@ -21,7 +21,7 @@ const SITE = "https://bharathkumardev1.github.io/";
 const EMAIL = "bharathmandha.200@gmail.com";
 const GITHUB = "https://github.com/bharathkumardev1";
 const LINKEDIN = "https://www.linkedin.com/in/bharathmandha";
-const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1d2e'/%3E%3Crect x='7' y='9' width='18' height='2.5' rx='1.25' fill='%23ffffff' opacity='.55'/%3E%3Crect x='6' y='15' width='20' height='7' rx='2' fill='%23cfe3ff'/%3E%3C/svg%3E";
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='Arial,Helvetica,sans-serif' font-weight='800' font-size='19' letter-spacing='-1' fill='%230F1D2E'%3EBM%3C/text%3E%3C/svg%3E";
 
 const attr = (html, re) => (html.match(re) || [])[1];
 
@@ -134,7 +134,7 @@ function person() {
     "@type": "Person",
     name: "Bharath Mandha",
     url: SITE,
-    jobTitle: "AI Engineer",
+    jobTitle: "AI/ML Engineer",
     worksFor: { "@type": "Organization", name: "Goldman Sachs" },
     alumniOf: { "@type": "CollegeOrUniversity", name: "University of North Texas" },
     address: { "@type": "PostalAddress", addressLocality: "Dallas", addressRegion: "TX", addressCountry: "US" },
