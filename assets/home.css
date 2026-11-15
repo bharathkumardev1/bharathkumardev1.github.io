@@ -1,11 +1,11 @@
-@font-face{font-family:"Public";src:url(fonts/public-sans-latin-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Inter";src:url(fonts/inter-latin-wght-normal.woff2) format("woff2");font-weight:400 800;font-display:swap}
 /* Layout: one calm column of sections, rounded cards in two-up grids, a timeline for experience. */
 :root{
   --bg:#FFFFFF;--bg-2:#F7F9FC;--card:#FFFFFF;--ink:#0F1D2E;--ink-2:#4B586B;--ink-3:#5F6B7D;--line:#E3E8EF;--line-2:#D2DAE5;
   --blue:#0064E0;--blue-ink:#004AAD;--blue-tint:#E8F1FF;--blue-line:#B9D4FB;
   --good:#047857;
   --t1:#EEF4FF;--t1i:#0A56C4;--t2:#F6F0FF;--t2i:#6D28D9;--t3:#ECFDF5;--t3i:#047857;--t4:#FFF4EC;--t4i:#C2410C;
-  --sans:"Public",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:light;
 }

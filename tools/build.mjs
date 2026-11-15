@@ -44,7 +44,7 @@ function head(p, html) {
     og ? `<meta property="og:image" content="${SITE}${ogFile}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : "",
   ] : [];
   return [
-    `<link rel="preload" href="${p}assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>`,
+    `<link rel="preload" href="${p}assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>`,
     `<link rel="stylesheet" href="${p}assets/site.css">`,
     `<link rel="icon" href="${FAVICON}">`,
     icon ? `<link rel="apple-touch-icon" href="${p}assets/icon-180.png">` : "",

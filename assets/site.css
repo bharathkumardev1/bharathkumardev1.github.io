@@ -4,9 +4,9 @@
    color-blind readers on both themes. */
 
 @font-face {
-  font-family: "Public Sans";
-  src: url("fonts/public-sans-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900;
+  font-family: "Inter";
+  src: url("fonts/inter-latin-wght-normal.woff2") format("woff2");
+  font-weight: 400 800;
   font-style: normal;
   font-display: swap;
 }
@@ -29,7 +29,7 @@
   --track: #e4eaf2;
   --miss: #b42318;
   --lift: 0 1px 0 rgba(15, 29, 46, 0.04), 0 18px 40px -24px rgba(15, 29, 46, 0.28);
-  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --doc: "Times New Roman", Times, "Liberation Serif", serif;
   --wide: 72rem;
   --gutter: clamp(1rem, 4vw, 2.5rem);
