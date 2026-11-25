@@ -90,7 +90,7 @@
       <div class="foot-links"><a href="https://github.com/bharathkumardev1/finance-rag-eval"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>GitHub</a><a href="projects/finance-rag-eval/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Case study</a></div>
     </article>
     <article class="card">
-      <div class="top-row"><h3>Retrieval over 2.68M Wikipedia passages</h3><a class="pill" href="https://youtu.be/5vtW4iaUe3A">Demo video <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a></div>
+      <div class="top-row"><h3>Retrieval over 2.68M Wikipedia passages</h3></div>
       <p class="plain">A search engine over 2.7 million Wikipedia passages. My tuned model ranks the right answers higher than the standard keyword method does: 0.402 against 0.290 on a standard score. The hybrid and reranker weren't run on the full corpus, and the README says so.</p>
       <div class="tscroll"><table class="m"><thead><tr><th>Measure</th><th>Result</th></tr></thead><tbody><tr><td>nDCG@10, full corpus</td><td>0.402 vs 0.290 BM25</td></tr><tr><td>LoRA over untuned encoder</td><td>+0.014 (permutation p 0.00012)</td></tr><tr><td>INT8 cross-encoder, 104K dev slice</td><td>+0.0941 at 794 ms p50</td></tr><tr><td>Queries, passages</td><td>3,452, 2,681,468</td></tr></tbody></table></div>
       <div class="win blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>0.112 nDCG@10 above a BM25 baseline on the full corpus</span></div>
@@ -98,7 +98,7 @@
       <div class="foot-links"><a href="https://github.com/bharathkumardev1/wiki-retrieval"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>GitHub</a><a href="projects/wiki-retrieval/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Case study</a></div>
     </article>
     <article class="card">
-      <div class="top-row"><h3>Forecasting taxi demand one hour ahead</h3><a class="pill" href="https://youtu.be/Hd28gbz9jy0">Walkthrough <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a></div>
+      <div class="top-row"><h3>Forecasting taxi demand one hour ahead</h3></div>
       <p class="plain">Predicts taxi pickups for each of 262 New York zones in 15-minute windows. Its error is 22% lower than the best simple baseline. If the model goes down, a Java gateway with a circuit breaker serves a stored forecast.</p>
       <div class="tscroll"><table class="m"><thead><tr><th>Measure</th><th>Result</th></tr></thead><tbody><tr><td>WAPE, lower is better</td><td>0.2415 vs 0.3104</td></tr><tr><td>Model killed, fallback served</td><td>40 of 40 requests</td></tr><tr><td>PSI drift monitor</td><td>36 false alarms in 1,776 clean checks</td></tr></tbody></table></div>
       <div class="win"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>22% lower WAPE than the best simple baseline</span></div>
